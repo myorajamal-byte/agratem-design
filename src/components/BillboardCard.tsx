@@ -12,7 +12,7 @@ interface BillboardCardProps {
 }
 
 export default function BillboardCard({ billboard, isSelected, onToggleSelection, onViewImage }: BillboardCardProps) {
-  // حساب الأيام المتبقية للانتهاء
+  // حساب الأيام المتبقية لل��نتهاء
   const getDaysRemaining = () => {
     if (!billboard.expiryDate) return null
 
@@ -77,12 +77,12 @@ export default function BillboardCard({ billboard, isSelected, onToggleSelection
           </div>
 
           <div className="space-y-2">
-            <div className="flex items-start text-gray-700 justify-between" dir="rtl">
-              <div className="text-right flex-1 mr-2">
+            <div className="flex items-start text-gray-700" dir="rtl">
+              <MapPin className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5 ml-2" />
+              <div className="text-right flex-1">
                 <p className="text-lg font-black leading-snug text-gray-800 font-sans" dir="rtl">{billboard.location}</p>
                 <p className="text-base text-gray-700 mt-1 font-bold font-sans" dir="rtl">{billboard.area}</p>
               </div>
-              <MapPin className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" />
             </div>
           </div>
 
@@ -116,7 +116,7 @@ export default function BillboardCard({ billboard, isSelected, onToggleSelection
                   {billboard.expiryDate && (
                     <div className="flex justify-between" dir="rtl">
                       <span className="text-sm text-blue-900 font-bold font-sans">{billboard.expiryDate}</span>
-                      <span className="text-sm text-blue-700 font-semibold font-sans">:تاريخ الانتهاء</span>
+                      <span className="text-sm text-blue-700 font-semibold font-sans">:ت��ريخ الانتهاء</span>
                     </div>
                   )}
                 </div>
@@ -168,7 +168,7 @@ export default function BillboardCard({ billboard, isSelected, onToggleSelection
               onClick={() => window.open(billboard.gpsLink, "_blank")}
               dir="rtl"
             >
-              <span dir="rtl">عرض الموقع على الخريطة</span>
+              <span dir="rtl">عرض الموقع على ��لخريطة</span>
               <MapPin className="w-4 h-4 mr-2" />
             </Button>
           </div>
