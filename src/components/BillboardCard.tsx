@@ -44,11 +44,12 @@ export default function BillboardCard({ billboard, isSelected, onToggleSelection
         </Badge>
         <Button
           size="sm"
-          className="absolute top-4 left-12 bg-black/80 hover:bg-black text-white rounded-full px-4 py-2 shadow-lg"
+          className="absolute top-4 left-12 bg-black/80 hover:bg-black text-white rounded-full px-4 py-2 shadow-lg font-sans"
           onClick={() => onViewImage(billboard.imageUrl)}
+          dir="rtl"
         >
-          <Eye className="w-4 h-4 ml-1" />
-          عرض
+          <span dir="rtl">عرض</span>
+          <Eye className="w-4 h-4 mr-1" />
         </Button>
       </div>
 
