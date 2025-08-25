@@ -86,21 +86,44 @@ export default function InteractiveMap({ billboards, onImageView }: InteractiveM
         billboardId: billboard.id,
       }).addTo(map)
 
+      // تحديد لون شارة الحالة في النافذة المنبثقة
+      const getStatusBadgeClass = (status: string) => {
+        switch (status) {
+          case "متاح":
+            return "bg-green-100 text-green-800"
+          case "قريباً":
+            return "bg-red-100 text-red-800"
+          case "محجوز":
+            return "bg-orange-100 text-orange-800"
+          default:
+            return "bg-gray-100 text-gray-800"
+        }
+      }
+
+      const statusBadgeClass = getStatusBadgeClass(billboard.status)
+
       const popupContent = `
-        <div class="p-3 min-w-64">
-          <h3 class="font-bold text-lg mb-2">${billboard.name}</h3>
-          <p class="text-gray-600 mb-2">${billboard.location}</p>
-          <div class="flex flex-wrap gap-2 mb-3">
+        <div class="p-3 min-w-64" dir="rtl">
+          <h3 class="font-bold text-lg mb-2 text-right">${billboard.name}</h3>
+          <p class="text-gray-600 mb-2 text-right">${billboard.location}</p>
+          <div class="flex flex-wrap gap-2 mb-3 justify-end">
             <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs">${billboard.size}</span>
             <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">${billboard.municipality}</span>
-            <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">${billboard.status}</span>
+            <span class="${statusBadgeClass} px-2 py-1 rounded-full text-xs font-bold">${billboard.status}</span>
           </div>
-          <div class="flex gap-2">
-            <button onclick="document.dispatchEvent(new CustomEvent('showBillboardImage', {detail: '${billboard.imageUrl}'}))" 
+          ${billboard.status === "قريباً" && billboard.expiryDate ? `
+            <div class="mb-3 text-center">
+              <span class="bg-red-50 text-red-700 px-2 py-1 rounded-full text-xs font-bold border border-red-200">
+                ينتهي في: ${billboard.expiryDate}
+              </span>
+            </div>
+          ` : ''}
+          <div class="flex gap-2 justify-center">
+            <button onclick="document.dispatchEvent(new CustomEvent('showBillboardImage', {detail: '${billboard.imageUrl}'}))"
                     class="bg-yellow-500 hover:bg-yellow-600 text-black px-3 py-1 rounded-full text-xs font-bold">
               عرض الصورة
             </button>
-            <button onclick="window.open('${billboard.gpsLink}', '_blank')" 
+            <button onclick="window.open('${billboard.gpsLink}', '_blank')"
                     class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-bold">
               خرائط جوجل
             </button>
@@ -114,7 +137,7 @@ export default function InteractiveMap({ billboards, onImageView }: InteractiveM
 
   useEffect(() => {
     const initializeMap = async () => {
-      // تحميل CSS الخاص بـ Leaflet
+      // تحمي�� CSS الخاص بـ Leaflet
       if (!document.querySelector('link[href*="leaflet"]')) {
         const leafletCSS = document.createElement("link")
         leafletCSS.rel = "stylesheet"
