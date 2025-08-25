@@ -138,7 +138,7 @@ async function readExcelFromUrl(url: string, timeoutMs = 10000, retries = 2) {
 
       return buffer
     } catch (error: any) {
-      console.warn(`[Service] فشلت المحاولة ${attempt}:`, error.message)
+      console.warn(`[Service] فشلت المحا��لة ${attempt}:`, error.message)
 
       if (attempt === retries) {
         throw error
@@ -282,6 +282,7 @@ function processBillboardData(billboard: any, index: number): Billboard {
         if (diffDays <= 30 && diffDays > 0) {
           status = "قريباً"
         } else if (diffDays <= 0) {
+          // إذا انتهت المدة، تصبح اللوحة متاحة
           status = "متاح"
         }
       } else {
