@@ -114,7 +114,7 @@ export default function InteractiveMap({ billboards, onImageView }: InteractiveM
           ${billboard.status === "قريباً" && billboard.expiryDate ? `
             <div class="mb-3 text-center">
               <span class="bg-red-50 text-red-700 px-2 py-1 rounded-full text-xs font-bold border border-red-200">
-                ينتهي في: ${billboard.expiryDate}
+                ينت��ي في: ${billboard.expiryDate}
               </span>
             </div>
           ` : ''}
@@ -137,7 +137,7 @@ export default function InteractiveMap({ billboards, onImageView }: InteractiveM
 
   useEffect(() => {
     const initializeMap = async () => {
-      // تحمي�� CSS الخاص بـ Leaflet
+      // تحميل CSS الخاص بـ Leaflet
       if (!document.querySelector('link[href*="leaflet"]')) {
         const leafletCSS = document.createElement("link")
         leafletCSS.rel = "stylesheet"
@@ -231,6 +231,20 @@ export default function InteractiveMap({ billboards, onImageView }: InteractiveM
             <p className="text-center mt-2 text-sm font-semibold">
               يمكنك التحرك والتكبير بحرية - النقاط مثبتة على الإحداثيات الصحيحة
             </p>
+            <div className="flex justify-center gap-4 mt-3 text-xs">
+              <div className="flex items-center gap-1">
+                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                <span>متاح</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                <span>قريباً</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
+                <span>محجوز</span>
+              </div>
+            </div>
           </div>
           <div className="h-96 relative">
             <div ref={mapRef} className="w-full h-full" style={{ minHeight: "400px" }} />
