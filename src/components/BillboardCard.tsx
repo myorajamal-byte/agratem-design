@@ -70,35 +70,35 @@ export default function BillboardCard({ billboard, isSelected, onToggleSelection
 
           {/* بيانات العميل - Client Information */}
           {billboard.contractNumber && billboard.contractNumber.trim() !== '' && (
-            <div className="space-y-2 border-t border-gray-200 pt-3">
+            <div className="space-y-2 border-t border-gray-200 pt-3" dir="rtl">
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                <h4 className="text-sm font-bold text-blue-800 mb-2 text-right">بيانات الحجز</h4>
+                <h4 className="text-sm font-bold text-blue-800 mb-2 text-right font-sans" dir="rtl">بيانات الحجز</h4>
                 <div className="space-y-1 text-right">
-                  <div className="flex justify-between">
-                    <span className="text-sm text-blue-700 font-semibold">رقم العقد:</span>
-                    <span className="text-sm text-blue-900 font-bold">{billboard.contractNumber}</span>
+                  <div className="flex justify-between" dir="rtl">
+                    <span className="text-sm text-blue-900 font-bold font-sans">{billboard.contractNumber}</span>
+                    <span className="text-sm text-blue-700 font-semibold font-sans">:رقم العقد</span>
                   </div>
                   {billboard.clientName && billboard.clientName.trim() !== '' ? (
-                    <div className="flex justify-between">
-                      <span className="text-sm text-blue-700 font-semibold">العميل:</span>
-                      <span className="text-sm text-blue-900 font-bold">{billboard.clientName}</span>
+                    <div className="flex justify-between" dir="rtl">
+                      <span className="text-sm text-blue-900 font-bold font-sans">{billboard.clientName}</span>
+                      <span className="text-sm text-blue-700 font-semibold font-sans">:العميل</span>
                     </div>
                   ) : (
-                    <div className="flex justify-between">
-                      <span className="text-sm text-blue-700 font-semibold">العميل:</span>
-                      <span className="text-sm text-gray-500 font-bold">غير محدد</span>
+                    <div className="flex justify-between" dir="rtl">
+                      <span className="text-sm text-gray-500 font-bold font-sans">غير محدد</span>
+                      <span className="text-sm text-blue-700 font-semibold font-sans">:العميل</span>
                     </div>
                   )}
                   {billboard.advertisementType && (
-                    <div className="flex justify-between">
-                      <span className="text-sm text-blue-700 font-semibold">نوع الإعلان:</span>
-                      <span className="text-sm text-blue-900 font-bold">{billboard.advertisementType}</span>
+                    <div className="flex justify-between" dir="rtl">
+                      <span className="text-sm text-blue-900 font-bold font-sans">{billboard.advertisementType}</span>
+                      <span className="text-sm text-blue-700 font-semibold font-sans">:نوع الإعلان</span>
                     </div>
                   )}
                   {billboard.expiryDate && (
-                    <div className="flex justify-between">
-                      <span className="text-sm text-blue-700 font-semibold">تاريخ الانتهاء:</span>
-                      <span className="text-sm text-blue-900 font-bold">{billboard.expiryDate}</span>
+                    <div className="flex justify-between" dir="rtl">
+                      <span className="text-sm text-blue-900 font-bold font-sans">{billboard.expiryDate}</span>
+                      <span className="text-sm text-blue-700 font-semibold font-sans">:تاريخ الانتهاء</span>
                     </div>
                   )}
                 </div>
