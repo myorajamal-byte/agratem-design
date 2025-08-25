@@ -109,7 +109,7 @@ export default function BillboardCard({ billboard, isSelected, onToggleSelection
                   )}
                   {billboard.advertisementType && (
                     <div className="flex" dir="rtl" style={{justifyContent: 'space-between'}}>
-                      <span className="text-sm text-blue-700 font-semibold font-sans">:ن��ع الإعلان</span>
+                      <span className="text-sm text-blue-700 font-semibold font-sans">:نوع الإعلان</span>
                       <span className="text-sm text-blue-900 font-bold font-sans">{billboard.advertisementType}</span>
                     </div>
                   )}
@@ -124,8 +124,11 @@ export default function BillboardCard({ billboard, isSelected, onToggleSelection
             </div>
           )}
 
-          <div className="flex items-center justify-between gap-2 py-2" dir="rtl">
-            <div className="flex flex-col items-start gap-1">
+          <div className="flex items-center gap-2 py-2" dir="rtl" style={{justifyContent: 'space-between'}}>
+            <Badge className="bg-yellow-50 text-yellow-800 border border-yellow-200 px-3 py-1.5 rounded-full font-black text-sm font-sans" dir="rtl">
+              {billboard.municipality}
+            </Badge>
+            <div className="flex flex-col items-end gap-1">
               <Badge
                 className={`border px-3 py-1.5 rounded-full font-black text-sm font-sans ${
                   billboard.status === "متاح"
@@ -157,9 +160,6 @@ export default function BillboardCard({ billboard, isSelected, onToggleSelection
                 </div>
               )}
             </div>
-            <Badge className="bg-yellow-50 text-yellow-800 border border-yellow-200 px-3 py-1.5 rounded-full font-black text-sm font-sans" dir="rtl">
-              {billboard.municipality}
-            </Badge>
           </div>
 
           <div className="pt-1">
