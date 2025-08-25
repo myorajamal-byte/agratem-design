@@ -37,10 +37,42 @@ body {
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
   direction: rtl;
+  text-align: right;
+  unicode-bidi: embed;
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Tajawal', 'Inter', sans-serif;
+  direction: rtl;
+  text-align: right;
+}
+
+/* تحسينات للنصوص العربية */
+.font-sans {
+  font-family: 'Tajawal', 'Inter', sans-serif !important;
+  direction: rtl;
+}
+
+/* تحسين عرض النصوص في الكروت */
+[dir="rtl"] {
+  text-align: right;
+  direction: rtl;
+}
+
+/* تحسين عرض الأزرار والعناصر التفاعلية */
+button[dir="rtl"], .button[dir="rtl"] {
+  direction: rtl;
+  text-align: center;
+}
+
+/* تحسين عرض النصوص في البادجز */
+.badge[dir="rtl"] {
+  direction: rtl;
+}
+
+/* تأكد من أن النصوص العربية تظهر بشكل صحيح */
+* {
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1, "pnum" 1, "tnum" 0, "onum" 1, "lnum" 0, "dlig" 0;
 }
 
 .custom-billboard-icon {
