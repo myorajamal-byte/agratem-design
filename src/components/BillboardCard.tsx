@@ -131,9 +131,9 @@ export default function BillboardCard({ billboard, isSelected, onToggleSelection
                   billboard.status === "متاح"
                     ? "bg-green-50 text-green-800 border-green-200"
                     : billboard.status === "قريباً"
-                      ? "bg-orange-50 text-orange-800 border-orange-200"
+                      ? "bg-red-50 text-red-800 border-red-200"
                       : billboard.status === "محجوز"
-                        ? "bg-red-50 text-red-800 border-red-200"
+                        ? "bg-orange-50 text-orange-800 border-orange-200"
                         : "bg-gray-50 text-gray-800 border-gray-200"
                 }`}
                 dir="rtl"
@@ -142,7 +142,7 @@ export default function BillboardCard({ billboard, isSelected, onToggleSelection
               </Badge>
               {/* عرض عداد الأيام المتبقية للحالة "قريباً" */}
               {billboard.status === "قريباً" && daysRemaining !== null && (
-                <div className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full border border-orange-200 font-bold font-sans" dir="rtl">
+                <div className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full border border-red-200 font-bold font-sans" dir="rtl">
                   {daysRemaining === 0 ? (
                     <span>ينتهي اليوم</span>
                   ) : daysRemaining === 1 ? (
