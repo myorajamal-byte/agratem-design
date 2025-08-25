@@ -153,10 +153,12 @@ async function readExcelFromUrl(url: string, timeoutMs = 10000, retries = 2) {
 
 function safeReadExcel(fileBuffer: ArrayBuffer) {
   const readOptions = [
+    { type: "array" as const, cellDates: true, codepage: 65001, dateNF: "yyyy-mm-dd" },
+    { type: "array" as const, cellDates: true, codepage: 1256, dateNF: "yyyy-mm-dd" },
+    { type: "array" as const, cellDates: true, raw: false },
     { type: "array" as const, codepage: 65001 },
     { type: "array" as const, codepage: 1256 },
     { type: "array" as const, raw: true },
-    { type: "array" as const, cellDates: true, dateNF: "yyyy-mm-dd" },
     { type: "array" as const, bookVBA: false, bookSheets: true },
   ]
 
@@ -173,6 +175,61 @@ function safeReadExcel(fileBuffer: ArrayBuffer) {
   }
 
   throw new Error("فشل في قراءة ملف الإكسل بجميع الخيارات المتاحة")
+}
+
+// دالة لتحويل التاريخ من Excel إلى تاريخ JavaScript صحيح
+function parseExcelDate(dateValue: any): Date | null {
+  if (!dateValue) return null
+
+  // إذا كان التاريخ بالفعل كائن Date
+  if (dateValue instanceof Date) {
+    return isNaN(dateValue.getTime()) ? null : dateValue
+  }
+
+  // إذا كان رقم (Excel serial date)
+  if (typeof dateValue === 'number') {
+    try {
+      const excelDate = XLSX.SSF.parse_date_code(dateValue)
+      if (excelDate) {
+        return new Date(excelDate.y, excelDate.m - 1, excelDate.d)
+      }
+    } catch (error) {
+      console.warn("[Service] فشل في تحويل الرقم التسلسلي للتاريخ:", dateValue, error)
+    }
+  }
+
+  // إذا كان نص
+  if (typeof dateValue === 'string') {
+    const dateStr = dateValue.trim()
+    if (!dateStr) return null
+
+    // محاولة تحويل النص إلى تاريخ
+    const formats = [
+      // صيغ التاريخ المختلفة
+      /^\d{4}-\d{2}-\d{2}$/, // 2024-12-31
+      /^\d{2}\/\d{2}\/\d{4}$/, // 31/12/2024
+      /^\d{1,2}\/\d{1,2}\/\d{4}$/, // 1/1/2024
+      /^\d{4}\/\d{2}\/\d{2}$/, // 2024/12/31
+    ]
+
+    for (const format of formats) {
+      if (format.test(dateStr)) {
+        const date = new Date(dateStr)
+        if (!isNaN(date.getTime())) {
+          return date
+        }
+      }
+    }
+
+    // محاولة أخيرة مع Date constructor
+    const date = new Date(dateStr)
+    if (!isNaN(date.getTime())) {
+      return date
+    }
+  }
+
+  console.warn("[Service] لا يمكن تحويل القيمة إلى تاريخ:", dateValue, typeof dateValue)
+  return null
 }
 
 export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
@@ -270,7 +327,7 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
         const name = billboard['اسم لوحة'] || billboard['اسم اللوحة'] || `لوحة-${index + 1}`
         const location = billboard['اقرب نقطة دالة'] || billboard['أقرب نقطة دالة'] || 'موقع غير محدد'
         const municipality = billboard['البلدية'] || '��ير محدد'
-        const city = billboard['مدينة'] || billboard['المدينة'] || 'غير محدد'
+        const city = billboard['مدينة'] || billboard['المدينة'] || 'غ��ر محدد'
         const area = billboard['منطقة'] || billboard['المنطقة'] || municipality
         const size = billboard['حجم'] || billboard['الحجم'] || billboard['المقاس مع الدغاية'] || '12X4'
         const coordinates = billboard['احداثي - GPS'] || billboard['الإحداثيات GPS'] || '32.8872,13.1913'
