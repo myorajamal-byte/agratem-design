@@ -103,29 +103,62 @@ export default function InteractiveMap({ billboards, onImageView }: InteractiveM
       const statusBadgeClass = getStatusBadgeClass(billboard.status)
 
       const popupContent = `
-        <div class="p-3 min-w-64" dir="rtl">
-          <h3 class="font-bold text-lg mb-2 text-right">${billboard.name}</h3>
-          <p class="text-gray-600 mb-2 text-right">${billboard.location}</p>
-          <div class="flex flex-wrap gap-2 mb-3 justify-end">
-            <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs">${billboard.size}</span>
-            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">${billboard.municipality}</span>
+        <div class="p-4 min-w-72" dir="rtl" style="font-family: 'Tajawal', Arial, sans-serif; direction: rtl; text-align: right;">
+          <h3 class="font-bold text-lg mb-2" style="direction: rtl; text-align: right;">${billboard.name}</h3>
+          <p class="text-gray-600 mb-3" style="direction: rtl; text-align: right;">${billboard.location}</p>
+          
+          <div class="flex flex-wrap gap-2 mb-3" style="justify-content: flex-end;">
+            <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-bold">${billboard.size}</span>
+            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-bold">${billboard.municipality}</span>
             <span class="${statusBadgeClass} px-2 py-1 rounded-full text-xs font-bold">${billboard.status}</span>
           </div>
+          
+          ${billboard.contractNumber && billboard.contractNumber.trim() !== '' ? `
+            <div class="mb-3 bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <h4 class="text-sm font-bold text-blue-800 mb-2" style="direction: rtl; text-align: right;">بيانات العميل</h4>
+              <div class="space-y-1">
+                <div class="flex text-xs" style="direction: rtl; justify-content: space-between;">
+                  <span class="text-blue-700 font-semibold">:رقم العقد</span>
+                  <span class="text-blue-900 font-bold">${billboard.contractNumber}</span>
+                </div>
+                ${billboard.clientName && billboard.clientName.trim() !== '' ? `
+                  <div class="flex text-xs" style="direction: rtl; justify-content: space-between;">
+                    <span class="text-blue-700 font-semibold">:اسم العميل</span>
+                    <span class="text-blue-900 font-bold">${billboard.clientName}</span>
+                  </div>
+                ` : ''}
+                ${billboard.advertisementType && billboard.advertisementType.trim() !== '' ? `
+                  <div class="flex text-xs" style="direction: rtl; justify-content: space-between;">
+                    <span class="text-blue-700 font-semibold">:نوع الإعلان</span>
+                    <span class="text-blue-900 font-bold">${billboard.advertisementType}</span>
+                  </div>
+                ` : ''}
+                ${billboard.expiryDate ? `
+                  <div class="flex text-xs" style="direction: rtl; justify-content: space-between;">
+                    <span class="text-blue-700 font-semibold">:تاريخ الانتهاء</span>
+                    <span class="text-blue-900 font-bold">${billboard.expiryDate}</span>
+                  </div>
+                ` : ''}
+              </div>
+            </div>
+          ` : ''}
+          
           ${billboard.status === "قريباً" && billboard.expiryDate ? `
             <div class="mb-3 text-center">
               <span class="bg-red-50 text-red-700 px-2 py-1 rounded-full text-xs font-bold border border-red-200">
-                ينت��ي في: ${billboard.expiryDate}
+                ينتهي في: ${billboard.expiryDate}
               </span>
             </div>
           ` : ''}
-          <div class="flex gap-2 justify-center">
+          
+          <div class="flex gap-2" style="justify-content: center;">
+            <button onclick="window.open('${billboard.gpsLink}', '_blank')" 
+                    class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-bold">
+              خرائط جوجل
+            </button>
             <button onclick="document.dispatchEvent(new CustomEvent('showBillboardImage', {detail: '${billboard.imageUrl}'}))"
                     class="bg-yellow-500 hover:bg-yellow-600 text-black px-3 py-1 rounded-full text-xs font-bold">
               عرض الصورة
-            </button>
-            <button onclick="window.open('${billboard.gpsLink}', '_blank')"
-                    class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-bold">
-              خرائط جوجل
             </button>
           </div>
         </div>
@@ -184,7 +217,7 @@ export default function InteractiveMap({ billboards, onImageView }: InteractiveM
         window.L.marker([32.4847, 14.5959], { icon: companyIcon })
           .addTo(map)
           .bindPopup(`
-            <div class="text-center p-4">
+            <div class="text-center p-4" dir="rtl" style="font-family: 'Tajawal', Arial, sans-serif;">
               <div class="flex flex-col items-center mb-3">
                 <img src="/logo-symbol.svg" alt="شعار الشركة" class="w-12 h-12 object-contain mb-2" />
               </div>
