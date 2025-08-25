@@ -12,6 +12,23 @@ interface BillboardCardProps {
 }
 
 export default function BillboardCard({ billboard, isSelected, onToggleSelection, onViewImage }: BillboardCardProps) {
+  // حساب الأيام المتبقية للانتهاء
+  const getDaysRemaining = () => {
+    if (!billboard.expiryDate) return null
+
+    const today = new Date()
+    const expiryDate = new Date(billboard.expiryDate)
+    today.setHours(0, 0, 0, 0)
+    expiryDate.setHours(0, 0, 0, 0)
+
+    const diffTime = expiryDate.getTime() - today.getTime()
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+
+    return diffDays > 0 ? diffDays : 0
+  }
+
+  const daysRemaining = getDaysRemaining()
+
   return (
     <Card
       className={`overflow-hidden hover:shadow-2xl transition-all duration-500 border-2 bg-white/80 backdrop-blur-sm ${
