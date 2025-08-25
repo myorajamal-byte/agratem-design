@@ -106,12 +106,9 @@ export default function BillboardCard({ billboard, isSelected, onToggleSelection
             </div>
           )}
 
-          <div className="flex items-center justify-between gap-2 py-2">
-            <Badge className="bg-yellow-50 text-yellow-800 border border-yellow-200 px-3 py-1.5 rounded-full font-black text-sm">
-              {billboard.municipality}
-            </Badge>
+          <div className="flex items-center justify-between gap-2 py-2" dir="rtl">
             <Badge
-              className={`border px-3 py-1.5 rounded-full font-black text-sm ${
+              className={`border px-3 py-1.5 rounded-full font-black text-sm font-sans ${
                 billboard.status === "متاح"
                   ? "bg-green-50 text-green-800 border-green-200"
                   : billboard.status === "قريباً"
@@ -120,18 +117,23 @@ export default function BillboardCard({ billboard, isSelected, onToggleSelection
                       ? "bg-red-50 text-red-800 border-red-200"
                       : "bg-gray-50 text-gray-800 border-gray-200"
               }`}
+              dir="rtl"
             >
               {billboard.status}
+            </Badge>
+            <Badge className="bg-yellow-50 text-yellow-800 border border-yellow-200 px-3 py-1.5 rounded-full font-black text-sm font-sans" dir="rtl">
+              {billboard.municipality}
             </Badge>
           </div>
 
           <div className="pt-1">
             <Button
-              className="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-black font-black py-3 rounded-xl shadow-lg transform hover:scale-[1.02] transition-all duration-300 text-base"
+              className="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-black font-black py-3 rounded-xl shadow-lg transform hover:scale-[1.02] transition-all duration-300 text-base font-sans"
               onClick={() => window.open(billboard.gpsLink, "_blank")}
+              dir="rtl"
             >
-              <MapPin className="w-4 h-4 ml-2" />
-              عرض الموقع على الخريطة
+              <span dir="rtl">عرض الموقع على الخريطة</span>
+              <MapPin className="w-4 h-4 mr-2" />
             </Button>
           </div>
         </div>
