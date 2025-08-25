@@ -12,7 +12,7 @@ interface BillboardCardProps {
 }
 
 export default function BillboardCard({ billboard, isSelected, onToggleSelection, onViewImage }: BillboardCardProps) {
-  // حساب الأيام المتبقية لل��نتهاء
+  // حساب الأيام المتبقية للانتهاء
   const getDaysRemaining = () => {
     if (!billboard.expiryDate) return null
 
@@ -92,31 +92,31 @@ export default function BillboardCard({ billboard, isSelected, onToggleSelection
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
                 <h4 className="text-sm font-bold text-blue-800 mb-2 text-right font-sans" dir="rtl">بيانات الحجز</h4>
                 <div className="space-y-1 text-right">
-                  <div className="flex justify-between" dir="rtl">
-                    <span className="text-sm text-blue-900 font-bold font-sans">{billboard.contractNumber}</span>
+                  <div className="flex" dir="rtl" style={{justifyContent: 'space-between'}}>
                     <span className="text-sm text-blue-700 font-semibold font-sans">:رقم العقد</span>
+                    <span className="text-sm text-blue-900 font-bold font-sans">{billboard.contractNumber}</span>
                   </div>
                   {billboard.clientName && billboard.clientName.trim() !== '' ? (
-                    <div className="flex justify-between" dir="rtl">
-                      <span className="text-sm text-blue-900 font-bold font-sans">{billboard.clientName}</span>
+                    <div className="flex" dir="rtl" style={{justifyContent: 'space-between'}}>
                       <span className="text-sm text-blue-700 font-semibold font-sans">:العميل</span>
+                      <span className="text-sm text-blue-900 font-bold font-sans">{billboard.clientName}</span>
                     </div>
                   ) : (
-                    <div className="flex justify-between" dir="rtl">
-                      <span className="text-sm text-gray-500 font-bold font-sans">غير محدد</span>
+                    <div className="flex" dir="rtl" style={{justifyContent: 'space-between'}}>
                       <span className="text-sm text-blue-700 font-semibold font-sans">:العميل</span>
+                      <span className="text-sm text-gray-500 font-bold font-sans">غير محدد</span>
                     </div>
                   )}
                   {billboard.advertisementType && (
-                    <div className="flex justify-between" dir="rtl">
+                    <div className="flex" dir="rtl" style={{justifyContent: 'space-between'}}>
+                      <span className="text-sm text-blue-700 font-semibold font-sans">:ن��ع الإعلان</span>
                       <span className="text-sm text-blue-900 font-bold font-sans">{billboard.advertisementType}</span>
-                      <span className="text-sm text-blue-700 font-semibold font-sans">:نوع الإعلان</span>
                     </div>
                   )}
                   {billboard.expiryDate && (
-                    <div className="flex justify-between" dir="rtl">
+                    <div className="flex" dir="rtl" style={{justifyContent: 'space-between'}}>
+                      <span className="text-sm text-blue-700 font-semibold font-sans">:تاريخ الانتهاء</span>
                       <span className="text-sm text-blue-900 font-bold font-sans">{billboard.expiryDate}</span>
-                      <span className="text-sm text-blue-700 font-semibold font-sans">:ت��ريخ الانتهاء</span>
                     </div>
                   )}
                 </div>
@@ -168,7 +168,7 @@ export default function BillboardCard({ billboard, isSelected, onToggleSelection
               onClick={() => window.open(billboard.gpsLink, "_blank")}
               dir="rtl"
             >
-              <span dir="rtl">عرض الموقع على ��لخريطة</span>
+              <span dir="rtl">عرض الموقع على الخريطة</span>
               <MapPin className="w-4 h-4 mr-2" />
             </Button>
           </div>
