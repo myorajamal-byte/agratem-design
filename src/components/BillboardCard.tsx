@@ -167,9 +167,10 @@ export default function BillboardCard({ billboard, isSelected, onToggleSelection
               className="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-black font-black py-3 rounded-xl shadow-lg transform hover:scale-[1.02] transition-all duration-300 text-base font-sans"
               onClick={() => window.open(billboard.gpsLink, "_blank")}
               dir="rtl"
+              style={{display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px'}}
             >
+              <MapPin className="w-4 h-4" />
               <span dir="rtl">عرض الموقع على الخريطة</span>
-              <MapPin className="w-4 h-4 mr-2" />
             </Button>
           </div>
         </div>
