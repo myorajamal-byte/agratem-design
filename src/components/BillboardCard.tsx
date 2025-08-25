@@ -125,20 +125,38 @@ export default function BillboardCard({ billboard, isSelected, onToggleSelection
           )}
 
           <div className="flex items-center justify-between gap-2 py-2" dir="rtl">
-            <Badge
-              className={`border px-3 py-1.5 rounded-full font-black text-sm font-sans ${
-                billboard.status === "متاح"
-                  ? "bg-green-50 text-green-800 border-green-200"
-                  : billboard.status === "قريباً"
-                    ? "bg-orange-50 text-orange-800 border-orange-200"
-                    : billboard.status === "محجوز"
-                      ? "bg-red-50 text-red-800 border-red-200"
-                      : "bg-gray-50 text-gray-800 border-gray-200"
-              }`}
-              dir="rtl"
-            >
-              {billboard.status}
-            </Badge>
+            <div className="flex flex-col items-start gap-1">
+              <Badge
+                className={`border px-3 py-1.5 rounded-full font-black text-sm font-sans ${
+                  billboard.status === "متاح"
+                    ? "bg-green-50 text-green-800 border-green-200"
+                    : billboard.status === "قريباً"
+                      ? "bg-orange-50 text-orange-800 border-orange-200"
+                      : billboard.status === "محجوز"
+                        ? "bg-red-50 text-red-800 border-red-200"
+                        : "bg-gray-50 text-gray-800 border-gray-200"
+                }`}
+                dir="rtl"
+              >
+                {billboard.status}
+              </Badge>
+              {/* عرض عداد الأيام المتبقية للحالة "قريباً" */}
+              {billboard.status === "قريباً" && daysRemaining !== null && (
+                <div className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full border border-orange-200 font-bold font-sans" dir="rtl">
+                  {daysRemaining === 0 ? (
+                    <span>ينتهي اليوم</span>
+                  ) : daysRemaining === 1 ? (
+                    <span>يوم واحد متبقي</span>
+                  ) : daysRemaining === 2 ? (
+                    <span>يومان متبقيان</span>
+                  ) : daysRemaining <= 10 ? (
+                    <span>{daysRemaining} أيام متبقية</span>
+                  ) : (
+                    <span>{daysRemaining} يوماً متبقياً</span>
+                  )}
+                </div>
+              )}
+            </div>
             <Badge className="bg-yellow-50 text-yellow-800 border border-yellow-200 px-3 py-1.5 rounded-full font-black text-sm font-sans" dir="rtl">
               {billboard.municipality}
             </Badge>
