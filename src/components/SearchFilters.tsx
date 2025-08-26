@@ -75,6 +75,21 @@ export default function SearchFilters({
           />
         </div>
 
+        {/* فلتر رقم العقد */}
+        <div className="max-w-md mx-auto mb-6">
+          <label className="block text-sm font-bold text-gray-700 mb-2 text-center">
+            البحث برقم العقد
+          </label>
+          <Input
+            type="text"
+            placeholder="أدخل رقم الع��د (مثال: 1108)"
+            value={contractFilter}
+            onChange={(e) => setContractFilter(e.target.value)}
+            className="text-center border-2 border-blue-300 focus:border-blue-500 rounded-full py-3 text-lg shadow-lg font-sans"
+            dir="rtl"
+          />
+        </div>
+
         <div className="flex flex-wrap gap-6 items-center justify-center">
           <div className="flex flex-wrap gap-4">
             <MultiSelect
