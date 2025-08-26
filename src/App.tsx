@@ -262,7 +262,8 @@ ${selectedBillboardsData
           .billboard-image {
             width: 60px;
             height: 45px;
-            object-fit: cover;
+            object-fit: contain;
+            background: #f8f9fa;
             border-radius: 3px;
             border: 1px solid #D4AF37;
             display: block;
