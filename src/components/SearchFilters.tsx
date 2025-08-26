@@ -109,7 +109,7 @@ export default function SearchFilters({
               dir="rtl"
             >
               <MapPin className="w-5 h-5" />
-              <span>{showMap ? "إ��فاء الخريطة" : "عرض الخريطة"}</span>
+              <span>{showMap ? "إخفاء الخريطة" : "عرض الخريطة"}</span>
             </Button>
 
             <button
@@ -117,8 +117,8 @@ export default function SearchFilters({
               className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-yellow-500 to-yellow-600 text-black rounded-xl hover:from-yellow-600 hover:to-yellow-700 transition-all duration-300 font-bold shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-yellow-400 font-sans"
               dir="rtl"
             >
-              <span className="text-sm" dir="rtl">حفظ التقرير PDF</span>
               <FileDown className="w-5 h-5" />
+              <span className="text-sm">حفظ التقرير PDF</span>
             </button>
 
             <div className="flex items-center gap-2">
