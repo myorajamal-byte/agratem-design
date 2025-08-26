@@ -58,40 +58,16 @@ export default function App() {
     const hasActiveFilters = searchTerm || selectedMunicipality !== "all" || selectedSize !== "all" || selectedAvailability !== "all"
 
     if (searchTerm) {
-      console.log('[DEBUG] البحث عن:', searchTerm)
-      console.log('[DEBUG] عدد اللوحات الإجمالي:', billboards.length)
-
-      // Log a few sample billboards to see what we're searching through
-      if (billboards.length > 0) {
-        console.log('[DEBUG] عينة من البيانات:', billboards.slice(0, 3).map(b => ({
-          name: b.name,
-          location: b.location,
-          municipality: b.municipality,
-          area: b.area
-        })))
-      }
-
       filtered = filtered.filter(
-        (billboard) => {
-          const searchLower = searchTerm.toLowerCase()
-          const matches = billboard.name.toLowerCase().includes(searchLower) ||
-            billboard.location.toLowerCase().includes(searchLower) ||
-            billboard.municipality.toLowerCase().includes(searchLower) ||
-            billboard.area.toLowerCase().includes(searchLower) ||
-            (billboard.clientName && billboard.clientName.toLowerCase().includes(searchLower)) ||
-            (billboard.contractNumber && billboard.contractNumber.toLowerCase().includes(searchLower)) ||
-            (billboard.advertisementType && billboard.advertisementType.toLowerCase().includes(searchLower))
-
-          // Log first few matches/non-matches for debugging
-          if (filtered.length < 5) {
-            console.log(`[DEBUG] ${billboard.name} - ${billboard.municipality} - يطابق: ${matches}`)
-          }
-
-          return matches
-        }
+        (billboard) =>
+          billboard.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          billboard.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          billboard.municipality.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          billboard.area.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (billboard.clientName && billboard.clientName.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          (billboard.contractNumber && billboard.contractNumber.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          (billboard.advertisementType && billboard.advertisementType.toLowerCase().includes(searchTerm.toLowerCase())),
       )
-
-      console.log('[DEBUG] عدد النتائج بعد البحث:', filtered.length)
     }
 
     if (selectedMunicipality !== "all") {
@@ -106,13 +82,13 @@ export default function App() {
       filtered = filtered.filter((billboard) => billboard.status === selectedAvailability)
     }
 
-    // If filters are active, automatically enable showAllBillboards for proper pagination
-    if (hasActiveFilters && !showAllBillboards) {
-      setShowAllBillboards(true)
+    // Reset pagination when filters change
+    if (hasActiveFilters) {
+      setCurrentPage(1)
     }
 
-    // Only limit results if no filters are active and showAllBillboards is false
-    if (!showAllBillboards && !hasActiveFilters) {
+    // Limit results if showAllBillboards is false (regardless of filters)
+    if (!showAllBillboards) {
       filtered = filtered.slice(0, 8)
       setCurrentPage(1)
     }
@@ -180,7 +156,7 @@ ${selectedBillboardsData
 
       window.open(mailtoLink, "_blank")
 
-      alert("تم فتح برنامج البريد الإلكتروني مع تفاصيل اللوحات المختارة!")
+      alert("تم فتح برنامج الب��يد الإلكتروني مع تفاصيل اللوحات المختارة!")
       setShowEmailDialog(false)
       clearSelection()
       setCustomerEmail("")
@@ -532,43 +508,12 @@ ${selectedBillboardsData
             <span className="font-black text-yellow-600">{filteredBillboards.length}</span> لوحة متاحة
           </p>
 
-          {/* اختبار البحث المؤقت */}
-          <div className="flex gap-2">
-            <Button
-              onClick={() => {
-                console.log('[TEST] اختبار البحث عن زلي')
-                setSearchTerm('زلي')
-              }}
-              className="bg-red-500 text-white text-xs px-3 py-1"
-            >
-              اختبار: زلي
-            </Button>
-            <Button
-              onClick={() => {
-                console.log('[TEST] اختبار البحث عن زليتن')
-                setSearchTerm('زليتن')
-              }}
-              className="bg-blue-500 text-white text-xs px-3 py-1"
-            >
-              اختبار: زليتن
-            </Button>
-            <Button
-              onClick={() => {
-                console.log('[TEST] مسح البحث')
-                setSearchTerm('')
-              }}
-              className="bg-gray-500 text-white text-xs px-3 py-1"
-            >
-              مسح
-            </Button>
-          </div>
-
-          {!showAllBillboards && billboards.length > 8 && (
+          {!showAllBillboards && filteredBillboards.length > 8 && (
             <Button
               onClick={() => setShowAllBillboards(true)}
               className="bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-black font-black px-8 py-3 rounded-full shadow-lg transform hover:scale-105 transition-all duration-300"
             >
-              عرض جميع اللوحات ({billboards.length})
+              عرض جميع اللوحات ({filteredBillboards.length})
             </Button>
           )}
 
