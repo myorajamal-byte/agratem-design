@@ -48,12 +48,12 @@ export default function SearchFilters({
   onPrint,
 }: SearchFiltersProps) {
   return (
-    <div className="relative z-30 bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl p-8 mb-12 border-4 border-yellow-300">
+    <div className="relative z-10 bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl p-8 mb-12 border-4 border-yellow-300">
       <div className="space-y-8" dir="rtl">
         <div className="text-center" style={{textAlign: 'center'}}>
           <h2 className="text-4xl font-black text-gray-900 mb-4 tracking-tight font-sans" style={{textAlign: 'center', direction: 'rtl'}}>ابحث عن موقعك الإعلاني المثالي</h2>
           <p className="text-xl text-gray-700 font-semibold font-sans" style={{textAlign: 'center', direction: 'rtl'}}>
-            اكتشف أفضل المواقع الإعلانية في ليبيا مع خدماتنا المتميزة
+            اكتشف أفضل ال��واقع الإعلانية في ليبيا مع خدماتنا المتميزة
           </p>
         </div>
 
