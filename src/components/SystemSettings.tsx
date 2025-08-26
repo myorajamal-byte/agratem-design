@@ -46,6 +46,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
     email: '',
     role: 'user' as 'admin' | 'user',
     permissions: [] as Permission[],
+    assignedClient: '',
     password: '',
     isActive: true
   })
@@ -164,7 +165,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
   }
 
   const handleDeleteUser = async (userId: string) => {
-    if (!window.confirm('هل أنت متأكد من حذف هذ�� المستخدم؟')) return
+    if (!window.confirm('هل أنت متأكد من حذف هذا المستخدم؟')) return
 
     setLoading(true)
     const result = authService.deleteUser(userId)
