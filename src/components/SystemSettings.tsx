@@ -115,6 +115,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
       email: newUser.email,
       role: newUser.role,
       permissions: newUser.role === 'admin' ? permissions : newUser.permissions,
+      assignedClient: newUser.assignedClient || undefined,
       isActive: newUser.isActive
     }, newUser.password)
 
