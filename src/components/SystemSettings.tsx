@@ -166,7 +166,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
     const result = authService.updatePassword(username, passwordForm.newPassword)
 
     if (result.success) {
-      setSuccess('تم تحديث كلمة المرور ��نجاح')
+      setSuccess('تم تحديث كلمة المرور بنجاح')
       setShowPasswordDialog(null)
       resetForms()
     } else {
@@ -400,23 +400,49 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
                   </div>
 
                   {newUser.role !== 'admin' && (
-                    <div>
-                      <label className="block text-sm font-bold text-gray-700 mb-2">
-                        الصلاحيات
-                      </label>
-                      <div className="space-y-2">
-                        {permissions.map((permission) => (
-                          <label key={permission.id} className="flex items-center gap-2">
-                            <input
-                              type="checkbox"
-                              checked={newUser.permissions.some(p => p.id === permission.id)}
-                              onChange={() => togglePermission(permission)}
-                            />
-                            <span className="text-sm">{permission.description}</span>
-                          </label>
-                        ))}
+                    <>
+                      <div>
+                        <label className="block text-sm font-bold text-gray-700 mb-2">
+                          الصلاحيات
+                        </label>
+                        <div className="space-y-2">
+                          {permissions.map((permission) => (
+                            <label key={permission.id} className="flex items-center gap-2">
+                              <input
+                                type="checkbox"
+                                checked={newUser.permissions.some(p => p.id === permission.id)}
+                                onChange={() => togglePermission(permission)}
+                              />
+                              <span className="text-sm">{permission.description}</span>
+                            </label>
+                          ))}
+                        </div>
                       </div>
-                    </div>
+
+                      {/* اختيار الزبون المخصص */}
+                      {newUser.permissions.some(p => p.name === 'view_specific_client') && (
+                        <div>
+                          <label className="block text-sm font-bold text-gray-700 mb-1">
+                            الزبون المخصص
+                          </label>
+                          <select
+                            value={newUser.assignedClient}
+                            onChange={(e) => setNewUser(prev => ({ ...prev, assignedClient: e.target.value }))}
+                            className="w-full border border-gray-300 rounded-md px-3 py-2"
+                          >
+                            <option value="">اختر زبون...</option>
+                            {clients.map((client) => (
+                              <option key={client.name} value={client.name}>
+                                {client.name} ({client.contractsCount} عقد)
+                              </option>
+                            ))}
+                          </select>
+                          <p className="text-xs text-gray-500 mt-1">
+                            هذا المستخدم سيرى فقط العقود الخاصة بالزبون المحدد
+                          </p>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
 
