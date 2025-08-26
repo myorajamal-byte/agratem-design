@@ -24,6 +24,7 @@ export interface User {
   email: string
   role: 'admin' | 'user'
   permissions: Permission[]
+  assignedClient?: string // اسم الزبون المخصص للمستخدم
   createdAt: string
   lastLogin?: string
   isActive: boolean
