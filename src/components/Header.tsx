@@ -63,7 +63,7 @@ export default function Header({ onOpenSettings }: HeaderProps) {
 
                 {/* قائمة المستخدم المنسدلة */}
                 {showUserMenu && (
-                  <div className="absolute left-0 top-full mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden z-50">
+                  <div className="absolute left-0 top-full mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden z-[9999]">
                     <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 p-4 text-black">
                       <div className="flex items-center gap-3">
                         <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
