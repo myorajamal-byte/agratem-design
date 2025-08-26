@@ -408,7 +408,11 @@ ${selectedBillboardsData
                 <td style="font-size: 8px;">${billboard.municipality}</td>
                 <td style="font-size: 8px;">${(billboard.area && !billboard.area.toString().includes('GMT')) ? billboard.area : billboard.municipality}</td>
                 <td style="font-weight: 500; font-size: 8px;">${billboard.size}</td>
-                <td><span class="status-available">متاح</span></td>
+                <td><span class="${
+                  billboard.status === 'متاح' ? 'status-available' :
+                  billboard.status === 'قريباً' ? 'status-soon' :
+                  billboard.status === 'محجوز' ? 'status-booked' : 'status-default'
+                }">${billboard.status}</span></td>
                 <td>
                   ${
                     billboard.coordinates
