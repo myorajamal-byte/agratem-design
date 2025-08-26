@@ -2,7 +2,7 @@
  * مكون رأس الصفحة - Header Component
  * يحتوي على شعار الشركة وزر الحجز الرئيسي
  * يعرض اسم الشركة باللغتين العربية والإنجليزية
- * يحتوي على معلومات المستخدم وأزرار المصادقة
+ * يحتوي على معل��مات المستخدم وأزرار المصادقة
  */
 
 import { useState } from "react"
@@ -24,7 +24,7 @@ export default function Header({ onOpenSettings }: HeaderProps) {
   }
 
   return (
-    <header className="bg-gradient-to-r from-black via-gray-900 to-black text-white shadow-2xl border-b-4 border-yellow-500 relative z-10">
+    <header className="bg-gradient-to-r from-black via-gray-900 to-black text-white shadow-2xl border-b-4 border-yellow-500 relative z-[9999]">
       <div className="container mx-auto px-4 py-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-6 rtl:space-x-reverse">
@@ -104,7 +104,7 @@ export default function Header({ onOpenSettings }: HeaderProps) {
                       >
                         <LogOut className="w-5 h-5" />
                         <div>
-                          <p className="font-semibold">تسجيل الخروج</p>
+                          <p className="font-semibold">تس��يل الخروج</p>
                           <p className="text-sm text-red-500">الخروج من النظام</p>
                         </div>
                       </button>
