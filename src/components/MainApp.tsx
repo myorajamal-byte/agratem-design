@@ -180,7 +180,7 @@ ${selectedBillboardsData
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>المس��حات الإعلانية المتاحة - الفارس الذهبي</title>
+        <title>المساحات الإعلانية المتاحة - الفارس الذهبي</title>
         <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
         <style>
           @page {
@@ -481,7 +481,7 @@ ${selectedBillboardsData
         <img src="/logo-symbol.svg" alt="رمز الشركة" className="w-[600px] h-[600px] object-contain" />
       </div>
 
-      <Header />
+      <Header onOpenSettings={() => setShowSettings(true)} />
 
 
       {!showAllBillboards && (
