@@ -30,16 +30,33 @@ class ClientService {
   }
   
   /**
-   * فلترة اللوحات بناءً على الزبون المحدد
+   * فلترة اللوحات بناءً على الزبون المحدد (العقود الخاصة + المتاح)
    */
   filterBillboardsByClient(billboards: Billboard[], clientName: string | undefined): Billboard[] {
     if (!clientName || clientName.trim() === '') {
       return billboards
     }
-    
-    return billboards.filter(billboard => 
-      billboard.clientName && 
-      billboard.clientName.trim().toLowerCase() === clientName.trim().toLowerCase()
+
+    return billboards.filter(billboard =>
+      // عرض العقود الخاصة بالزبون المحدد
+      (billboard.clientName &&
+       billboard.clientName.trim().toLowerCase() === clientName.trim().toLowerCase()) ||
+      // أو عرض اللوحات المتاحة من جميع الزبائن
+      billboard.status === 'متاح'
+    )
+  }
+
+  /**
+   * فلترة اللوحات حسب رقم العقد
+   */
+  filterBillboardsByContract(billboards: Billboard[], contractNumber: string | undefined): Billboard[] {
+    if (!contractNumber || contractNumber.trim() === '') {
+      return billboards
+    }
+
+    return billboards.filter(billboard =>
+      billboard.contractNumber &&
+      billboard.contractNumber.toLowerCase().includes(contractNumber.trim().toLowerCase())
     )
   }
   
