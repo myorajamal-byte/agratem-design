@@ -10,16 +10,17 @@ import { Search, MapPin, Grid, List, FileDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { MultiSelect } from "@/components/ui/multi-select"
 
 interface SearchFiltersProps {
   searchTerm: string
   setSearchTerm: (term: string) => void
-  selectedMunicipality: string
-  setSelectedMunicipality: (municipality: string) => void
-  selectedSize: string
-  setSelectedSize: (size: string) => void
-  selectedAvailability: string
-  setSelectedAvailability: (availability: string) => void
+  selectedMunicipalities: string[]
+  setSelectedMunicipalities: (municipalities: string[]) => void
+  selectedSizes: string[]
+  setSelectedSizes: (sizes: string[]) => void
+  selectedAvailabilities: string[]
+  setSelectedAvailabilities: (availabilities: string[]) => void
   viewMode: "grid" | "list"
   setViewMode: (mode: "grid" | "list") => void
   showMap: boolean
@@ -32,12 +33,12 @@ interface SearchFiltersProps {
 export default function SearchFilters({
   searchTerm,
   setSearchTerm,
-  selectedMunicipality,
-  setSelectedMunicipality,
-  selectedSize,
-  setSelectedSize,
-  selectedAvailability,
-  setSelectedAvailability,
+  selectedMunicipalities,
+  setSelectedMunicipalities,
+  selectedSizes,
+  setSelectedSizes,
+  selectedAvailabilities,
+  setSelectedAvailabilities,
   viewMode,
   setViewMode,
   showMap,
@@ -70,45 +71,35 @@ export default function SearchFilters({
 
         <div className="flex flex-wrap gap-6 items-center justify-center">
           <div className="flex flex-wrap gap-4">
-            <Select value={selectedMunicipality} onValueChange={setSelectedMunicipality}>
-              <SelectTrigger className="w-56 border-2 border-yellow-300 rounded-full text-gray-900 font-sans" dir="rtl">
-                <SelectValue placeholder="جميع البلديات" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all" className="font-sans">جميع البلديات</SelectItem>
-                {municipalities.map((municipality) => (
-                  <SelectItem key={municipality} value={municipality} className="font-sans">
-                    {municipality}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <MultiSelect
+              options={municipalities}
+              selected={selectedMunicipalities}
+              onChange={setSelectedMunicipalities}
+              placeholder="جميع البلديات"
+              allText="جميع البلديات"
+              className="w-56"
+              dir="rtl"
+            />
 
-            <Select value={selectedSize} onValueChange={setSelectedSize}>
-              <SelectTrigger className="w-48 border-2 border-yellow-300 rounded-full text-gray-900 font-sans" dir="rtl">
-                <SelectValue placeholder="جميع المقاسات" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all" className="font-sans">جميع المقاسات</SelectItem>
-                {sizes.map((size) => (
-                  <SelectItem key={size} value={size} className="font-sans">
-                    {size}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <MultiSelect
+              options={sizes}
+              selected={selectedSizes}
+              onChange={setSelectedSizes}
+              placeholder="جميع المقاسات"
+              allText="جميع المقاسات"
+              className="w-48"
+              dir="rtl"
+            />
 
-            <Select value={selectedAvailability} onValueChange={setSelectedAvailability}>
-              <SelectTrigger className="w-48 border-2 border-yellow-300 rounded-full text-gray-900 font-sans" dir="rtl">
-                <SelectValue placeholder="جميع الحالات" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all" className="font-sans">جميع الحالات</SelectItem>
-                <SelectItem value="متاح" className="font-sans">متاح</SelectItem>
-                <SelectItem value="قريباً" className="font-sans">قريباً</SelectItem>
-                <SelectItem value="محجوز" className="font-sans">محجوز</SelectItem>
-              </SelectContent>
-            </Select>
+            <MultiSelect
+              options={["متاح", "قريباً", "محجوز"]}
+              selected={selectedAvailabilities}
+              onChange={setSelectedAvailabilities}
+              placeholder="جميع الحالات"
+              allText="جميع الحالات"
+              className="w-48"
+              dir="rtl"
+            />
           </div>
 
           <div className="flex items-center gap-4">
