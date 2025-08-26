@@ -342,7 +342,7 @@ ${selectedBillboardsData
             <div class="company-info">
               <div class="company-name-ar">الفــــارس الذهبــــي</div>
               <div class="company-name-en">AL FARES AL DAHABI</div>
-              <div class="company-name-ar" style="font-size: 10px;">للدعــــــايــة والإعـ��ــلان</div>
+              <div class="company-name-ar" style="font-size: 10px;">للدعــــــايـ��ة والإعـ��ــلان</div>
             </div>
           </div>
           <div class="title-section">
@@ -391,7 +391,7 @@ ${selectedBillboardsData
                 <td><div class="billboard-number">TR-${String(index + 1).padStart(6, "0")}</div></td>
                 <td style="font-weight: 500; text-align: right; padding-right: 6px; font-size: 9px;">${billboard.location}</td>
                 <td style="font-size: 8px;">${billboard.municipality}</td>
-                <td style="font-size: 8px;">${billboard.area}</td>
+                <td style="font-size: 8px;">${(billboard.area && !billboard.area.toString().includes('GMT')) ? billboard.area : billboard.municipality}</td>
                 <td style="font-weight: 500; font-size: 8px;">${billboard.size}</td>
                 <td><span class="status-available">متاح</span></td>
                 <td>
