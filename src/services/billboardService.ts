@@ -240,7 +240,20 @@ function processBillboardData(billboard: any, index: number): Billboard {
   const location = billboard['اقرب نقطة دالة'] || billboard['أقرب نقطة دالة'] || 'موقع غير محدد'
   const municipality = billboard['البلدية'] || 'غير محدد'
   const city = billboard['مدينة'] || billboard['المدينة'] || 'غير محدد'
-  const area = billboard['منطقة'] || billboard['المنطقة'] || municipality
+
+  // معالجة خاصة لحقل المنطقة للتأكد من عدم وجود تاريخ
+  let areaValue = billboard['منطقة'] || billboard['المنطقة'] || municipality
+
+  // التحقق من كون القيمة تاريخ وتحويلها لنص
+  if (areaValue instanceof Date) {
+    console.warn('[Service] تم العثور على تاريخ في حقل المنطقة، استخدام البلدية بدلاً منه:', areaValue)
+    areaValue = municipality
+  } else if (typeof areaValue === 'string' && areaValue.includes('GMT')) {
+    console.warn('[Service] تم العثور على تاريخ نصي في حقل المنطقة، استخدام البلدية بدلاً منه:', areaValue)
+    areaValue = municipality
+  }
+
+  const area = areaValue.toString().trim() || municipality
   const size = billboard['حجم'] || billboard['الحجم'] || billboard['المقاس مع الدغاية'] || '12X4'
   const coordinates = billboard['احداثي - GPS'] || billboard['الإحداثيات GPS'] || '32.8872,13.1913'
 
@@ -418,7 +431,7 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
   } catch (error) {
     console.error('[Service] خطأ في تحميل ملف Excel من Google Sheets:', error)
     
-    // محاولة تحميل الملف المحلي كبديل
+    // محاولة تحميل المل�� المحلي كبديل
     try {
       console.log('[Service] محاولة تحميل الملف المحلي كبديل...')
       const response = await fetch('/billboards.xlsx')
@@ -450,7 +463,7 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
       console.log('[Service] تم تحميل', billboards.length, 'لوحة من الملف المحلي')
       return billboards
     } catch (localError) {
-      console.error('[Service] فشل في تحميل الملف المحلي أيضاً:', localError)
+      console.error('[Service] فشل في تحميل ال��لف المحلي أيضاً:', localError)
       
       // بيانات احتياطية
       const today = new Date()
