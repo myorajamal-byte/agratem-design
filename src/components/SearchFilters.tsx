@@ -105,11 +105,11 @@ export default function SearchFilters({
           <div className="flex items-center gap-4">
             <Button
               onClick={() => setShowMap(!showMap)}
-              className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-black px-6 py-3 rounded-full shadow-lg transform hover:scale-105 transition-all duration-300 font-sans"
+              className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-black px-6 py-3 rounded-full shadow-lg transform hover:scale-105 transition-all duration-300 font-sans flex items-center gap-2"
               dir="rtl"
             >
-              <span dir="rtl">{showMap ? "إخفاء الخريطة" : "عرض الخريطة"}</span>
-              <MapPin className="w-5 h-5 mr-2" />
+              <MapPin className="w-5 h-5" />
+              <span>{showMap ? "إ��فاء الخريطة" : "عرض الخريطة"}</span>
             </Button>
 
             <button
