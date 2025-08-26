@@ -16,9 +16,9 @@ export default function App() {
   const [billboards, setBillboards] = useState<Billboard[]>([])
   const [filteredBillboards, setFilteredBillboards] = useState<Billboard[]>([])
   const [searchTerm, setSearchTerm] = useState("")
-  const [selectedMunicipality, setSelectedMunicipality] = useState("all")
-  const [selectedSize, setSelectedSize] = useState("all")
-  const [selectedAvailability, setSelectedAvailability] = useState("all")
+  const [selectedMunicipalities, setSelectedMunicipalities] = useState<string[]>([])
+  const [selectedSizes, setSelectedSizes] = useState<string[]>([])
+  const [selectedAvailabilities, setSelectedAvailabilities] = useState<string[]>([])
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [showAllBillboards, setShowAllBillboards] = useState(true)
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
@@ -54,6 +54,9 @@ export default function App() {
   useEffect(() => {
     let filtered = billboards
 
+    // Check if any filters are active
+    const hasActiveFilters = searchTerm || selectedMunicipalities.length > 0 || selectedSizes.length > 0 || selectedAvailabilities.length > 0
+
     if (searchTerm) {
       filtered = filtered.filter(
         (billboard) =>
@@ -67,37 +70,31 @@ export default function App() {
       )
     }
 
-    if (selectedMunicipality !== "all") {
-      filtered = filtered.filter((billboard) => billboard.municipality === selectedMunicipality)
+    if (selectedMunicipalities.length > 0) {
+      filtered = filtered.filter((billboard) => selectedMunicipalities.includes(billboard.municipality))
     }
 
-    if (selectedSize !== "all") {
-      filtered = filtered.filter((billboard) => billboard.size === selectedSize)
+    if (selectedSizes.length > 0) {
+      filtered = filtered.filter((billboard) => selectedSizes.includes(billboard.size))
     }
 
-    if (selectedAvailability !== "all") {
-      const isAvailable = selectedAvailability === "available" || selectedAvailability === "متاحة"
-      const isSoon = selectedAvailability === "soon" || selectedAvailability === "متاحة قريباً"
-      const isReserved = selectedAvailability === "محجوز"
-      filtered = filtered.filter((billboard) => {
-        if (isAvailable) {
-          return billboard.status === "متاح"
-        } else if (isSoon) {
-          return billboard.status === "قريباً"
-        } else if (isReserved) {
-          return billboard.status === "محجوز"
-        }
-        return true
-      })
+    if (selectedAvailabilities.length > 0) {
+      filtered = filtered.filter((billboard) => selectedAvailabilities.includes(billboard.status))
     }
 
+    // Reset pagination when filters change
+    if (hasActiveFilters) {
+      setCurrentPage(1)
+    }
+
+    // Limit results if showAllBillboards is false (regardless of filters)
     if (!showAllBillboards) {
       filtered = filtered.slice(0, 8)
       setCurrentPage(1)
     }
 
     setFilteredBillboards(filtered)
-  }, [searchTerm, selectedMunicipality, selectedSize, selectedAvailability, billboards, showAllBillboards])
+  }, [searchTerm, selectedMunicipalities, selectedSizes, selectedAvailabilities, billboards, showAllBillboards])
 
   const municipalities = Array.from(new Set(billboards.map((b) => b.municipality)))
   const sizes = Array.from(new Set(billboards.map((b) => b.size)))
@@ -144,7 +141,7 @@ ${selectedBillboardsData
   .map(
     (billboard, index) =>
       `${index + 1}. ${billboard.name}
-   الموقع: ${billboard.location}
+   ��لموقع: ${billboard.location}
    المنطقة: ${billboard.area}
    ��لحالة: ${billboard.status === "مت��ح" ? "متاحة" : "غير متاحة"}
    
@@ -159,7 +156,7 @@ ${selectedBillboardsData
 
       window.open(mailtoLink, "_blank")
 
-      alert("تم فتح برنامج البريد الإلكتروني مع تفاصيل اللوحات المختارة!")
+      alert("تم فتح برنامج الب��يد الإلكتروني مع تفاصيل اللوحات المختارة!")
       setShowEmailDialog(false)
       clearSelection()
       setCustomerEmail("")
@@ -187,13 +184,14 @@ ${selectedBillboardsData
             margin: 12mm;
           }
           * { margin: 0; padding: 0; box-sizing: border-box; }
-          body { 
-            font-family: 'Tajawal', 'Arial', sans-serif; 
-            direction: rtl; 
+          body {
+            font-family: 'Tajawal', 'Cairo', 'Arial', sans-serif;
+            direction: rtl;
             background: white;
             color: #000;
-            line-height: 1.3;
+            line-height: 1.4;
             font-size: 10px;
+            unicode-bidi: embed;
           }
           .header { 
             display: flex;
@@ -265,7 +263,8 @@ ${selectedBillboardsData
           .billboard-image {
             width: 60px;
             height: 45px;
-            object-fit: cover;
+            object-fit: contain;
+            background: #f8f9fa;
             border-radius: 3px;
             border: 1px solid #D4AF37;
             display: block;
@@ -280,6 +279,21 @@ ${selectedBillboardsData
           }
           .status-available {
             color: #059669;
+            font-weight: 700;
+            font-size: 8px;
+          }
+          .status-soon {
+            color: #DC2626;
+            font-weight: 700;
+            font-size: 8px;
+          }
+          .status-booked {
+            color: #EA580C;
+            font-weight: 700;
+            font-size: 8px;
+          }
+          .status-default {
+            color: #6B7280;
             font-weight: 700;
             font-size: 8px;
           }
@@ -312,11 +326,27 @@ ${selectedBillboardsData
               -webkit-print-color-adjust: exact;
             }
             .no-print { display: none; }
-            table { page-break-inside: auto; }
-            tr { page-break-inside: avoid; page-break-after: auto; }
+            table {
+              page-break-inside: auto;
+              table-layout: fixed;
+            }
+            tr {
+              page-break-inside: avoid;
+              page-break-after: auto;
+              height: 65px;
+            }
             .billboard-image, .image-placeholder {
               print-color-adjust: exact;
               -webkit-print-color-adjust: exact;
+              max-width: 60px;
+              max-height: 45px;
+              width: auto;
+              height: auto;
+            }
+            td:first-child {
+              padding: 3px;
+              text-align: center;
+              vertical-align: middle;
             }
           }
         </style>
@@ -328,7 +358,7 @@ ${selectedBillboardsData
             <div class="company-info">
               <div class="company-name-ar">الفــــارس الذهبــــي</div>
               <div class="company-name-en">AL FARES AL DAHABI</div>
-              <div class="company-name-ar" style="font-size: 10px;">للدعــــــايــة والإعــــلان</div>
+              <div class="company-name-ar" style="font-size: 10px;">للدعــــــايـ��ة والإعـ��ــلان</div>
             </div>
           </div>
           <div class="title-section">
@@ -339,13 +369,13 @@ ${selectedBillboardsData
         <table>
           <thead>
             <tr>
-              <th style="width: 16%;">صورة الوحة</th>
-              <th style="width: 12%;">رقم الوحة</th>
-              <th style="width: 22%;">موقع الوحة</th>
+              <th style="width: 16%;">صورة اللوحة</th>
+              <th style="width: 12%;">رقم اللوحة</th>
+              <th style="width: 22%;">موقع اللوحة</th>
               <th style="width: 14%;">البلدية</th>
               <th style="width: 14%;">المنطقة</th>
               <th style="width: 12%;">المقاس</th>
-              <th style="width: 10%;">ا��حالة</th>
+              <th style="width: 10%;">الحالة</th>
               <th style="width: 16%;">عرض على الخريطة</th>
             </tr>
           </thead>
@@ -377,9 +407,13 @@ ${selectedBillboardsData
                 <td><div class="billboard-number">TR-${String(index + 1).padStart(6, "0")}</div></td>
                 <td style="font-weight: 500; text-align: right; padding-right: 6px; font-size: 9px;">${billboard.location}</td>
                 <td style="font-size: 8px;">${billboard.municipality}</td>
-                <td style="font-size: 8px;">${billboard.area}</td>
+                <td style="font-size: 8px;">${(billboard.area && !billboard.area.toString().includes('GMT')) ? billboard.area : billboard.municipality}</td>
                 <td style="font-weight: 500; font-size: 8px;">${billboard.size}</td>
-                <td><span class="status-available">متاح</span></td>
+                <td><span class="${
+                  billboard.status === 'متاح' ? 'status-available' :
+                  billboard.status === 'قريباً' ? 'status-soon' :
+                  billboard.status === 'محجوز' ? 'status-booked' : 'status-default'
+                }">${billboard.status}</span></td>
                 <td>
                   ${
                     billboard.coordinates
@@ -453,7 +487,7 @@ ${selectedBillboardsData
               الرائدون في عالم الدعاية والإعلان
             </h2>
             <p className="text-xl md:text-2xl mb-8 max-w-4xl mx-auto leading-relaxed font-bold">
-              نحن نقدم حلول إعلانية متكاملة ومبتكرة تضمن وصول رسالتك إلى الجمهور المناسب في الوقت المناسب
+              نحن نقدم حلول إعلانية متكاملة ومبتكرة تضمن وصول رسالتك إلى الجمهور المناسب في الوقت المناس��
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mt-12">
@@ -486,12 +520,12 @@ ${selectedBillboardsData
         <SearchFilters
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
-          selectedMunicipality={selectedMunicipality}
-          setSelectedMunicipality={setSelectedMunicipality}
-          selectedSize={selectedSize}
-          setSelectedSize={setSelectedSize}
-          selectedAvailability={selectedAvailability}
-          setSelectedAvailability={setSelectedAvailability}
+          selectedMunicipalities={selectedMunicipalities}
+          setSelectedMunicipalities={setSelectedMunicipalities}
+          selectedSizes={selectedSizes}
+          setSelectedSizes={setSelectedSizes}
+          selectedAvailabilities={selectedAvailabilities}
+          setSelectedAvailabilities={setSelectedAvailabilities}
           viewMode={viewMode}
           setViewMode={setViewMode}
           showMap={showMap}
@@ -511,12 +545,12 @@ ${selectedBillboardsData
             <span className="font-black text-yellow-600">{filteredBillboards.length}</span> لوحة متاحة
           </p>
 
-          {!showAllBillboards && billboards.length > 8 && (
+          {!showAllBillboards && filteredBillboards.length > 8 && (
             <Button
               onClick={() => setShowAllBillboards(true)}
               className="bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-black font-black px-8 py-3 rounded-full shadow-lg transform hover:scale-105 transition-all duration-300"
             >
-              عرض جميع اللوحات ({billboards.length})
+              عرض جميع اللوحات ({filteredBillboards.length})
             </Button>
           )}
 
@@ -680,7 +714,7 @@ ${selectedBillboardsData
               className="absolute top-4 right-4 bg-white text-black hover:bg-gray-100 rounded-full px-6 py-2 shadow-lg"
               onClick={() => setSelectedImage(null)}
             >
-              إغلاق
+              إ��لاق
             </Button>
           </div>
         </div>
