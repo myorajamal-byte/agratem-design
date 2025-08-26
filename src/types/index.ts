@@ -58,3 +58,7 @@ export interface ClientFilter {
   assignedClient?: string
   hasClientRestriction: boolean
 }
+
+export interface ContractFilter {
+  contractNumber?: string
+}
