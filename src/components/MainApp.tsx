@@ -44,17 +44,24 @@ export default function MainApp() {
       try {
         setLoading(true)
         const data = await loadBillboardsFromExcel()
-        setBillboards(data)
-        setFilteredBillboards(data)
+
+        // تطبيق فلترة الزبون المخصص إذا كان المستخدم لديه هذه الصلاحية
+        let filteredData = data
+        if (user?.permissions.some(p => p.name === 'view_specific_client') && user.assignedClient) {
+          filteredData = clientService.filterBillboardsByClient(data, user.assignedClient)
+        }
+
+        setBillboards(filteredData)
+        setFilteredBillboards(filteredData)
       } catch (error) {
         console.error('Error loading billboards:', error)
       } finally {
         setLoading(false)
       }
     }
-    
+
     loadData()
-  }, [])
+  }, [user])
 
   useEffect(() => {
     let filtered = billboards
@@ -161,7 +168,7 @@ ${selectedBillboardsData
 
       window.open(mailtoLink, "_blank")
 
-      alert("تم فتح بر��امج البريد الإلكتروني مع تفاصيل اللوحات المختارة!")
+      alert("تم فتح برنامج البريد الإلكتروني مع تفاصيل اللوحات المختارة!")
       setShowEmailDialog(false)
       clearSelection()
       setCustomerEmail("")
@@ -380,7 +387,7 @@ ${selectedBillboardsData
               <th style="width: 14%;">البلدية</th>
               <th style="width: 14%;">المنطقة</th>
               <th style="width: 12%;">المقاس</th>
-              <th style="width: 10%;">الحالة</th>
+              <th style="width: 10%;">الح��لة</th>
               <th style="width: 16%;">عرض على الخريطة</th>
             </tr>
           </thead>
@@ -492,7 +499,7 @@ ${selectedBillboardsData
               الرائدون في عالم الدعاية والإعلان
             </h2>
             <p className="text-xl md:text-2xl mb-8 max-w-4xl mx-auto leading-relaxed font-bold">
-              نحن نقدم حلول إعلانية متكاملة وم��تكرة تضمن وصول رسالتك إلى الجمهور المناسب في الوقت المناسب
+              نحن نقدم حلول إعلانية متكاملة ومبتكرة تضمن وصول رسالتك إلى الجمهور المناسب في الوقت المناسب
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mt-12">
