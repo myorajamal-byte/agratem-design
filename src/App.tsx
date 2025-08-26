@@ -310,11 +310,27 @@ ${selectedBillboardsData
               -webkit-print-color-adjust: exact;
             }
             .no-print { display: none; }
-            table { page-break-inside: auto; }
-            tr { page-break-inside: avoid; page-break-after: auto; }
+            table {
+              page-break-inside: auto;
+              table-layout: fixed;
+            }
+            tr {
+              page-break-inside: avoid;
+              page-break-after: auto;
+              height: 65px;
+            }
             .billboard-image, .image-placeholder {
               print-color-adjust: exact;
               -webkit-print-color-adjust: exact;
+              max-width: 60px;
+              max-height: 45px;
+              width: auto;
+              height: auto;
+            }
+            td:first-child {
+              padding: 3px;
+              text-align: center;
+              vertical-align: middle;
             }
           }
         </style>
@@ -326,7 +342,7 @@ ${selectedBillboardsData
             <div class="company-info">
               <div class="company-name-ar">الفــــارس الذهبــــي</div>
               <div class="company-name-en">AL FARES AL DAHABI</div>
-              <div class="company-name-ar" style="font-size: 10px;">للدعــــــايــة والإعــــلان</div>
+              <div class="company-name-ar" style="font-size: 10px;">للدعــــــايــة والإعـ��ــلان</div>
             </div>
           </div>
           <div class="title-section">
@@ -451,7 +467,7 @@ ${selectedBillboardsData
               الرائدون في عالم الدعاية والإعلان
             </h2>
             <p className="text-xl md:text-2xl mb-8 max-w-4xl mx-auto leading-relaxed font-bold">
-              نحن نقدم حلول إعلانية متكاملة ومبتكرة تضمن وصول رسالتك إلى الجمهور المناسب في الوقت المناسب
+              نحن نقدم حلول إعلانية متكاملة ومبتكرة تضمن وصول رسالتك إلى الجمهور المناسب في الوقت المناس��
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mt-12">
