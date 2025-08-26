@@ -387,7 +387,7 @@ ${selectedBillboardsData
               <th style="width: 14%;">البلدية</th>
               <th style="width: 14%;">المنطقة</th>
               <th style="width: 12%;">المقاس</th>
-              <th style="width: 10%;">الح��لة</th>
+              <th style="width: 10%;">الحالة</th>
               <th style="width: 16%;">عرض على الخريطة</th>
             </tr>
           </thead>
@@ -529,6 +529,22 @@ ${selectedBillboardsData
       )}
 
       <main className="container mx-auto px-4 py-12 relative z-10">
+        {/* عرض معلومات الزبون المخصص */}
+        {user?.permissions.some(p => p.name === 'view_specific_client') && user.assignedClient && (
+          <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-md mb-6">
+            <div className="flex">
+              <div className="ml-3">
+                <p className="text-sm text-blue-700 font-semibold">
+                  🎯 عرض مخصص: تظهر لك فقط العقود الخاصة بالزبون "{user.assignedClient}"
+                </p>
+                <p className="text-xs text-blue-600 mt-1">
+                  إجمالي اللوحات المعروضة: {filteredBillboards.length} لوحة
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         <SearchFilters
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
