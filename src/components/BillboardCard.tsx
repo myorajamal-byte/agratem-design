@@ -94,30 +94,30 @@ export default function BillboardCard({ billboard, isSelected, onToggleSelection
                 <h4 className="text-sm font-bold text-blue-800 mb-2 text-right font-sans" dir="rtl">بيانات الحجز</h4>
                 <div className="space-y-1 text-right">
                   <div className="flex" dir="rtl" style={{justifyContent: 'space-between'}}>
-                    <span className="text-sm text-blue-700 font-semibold font-sans">:رقم العقد</span>
                     <span className="text-sm text-blue-900 font-bold font-sans">{billboard.contractNumber}</span>
+                    <span className="text-sm text-blue-700 font-semibold font-sans">:رقم العقد</span>
                   </div>
                   {billboard.clientName && billboard.clientName.trim() !== '' ? (
                     <div className="flex" dir="rtl" style={{justifyContent: 'space-between'}}>
-                      <span className="text-sm text-blue-700 font-semibold font-sans">:العميل</span>
                       <span className="text-sm text-blue-900 font-bold font-sans">{billboard.clientName}</span>
+                      <span className="text-sm text-blue-700 font-semibold font-sans">:العميل</span>
                     </div>
                   ) : (
                     <div className="flex" dir="rtl" style={{justifyContent: 'space-between'}}>
-                      <span className="text-sm text-blue-700 font-semibold font-sans">:العميل</span>
                       <span className="text-sm text-gray-500 font-bold font-sans">غير محدد</span>
+                      <span className="text-sm text-blue-700 font-semibold font-sans">:العميل</span>
                     </div>
                   )}
                   {billboard.advertisementType && (
                     <div className="flex" dir="rtl" style={{justifyContent: 'space-between'}}>
-                      <span className="text-sm text-blue-700 font-semibold font-sans">:نوع الإعلان</span>
                       <span className="text-sm text-blue-900 font-bold font-sans">{billboard.advertisementType}</span>
+                      <span className="text-sm text-blue-700 font-semibold font-sans">:نوع الإعلان</span>
                     </div>
                   )}
                   {billboard.expiryDate && (
                     <div className="flex" dir="rtl" style={{justifyContent: 'space-between'}}>
-                      <span className="text-sm text-blue-700 font-semibold font-sans">:تاريخ الانتهاء</span>
                       <span className="text-sm text-blue-900 font-bold font-sans">{billboard.expiryDate}</span>
+                      <span className="text-sm text-blue-700 font-semibold font-sans">:تاريخ الانتهاء</span>
                     </div>
                   )}
                 </div>
