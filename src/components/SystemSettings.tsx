@@ -120,7 +120,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
     }, newUser.password)
 
     if (result.success) {
-      setSuccess('تم إضافة المستخدم بنجاح')
+      setSuccess('تم إضافة المستخدم ��نجاح')
       setShowAddUser(false)
       resetForms()
       loadData()
@@ -529,23 +529,49 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
                   </div>
 
                   {editingUser.role !== 'admin' && (
-                    <div>
-                      <label className="block text-sm font-bold text-gray-700 mb-2">
-                        الصلاحيات
-                      </label>
-                      <div className="space-y-2">
-                        {permissions.map((permission) => (
-                          <label key={permission.id} className="flex items-center gap-2">
-                            <input
-                              type="checkbox"
-                              checked={editingUser.permissions.some(p => p.id === permission.id)}
-                              onChange={() => togglePermission(permission)}
-                            />
-                            <span className="text-sm">{permission.description}</span>
-                          </label>
-                        ))}
+                    <>
+                      <div>
+                        <label className="block text-sm font-bold text-gray-700 mb-2">
+                          الصلاحيات
+                        </label>
+                        <div className="space-y-2">
+                          {permissions.map((permission) => (
+                            <label key={permission.id} className="flex items-center gap-2">
+                              <input
+                                type="checkbox"
+                                checked={editingUser.permissions.some(p => p.id === permission.id)}
+                                onChange={() => togglePermission(permission)}
+                              />
+                              <span className="text-sm">{permission.description}</span>
+                            </label>
+                          ))}
+                        </div>
                       </div>
-                    </div>
+
+                      {/* اختيار الزبون المخصص */}
+                      {editingUser.permissions.some(p => p.name === 'view_specific_client') && (
+                        <div>
+                          <label className="block text-sm font-bold text-gray-700 mb-1">
+                            الزبون المخصص
+                          </label>
+                          <select
+                            value={editingUser.assignedClient || ''}
+                            onChange={(e) => setEditingUser(prev => prev ? ({ ...prev, assignedClient: e.target.value || undefined }) : null)}
+                            className="w-full border border-gray-300 rounded-md px-3 py-2"
+                          >
+                            <option value="">اختر زبون...</option>
+                            {clients.map((client) => (
+                              <option key={client.name} value={client.name}>
+                                {client.name} ({client.contractsCount} عقد)
+                              </option>
+                            ))}
+                          </select>
+                          <p className="text-xs text-gray-500 mt-1">
+                            هذا المستخدم سيرى فقط العقود الخاصة بالزبون المحدد
+                          </p>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
 
