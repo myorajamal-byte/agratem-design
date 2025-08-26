@@ -93,23 +93,23 @@ export function MultiSelect({
           </div>
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[280px] p-0" dir={dir}>
-        <div className="max-h-60 overflow-auto p-1">
+      <PopoverContent className="w-[280px] p-0 bg-white border border-gray-200 shadow-lg" dir={dir}>
+        <div className="max-h-60 overflow-auto p-2 bg-white">
           {/* خيار "الكل" */}
           <div
             className={cn(
-              "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground font-sans",
-              isAllSelected && "bg-accent text-accent-foreground"
+              "relative flex cursor-default select-none items-center rounded-sm px-3 py-2 text-sm outline-none transition-colors hover:bg-yellow-50 hover:text-gray-900 font-sans text-right",
+              isAllSelected && "bg-yellow-100 text-gray-900 font-bold"
             )}
             onClick={() => handleSelect("all")}
           >
+            <span className="text-right flex-1">{allText}</span>
             <Check
               className={cn(
-                "ml-2 h-4 w-4",
+                "mr-2 h-4 w-4 text-yellow-600",
                 isAllSelected ? "opacity-100" : "opacity-0"
               )}
             />
-            <span className="text-right">{allText}</span>
           </div>
           
           {/* خيارات أخرى */}
@@ -117,18 +117,18 @@ export function MultiSelect({
             <div
               key={option}
               className={cn(
-                "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground font-sans",
-                selected.includes(option) && "bg-accent text-accent-foreground"
+                "relative flex cursor-default select-none items-center rounded-sm px-3 py-2 text-sm outline-none transition-colors hover:bg-yellow-50 hover:text-gray-900 font-sans text-right",
+                selected.includes(option) && "bg-yellow-100 text-gray-900 font-bold"
               )}
               onClick={() => handleSelect(option)}
             >
+              <span className="text-right flex-1">{option}</span>
               <Check
                 className={cn(
-                  "ml-2 h-4 w-4",
+                  "mr-2 h-4 w-4 text-yellow-600",
                   selected.includes(option) ? "opacity-100" : "opacity-0"
                 )}
               />
-              <span className="text-right">{option}</span>
             </div>
           ))}
         </div>
