@@ -1,6 +1,6 @@
 /**
  * مكون رأس الصفحة - Header Component
- * يحتوي على شعار الشركة وزر الحجز الرئيسي
+ * يحتوي على شع��ر الشركة وزر الحجز الرئيسي
  * يعرض اسم الشركة باللغتين العربية والإنجليزية
  * يحتوي على معلومات المستخدم وأزرار المصادقة
  */
@@ -120,7 +120,7 @@ export default function Header({ onOpenSettings }: HeaderProps) {
       {/* إغلاق القائمة عند النقر خارجها */}
       {showUserMenu && (
         <div
-          className="fixed inset-0 z-[9998]"
+          className="fixed inset-0 z-[99998]"
           onClick={() => setShowUserMenu(false)}
         />
       )}
