@@ -725,6 +725,11 @@ ${selectedBillboardsData
       )}
 
       <Footer />
+
+      {/* نافذة إعدادات النظام */}
+      {showSettings && user?.permissions.some(p => p.name === 'manage_users') && (
+        <SystemSettings onClose={() => setShowSettings(false)} />
+      )}
     </div>
   )
 }
