@@ -48,3 +48,13 @@ export interface LoginCredentials {
   username: string
   password: string
 }
+
+export interface Client {
+  name: string
+  contractsCount: number
+}
+
+export interface ClientFilter {
+  assignedClient?: string
+  hasClientRestriction: boolean
+}
