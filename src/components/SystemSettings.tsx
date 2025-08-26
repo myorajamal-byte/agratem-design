@@ -65,9 +65,18 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
     loadData()
   }, [])
 
-  const loadData = () => {
+  const loadData = async () => {
     setUsers(authService.getUsers())
     setPermissions(authService.getPermissions())
+
+    try {
+      const billboardData = await loadBillboardsFromExcel()
+      setBillboards(billboardData)
+      const clientsData = clientService.getClientsFromBillboards(billboardData)
+      setClients(clientsData)
+    } catch (error) {
+      console.error('خطأ في تحميل البيانات:', error)
+    }
   }
 
   const resetForms = () => {
@@ -532,7 +541,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
           </div>
         )}
 
-        {/* نافذة تغيير كلمة المرور */}
+        {/* نافذة تغيير كلمة الم��ور */}
         {showPasswordDialog && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-60">
             <Card className="w-full max-w-md">
@@ -582,7 +591,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
                     className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-black font-bold"
                   >
                     <Lock className="w-4 h-4 mr-2" />
-                    تحديث كلمة المرور
+                    تحديث كلمة المر��ر
                   </Button>
                   <Button
                     onClick={() => {
