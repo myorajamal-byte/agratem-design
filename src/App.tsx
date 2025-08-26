@@ -141,7 +141,7 @@ ${selectedBillboardsData
   .map(
     (billboard, index) =>
       `${index + 1}. ${billboard.name}
-   الموقع: ${billboard.location}
+   ��لموقع: ${billboard.location}
    المنطقة: ${billboard.area}
    ��لحالة: ${billboard.status === "مت��ح" ? "متاحة" : "غير متاحة"}
    
@@ -520,12 +520,12 @@ ${selectedBillboardsData
         <SearchFilters
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
-          selectedMunicipality={selectedMunicipality}
-          setSelectedMunicipality={setSelectedMunicipality}
-          selectedSize={selectedSize}
-          setSelectedSize={setSelectedSize}
-          selectedAvailability={selectedAvailability}
-          setSelectedAvailability={setSelectedAvailability}
+          selectedMunicipalities={selectedMunicipalities}
+          setSelectedMunicipalities={setSelectedMunicipalities}
+          selectedSizes={selectedSizes}
+          setSelectedSizes={setSelectedSizes}
+          selectedAvailabilities={selectedAvailabilities}
+          setSelectedAvailabilities={setSelectedAvailabilities}
           viewMode={viewMode}
           setViewMode={setViewMode}
           showMap={showMap}
@@ -714,7 +714,7 @@ ${selectedBillboardsData
               className="absolute top-4 right-4 bg-white text-black hover:bg-gray-100 rounded-full px-6 py-2 shadow-lg"
               onClick={() => setSelectedImage(null)}
             >
-              إغلاق
+              إ��لاق
             </Button>
           </div>
         </div>
