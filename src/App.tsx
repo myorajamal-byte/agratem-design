@@ -58,16 +58,40 @@ export default function App() {
     const hasActiveFilters = searchTerm || selectedMunicipality !== "all" || selectedSize !== "all" || selectedAvailability !== "all"
 
     if (searchTerm) {
+      console.log('[DEBUG] البحث عن:', searchTerm)
+      console.log('[DEBUG] عدد اللوحات الإجمالي:', billboards.length)
+
+      // Log a few sample billboards to see what we're searching through
+      if (billboards.length > 0) {
+        console.log('[DEBUG] عينة من البيانات:', billboards.slice(0, 3).map(b => ({
+          name: b.name,
+          location: b.location,
+          municipality: b.municipality,
+          area: b.area
+        })))
+      }
+
       filtered = filtered.filter(
-        (billboard) =>
-          billboard.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          billboard.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          billboard.municipality.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          billboard.area.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (billboard.clientName && billboard.clientName.toLowerCase().includes(searchTerm.toLowerCase())) ||
-          (billboard.contractNumber && billboard.contractNumber.toLowerCase().includes(searchTerm.toLowerCase())) ||
-          (billboard.advertisementType && billboard.advertisementType.toLowerCase().includes(searchTerm.toLowerCase())),
+        (billboard) => {
+          const searchLower = searchTerm.toLowerCase()
+          const matches = billboard.name.toLowerCase().includes(searchLower) ||
+            billboard.location.toLowerCase().includes(searchLower) ||
+            billboard.municipality.toLowerCase().includes(searchLower) ||
+            billboard.area.toLowerCase().includes(searchLower) ||
+            (billboard.clientName && billboard.clientName.toLowerCase().includes(searchLower)) ||
+            (billboard.contractNumber && billboard.contractNumber.toLowerCase().includes(searchLower)) ||
+            (billboard.advertisementType && billboard.advertisementType.toLowerCase().includes(searchLower))
+
+          // Log first few matches/non-matches for debugging
+          if (filtered.length < 5) {
+            console.log(`[DEBUG] ${billboard.name} - ${billboard.municipality} - يطابق: ${matches}`)
+          }
+
+          return matches
+        }
       )
+
+      console.log('[DEBUG] عدد النتائج بعد البحث:', filtered.length)
     }
 
     if (selectedMunicipality !== "all") {
