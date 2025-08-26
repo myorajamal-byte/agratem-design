@@ -2,7 +2,7 @@
  * مكون رأس الصفحة - Header Component
  * يحتوي على شعار الشركة وزر الحجز الرئيسي
  * يعرض اسم الشركة باللغتين العربية والإنجليزية
- * يحتوي على معل��مات المستخدم وأزرار المصادقة
+ * يحتوي على معلومات المستخدم وأزرار المصادقة
  */
 
 import { useState } from "react"
@@ -63,7 +63,7 @@ export default function Header({ onOpenSettings }: HeaderProps) {
 
                 {/* قائمة المستخدم المنسدلة */}
                 {showUserMenu && (
-                  <div className="absolute left-0 top-full mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden z-[9999]">
+                  <div className="absolute left-0 top-full mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden z-[99999]">
                     <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 p-4 text-black">
                       <div className="flex items-center gap-3">
                         <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
@@ -104,7 +104,7 @@ export default function Header({ onOpenSettings }: HeaderProps) {
                       >
                         <LogOut className="w-5 h-5" />
                         <div>
-                          <p className="font-semibold">تس��يل الخروج</p>
+                          <p className="font-semibold">تسجيل الخروج</p>
                           <p className="text-sm text-red-500">الخروج من النظام</p>
                         </div>
                       </button>
