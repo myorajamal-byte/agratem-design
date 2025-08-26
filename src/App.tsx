@@ -281,6 +281,21 @@ ${selectedBillboardsData
             font-weight: 700;
             font-size: 8px;
           }
+          .status-soon {
+            color: #DC2626;
+            font-weight: 700;
+            font-size: 8px;
+          }
+          .status-booked {
+            color: #EA580C;
+            font-weight: 700;
+            font-size: 8px;
+          }
+          .status-default {
+            color: #6B7280;
+            font-weight: 700;
+            font-size: 8px;
+          }
           .coordinates-link {
             color: #1D4ED8;
             text-decoration: underline;
