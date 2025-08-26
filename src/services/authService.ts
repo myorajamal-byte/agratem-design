@@ -16,6 +16,11 @@ const PERMISSIONS: Permission[] = [
     id: '3',
     name: 'admin_access',
     description: 'صلاحيات الإدارة الكاملة'
+  },
+  {
+    id: '4',
+    name: 'view_specific_client',
+    description: 'عرض زبون محدد فقط'
   }
 ]
 
