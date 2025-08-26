@@ -33,6 +33,8 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
   const { user: currentUser } = useAuth()
   const [users, setUsers] = useState<UserType[]>([])
   const [permissions, setPermissions] = useState<Permission[]>([])
+  const [clients, setClients] = useState<Client[]>([])
+  const [billboards, setBillboards] = useState<Billboard[]>([])
   const [showAddUser, setShowAddUser] = useState(false)
   const [editingUser, setEditingUser] = useState<UserType | null>(null)
   const [showPasswordDialog, setShowPasswordDialog] = useState<string | null>(null)
@@ -162,7 +164,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
   }
 
   const handleDeleteUser = async (userId: string) => {
-    if (!window.confirm('هل أنت متأكد من حذف هذا المستخدم؟')) return
+    if (!window.confirm('هل أنت متأكد من حذف هذ�� المستخدم؟')) return
 
     setLoading(true)
     const result = authService.deleteUser(userId)
@@ -266,7 +268,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
                             variant={user.role === 'admin' ? 'default' : 'secondary'}
                             className={user.role === 'admin' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'}
                           >
-                            {user.role === 'admin' ? 'مدير' : '��ستخدم'}
+                            {user.role === 'admin' ? 'مدير' : 'مستخدم'}
                           </Badge>
                           <Badge 
                             variant={user.isActive ? 'default' : 'secondary'}
