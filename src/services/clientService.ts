@@ -70,23 +70,46 @@ class ClientService {
   }
   
   /**
-   * الحصول على إحصائيات الزبون
+   * الحصول على قائمة العقود الفريدة
+   */
+  getUniqueContracts(billboards: Billboard[]): string[] {
+    const contracts = new Set<string>()
+
+    billboards.forEach(billboard => {
+      if (billboard.contractNumber && billboard.contractNumber.trim() !== '') {
+        contracts.add(billboard.contractNumber.trim())
+      }
+    })
+
+    return Array.from(contracts).sort()
+  }
+
+  /**
+   * الحصول على إحصائيات الزبون (عقود ولوحات)
    */
   getClientStats(billboards: Billboard[], clientName: string): {
     totalBillboards: number
+    totalContracts: number
     availableBillboards: number
     bookedBillboards: number
     soonBillboards: number
+    clientContracts: number
   } {
     const clientBillboards = this.filterBillboardsByClient(billboards, clientName)
-    
+    const clientOwnedBillboards = billboards.filter(billboard =>
+      billboard.clientName &&
+      billboard.clientName.trim().toLowerCase() === clientName.trim().toLowerCase()
+    )
+
     const stats = {
       totalBillboards: clientBillboards.length,
+      totalContracts: this.getUniqueContracts(clientBillboards).length,
+      clientContracts: this.getUniqueContracts(clientOwnedBillboards).length,
       availableBillboards: 0,
       bookedBillboards: 0,
       soonBillboards: 0
     }
-    
+
     clientBillboards.forEach(billboard => {
       switch (billboard.status) {
         case 'متاح':
@@ -100,7 +123,7 @@ class ClientService {
           break
       }
     })
-    
+
     return stats
   }
   
