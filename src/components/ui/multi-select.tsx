@@ -77,7 +77,8 @@ export function MultiSelect({
           <span className="truncate text-right flex-1 min-w-0">
             {getDisplayText()}
           </span>
-          <div className="flex items-center gap-1 ml-2">
+          <div className="flex items-center gap-1 mr-2" dir="ltr">
+            <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
             {!isAllSelected && (
               <button
                 onClick={(e) => {
@@ -89,7 +90,6 @@ export function MultiSelect({
                 <X className="h-3 w-3" />
               </button>
             )}
-            <ChevronDown className="ml-1 h-4 w-4 shrink-0 opacity-50" />
           </div>
         </Button>
       </PopoverTrigger>
