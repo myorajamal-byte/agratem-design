@@ -166,7 +166,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
     const result = authService.updatePassword(username, passwordForm.newPassword)
 
     if (result.success) {
-      setSuccess('تم تحديث كلمة المرور بنجاح')
+      setSuccess('تم تحديث كلمة المرور ��نجاح')
       setShowPasswordDialog(null)
       resetForms()
     } else {
@@ -293,6 +293,11 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
                         <p className="text-sm text-gray-500">
                           الصلاحيات: {user.permissions.map(p => p.description).join(', ') || 'لا توجد صلاحيات'}
                         </p>
+                        {user.assignedClient && (
+                          <p className="text-sm text-blue-600 font-semibold">
+                            الزبون المخصص: {user.assignedClient}
+                          </p>
+                        )}
                         {user.lastLogin && (
                           <p className="text-xs text-gray-400">
                             آخر دخول: {new Date(user.lastLogin).toLocaleDateString('ar-SA')}
