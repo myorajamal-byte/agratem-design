@@ -54,6 +54,9 @@ export default function App() {
   useEffect(() => {
     let filtered = billboards
 
+    // Check if any filters are active
+    const hasActiveFilters = searchTerm || selectedMunicipality !== "all" || selectedSize !== "all" || selectedAvailability !== "all"
+
     if (searchTerm) {
       filtered = filtered.filter(
         (billboard) =>
@@ -79,7 +82,13 @@ export default function App() {
       filtered = filtered.filter((billboard) => billboard.status === selectedAvailability)
     }
 
-    if (!showAllBillboards) {
+    // If filters are active, automatically enable showAllBillboards for proper pagination
+    if (hasActiveFilters && !showAllBillboards) {
+      setShowAllBillboards(true)
+    }
+
+    // Only limit results if no filters are active and showAllBillboards is false
+    if (!showAllBillboards && !hasActiveFilters) {
       filtered = filtered.slice(0, 8)
       setCurrentPage(1)
     }
