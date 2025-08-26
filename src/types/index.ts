@@ -17,3 +17,33 @@ export interface Billboard {
   clientName?: string
   advertisementType?: string
 }
+
+export interface User {
+  id: string
+  username: string
+  email: string
+  role: 'admin' | 'user'
+  permissions: Permission[]
+  createdAt: string
+  lastLogin?: string
+  isActive: boolean
+}
+
+export interface Permission {
+  id: string
+  name: string
+  description: string
+}
+
+export interface AuthContextType {
+  user: User | null
+  login: (username: string, password: string) => Promise<boolean>
+  logout: () => void
+  isAuthenticated: boolean
+  isLoading: boolean
+}
+
+export interface LoginCredentials {
+  username: string
+  password: string
+}
