@@ -9,8 +9,10 @@ import BillboardCard from "@/components/BillboardCard"
 import InteractiveMap from "@/components/InteractiveMap"
 import EmailDialog from "@/components/EmailDialog"
 import Footer from "@/components/Footer"
+import SystemSettings from "@/components/SystemSettings"
 import { loadBillboardsFromExcel } from "@/services/billboardService"
 import { Billboard } from "@/types"
+import { useAuth } from "@/contexts/AuthContext"
 
 export default function MainApp() {
   const [billboards, setBillboards] = useState<Billboard[]>([])
@@ -550,7 +552,7 @@ ${selectedBillboardsData
               onClick={() => setShowAllBillboards(true)}
               className="bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-black font-black px-8 py-3 rounded-full shadow-lg transform hover:scale-105 transition-all duration-300"
             >
-              عرض جميع اللوحات ({filteredBillboards.length})
+              عرض جميع اللوح��ت ({filteredBillboards.length})
             </Button>
           )}
 
