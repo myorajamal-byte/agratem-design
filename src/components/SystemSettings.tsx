@@ -21,7 +21,9 @@ import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { useAuth } from '@/contexts/AuthContext'
 import { authService } from '@/services/authService'
-import { User as UserType, Permission } from '@/types'
+import { clientService } from '@/services/clientService'
+import { loadBillboardsFromExcel } from '@/services/billboardService'
+import { User as UserType, Permission, Client, Billboard } from '@/types'
 
 interface SystemSettingsProps {
   onClose: () => void
@@ -264,7 +266,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
                             variant={user.role === 'admin' ? 'default' : 'secondary'}
                             className={user.role === 'admin' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'}
                           >
-                            {user.role === 'admin' ? 'مدير' : 'مستخدم'}
+                            {user.role === 'admin' ? 'مدير' : '��ستخدم'}
                           </Badge>
                           <Badge 
                             variant={user.isActive ? 'default' : 'secondary'}
