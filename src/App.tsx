@@ -369,13 +369,13 @@ ${selectedBillboardsData
         <table>
           <thead>
             <tr>
-              <th style="width: 16%;">صورة الوحة</th>
-              <th style="width: 12%;">رقم الوحة</th>
-              <th style="width: 22%;">موقع الوحة</th>
+              <th style="width: 16%;">صورة اللوحة</th>
+              <th style="width: 12%;">رقم اللوحة</th>
+              <th style="width: 22%;">موقع اللوحة</th>
               <th style="width: 14%;">البلدية</th>
               <th style="width: 14%;">المنطقة</th>
               <th style="width: 12%;">المقاس</th>
-              <th style="width: 10%;">ا��حالة</th>
+              <th style="width: 10%;">الحالة</th>
               <th style="width: 16%;">عرض على الخريطة</th>
             </tr>
           </thead>
