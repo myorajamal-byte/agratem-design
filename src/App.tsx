@@ -16,9 +16,9 @@ export default function App() {
   const [billboards, setBillboards] = useState<Billboard[]>([])
   const [filteredBillboards, setFilteredBillboards] = useState<Billboard[]>([])
   const [searchTerm, setSearchTerm] = useState("")
-  const [selectedMunicipality, setSelectedMunicipality] = useState("all")
-  const [selectedSize, setSelectedSize] = useState("all")
-  const [selectedAvailability, setSelectedAvailability] = useState("all")
+  const [selectedMunicipalities, setSelectedMunicipalities] = useState<string[]>([])
+  const [selectedSizes, setSelectedSizes] = useState<string[]>([])
+  const [selectedAvailabilities, setSelectedAvailabilities] = useState<string[]>([])
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [showAllBillboards, setShowAllBillboards] = useState(true)
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
@@ -55,7 +55,7 @@ export default function App() {
     let filtered = billboards
 
     // Check if any filters are active
-    const hasActiveFilters = searchTerm || selectedMunicipality !== "all" || selectedSize !== "all" || selectedAvailability !== "all"
+    const hasActiveFilters = searchTerm || selectedMunicipalities.length > 0 || selectedSizes.length > 0 || selectedAvailabilities.length > 0
 
     if (searchTerm) {
       filtered = filtered.filter(
@@ -70,16 +70,16 @@ export default function App() {
       )
     }
 
-    if (selectedMunicipality !== "all") {
-      filtered = filtered.filter((billboard) => billboard.municipality === selectedMunicipality)
+    if (selectedMunicipalities.length > 0) {
+      filtered = filtered.filter((billboard) => selectedMunicipalities.includes(billboard.municipality))
     }
 
-    if (selectedSize !== "all") {
-      filtered = filtered.filter((billboard) => billboard.size === selectedSize)
+    if (selectedSizes.length > 0) {
+      filtered = filtered.filter((billboard) => selectedSizes.includes(billboard.size))
     }
 
-    if (selectedAvailability !== "all") {
-      filtered = filtered.filter((billboard) => billboard.status === selectedAvailability)
+    if (selectedAvailabilities.length > 0) {
+      filtered = filtered.filter((billboard) => selectedAvailabilities.includes(billboard.status))
     }
 
     // Reset pagination when filters change
@@ -94,7 +94,7 @@ export default function App() {
     }
 
     setFilteredBillboards(filtered)
-  }, [searchTerm, selectedMunicipality, selectedSize, selectedAvailability, billboards, showAllBillboards])
+  }, [searchTerm, selectedMunicipalities, selectedSizes, selectedAvailabilities, billboards, showAllBillboards])
 
   const municipalities = Array.from(new Set(billboards.map((b) => b.municipality)))
   const sizes = Array.from(new Set(billboards.map((b) => b.size)))
