@@ -85,6 +85,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
       email: '',
       role: 'user',
       permissions: [],
+      assignedClient: '',
       password: '',
       isActive: true
     })
@@ -541,7 +542,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
           </div>
         )}
 
-        {/* نافذة تغيير كلمة الم��ور */}
+        {/* نافذة تغيير كلمة المرور */}
         {showPasswordDialog && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-60">
             <Card className="w-full max-w-md">
@@ -591,7 +592,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
                     className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-black font-bold"
                   >
                     <Lock className="w-4 h-4 mr-2" />
-                    تحديث كلمة المر��ر
+                    تحديث كلمة المرور
                   </Button>
                   <Button
                     onClick={() => {
