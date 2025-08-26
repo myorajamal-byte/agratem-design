@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from 'react'
-import { 
-  Users, 
-  UserPlus, 
-  Edit3, 
-  Trash2, 
-  Shield, 
-  Eye, 
-  EyeOff, 
-  X, 
+import {
+  Users,
+  UserPlus,
+  Edit3,
+  Trash2,
+  Shield,
+  Eye,
+  EyeOff,
+  X,
   Save,
   Key,
   Mail,
   User,
-  Lock
+  Lock,
+  Settings
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
