@@ -120,7 +120,7 @@ export default function Header({ onOpenSettings }: HeaderProps) {
       {/* إغلاق القائمة عند النقر خارجها */}
       {showUserMenu && (
         <div
-          className="fixed inset-0 z-40"
+          className="fixed inset-0 z-[9998]"
           onClick={() => setShowUserMenu(false)}
         />
       )}
