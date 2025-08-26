@@ -15,6 +15,8 @@ import { MultiSelect } from "@/components/ui/multi-select"
 interface SearchFiltersProps {
   searchTerm: string
   setSearchTerm: (term: string) => void
+  contractFilter: string
+  setContractFilter: (contract: string) => void
   selectedMunicipalities: string[]
   setSelectedMunicipalities: (municipalities: string[]) => void
   selectedSizes: string[]
@@ -27,6 +29,7 @@ interface SearchFiltersProps {
   setShowMap: (show: boolean) => void
   municipalities: string[]
   sizes: string[]
+  contracts: string[]
   onPrint: () => void
 }
 
@@ -53,7 +56,7 @@ export default function SearchFilters({
         <div className="text-center" style={{textAlign: 'center'}}>
           <h2 className="text-4xl font-black text-gray-900 mb-4 tracking-tight font-sans" style={{textAlign: 'center', direction: 'rtl'}}>ابحث عن موقعك الإعلاني المثالي</h2>
           <p className="text-xl text-gray-700 font-semibold font-sans" style={{textAlign: 'center', direction: 'rtl'}}>
-            اكتشف أفضل ال��واقع الإعلانية في ليبيا مع خدماتنا المتميزة
+            اكتشف أفضل المواقع الإعلانية في ليبيا مع خدماتنا المتميزة
           </p>
         </div>
 
