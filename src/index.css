@@ -65,6 +65,48 @@ button[dir="rtl"], .button[dir="rtl"] {
   text-align: center;
 }
 
+/* إصلاح محاذاة النصوص في العناصر المختلفة */
+.text-center {
+  text-align: center !important;
+}
+
+.text-right {
+  text-align: right !important;
+}
+
+/* إصلاح محاذاة القوائم المنسدلة */
+[role="combobox"] {
+  text-align: right;
+  direction: rtl;
+}
+
+/* إصلاح محاذاة محتوى القوائم */
+[role="menuitem"], [role="option"] {
+  text-align: right;
+  direction: rtl;
+}
+
+/* إصلاح ترتيب الأيقونات في RTL */
+[dir="rtl"] .flex {
+  flex-direction: row;
+}
+
+[dir="rtl"] .justify-between {
+  justify-content: space-between;
+}
+
+/* إصلاح محاذاة الأيقونات */
+[dir="rtl"] svg {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+/* تحسين عرض المكونات المتعددة الاختيار */
+.multi-select-content {
+  background: white !important;
+  border: 1px solid #e5e7eb !important;
+}
+
 /* تحسين عرض النصوص في البادجز */
 .badge[dir="rtl"] {
   direction: rtl;
