@@ -36,6 +36,8 @@ interface SearchFiltersProps {
 export default function SearchFilters({
   searchTerm,
   setSearchTerm,
+  contractFilter,
+  setContractFilter,
   selectedMunicipalities,
   setSelectedMunicipalities,
   selectedSizes,
@@ -48,6 +50,7 @@ export default function SearchFilters({
   setShowMap,
   municipalities,
   sizes,
+  contracts,
   onPrint,
 }: SearchFiltersProps) {
   return (
