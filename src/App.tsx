@@ -184,13 +184,14 @@ ${selectedBillboardsData
             margin: 12mm;
           }
           * { margin: 0; padding: 0; box-sizing: border-box; }
-          body { 
-            font-family: 'Tajawal', 'Arial', sans-serif; 
-            direction: rtl; 
+          body {
+            font-family: 'Tajawal', 'Cairo', 'Arial', sans-serif;
+            direction: rtl;
             background: white;
             color: #000;
-            line-height: 1.3;
+            line-height: 1.4;
             font-size: 10px;
+            unicode-bidi: embed;
           }
           .header { 
             display: flex;
