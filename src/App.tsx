@@ -532,6 +532,37 @@ ${selectedBillboardsData
             <span className="font-black text-yellow-600">{filteredBillboards.length}</span> لوحة متاحة
           </p>
 
+          {/* اختبار البحث المؤقت */}
+          <div className="flex gap-2">
+            <Button
+              onClick={() => {
+                console.log('[TEST] اختبار البحث عن زلي')
+                setSearchTerm('زلي')
+              }}
+              className="bg-red-500 text-white text-xs px-3 py-1"
+            >
+              اختبار: زلي
+            </Button>
+            <Button
+              onClick={() => {
+                console.log('[TEST] اختبار البحث عن زليتن')
+                setSearchTerm('زليتن')
+              }}
+              className="bg-blue-500 text-white text-xs px-3 py-1"
+            >
+              اختبار: زليتن
+            </Button>
+            <Button
+              onClick={() => {
+                console.log('[TEST] مسح البحث')
+                setSearchTerm('')
+              }}
+              className="bg-gray-500 text-white text-xs px-3 py-1"
+            >
+              مسح
+            </Button>
+          </div>
+
           {!showAllBillboards && billboards.length > 8 && (
             <Button
               onClick={() => setShowAllBillboards(true)}
