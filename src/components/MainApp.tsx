@@ -15,6 +15,7 @@ import { Billboard } from "@/types"
 import { useAuth } from "@/contexts/AuthContext"
 
 export default function MainApp() {
+  const { user } = useAuth()
   const [billboards, setBillboards] = useState<Billboard[]>([])
   const [filteredBillboards, setFilteredBillboards] = useState<Billboard[]>([])
   const [searchTerm, setSearchTerm] = useState("")
@@ -33,6 +34,7 @@ export default function MainApp() {
   const [customerName, setCustomerName] = useState("")
   const [customerPhone, setCustomerPhone] = useState("")
   const [emailMessage, setEmailMessage] = useState("")
+  const [showSettings, setShowSettings] = useState(false)
 
   const itemsPerPage = 12
 
@@ -178,7 +180,7 @@ ${selectedBillboardsData
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>المساحات الإعلانية المتاحة - الفارس الذهبي</title>
+        <title>المس��حات الإعلانية المتاحة - الفارس الذهبي</title>
         <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
         <style>
           @page {
@@ -552,7 +554,7 @@ ${selectedBillboardsData
               onClick={() => setShowAllBillboards(true)}
               className="bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-black font-black px-8 py-3 rounded-full shadow-lg transform hover:scale-105 transition-all duration-300"
             >
-              عرض جميع اللوح��ت ({filteredBillboards.length})
+              عرض جميع اللوحات ({filteredBillboards.length})
             </Button>
           )}
 
