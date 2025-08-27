@@ -17,7 +17,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Billboard, BillboardSize, Quote } from '@/types'
+import { Billboard, BillboardSize, Quote, CustomerType, PackageDuration } from '@/types'
 import { pricingService } from '@/services/pricingService'
 
 interface QuoteDialogProps {
@@ -137,7 +137,7 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
               <div>
                 <h1 className="text-2xl font-black">إنشاء فاتورة عرض سعر</h1>
                 <p className="text-sm opacity-80">
-                  {selectedBillboards.size} لوحة إعلانية مختارة
+                  {selectedBillboards.size} لوحة ��علانية مختارة
                 </p>
               </div>
             </div>
