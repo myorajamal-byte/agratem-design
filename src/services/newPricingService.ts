@@ -363,12 +363,33 @@ class NewPricingService implements SizeManagement {
   determinePricingZone(municipality: string, area: string): string {
     const municipalityLower = municipality.toLowerCase().trim()
     const areaLower = area.toLowerCase().trim()
-    
+
     if (municipalityLower.includes('مصراتة')) return 'مصراتة'
     if (municipalityLower.includes('أبو سليم') || areaLower.includes('أبو سليم')) return 'أبو سليم'
     if (municipalityLower.includes('طرابلس') && areaLower.includes('الشط')) return 'شركات'
-    
+
     return 'مصراتة'
+  }
+
+  /**
+   * الحصول على معامل البلدية مع الافتراضي 1
+   */
+  getMunicipalityMultiplier(municipality: string): number {
+    // محاولة الحصول على معامل البلدية من خدمة البلديات
+    try {
+      // تجربة استيراد خدمة البلديات بشكل ديناميكي
+      if (typeof window !== 'undefined' && (window as any).municipalityService) {
+        const municipalityData = (window as any).municipalityService.getMunicipalityByName(municipality)
+        if (municipalityData && typeof municipalityData.multiplier === 'number') {
+          return municipalityData.multiplier
+        }
+      }
+    } catch (error) {
+      console.warn('خطأ في الحصول على معامل البلدية:', error)
+    }
+
+    // الافتراضي هو 1 إذا لم يجد المعامل
+    return 1.0
   }
 
   /**
