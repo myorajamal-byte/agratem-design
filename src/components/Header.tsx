@@ -15,7 +15,7 @@ interface HeaderProps {
   onOpenPricing?: () => void
 }
 
-export default function Header({ onOpenSettings }: HeaderProps) {
+export default function Header({ onOpenSettings, onOpenPricing }: HeaderProps) {
   const { user, logout } = useAuth()
   const [showUserMenu, setShowUserMenu] = useState(false)
 
