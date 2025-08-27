@@ -67,13 +67,31 @@ const PricingManagement: React.FC<PricingManagementProps> = ({ onClose }) => {
   const addNewZone = () => {
     if (!pricing || !newZoneName.trim()) return
 
-    const defaultPrices: Record<BillboardSize, number> = {
-      '5x13': 3500,
-      '4x12': 2800,
-      '4x10': 2200,
-      '3x8': 1500,
-      '3x6': 1000,
-      '3x4': 800
+    const defaultPrices = {
+      marketers: {
+        '5x13': 3000,
+        '4x12': 2400,
+        '4x10': 1900,
+        '3x8': 1300,
+        '3x6': 900,
+        '3x4': 700
+      } as Record<BillboardSize, number>,
+      individuals: {
+        '5x13': 3500,
+        '4x12': 2800,
+        '4x10': 2200,
+        '3x8': 1500,
+        '3x6': 1000,
+        '3x4': 800
+      } as Record<BillboardSize, number>,
+      companies: {
+        '5x13': 4000,
+        '4x12': 3200,
+        '4x10': 2500,
+        '3x8': 1700,
+        '3x6': 1200,
+        '3x4': 900
+      } as Record<BillboardSize, number>
     }
 
     const updatedPricing = {
