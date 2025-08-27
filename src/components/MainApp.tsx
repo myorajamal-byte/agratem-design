@@ -510,7 +510,7 @@ ${selectedBillboardsData
         <section className="bg-gradient-to-r from-yellow-500 via-yellow-400 to-yellow-500 text-black py-16 relative z-10">
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-5xl md:text-6xl font-black mb-6 tracking-tight leading-tight">
-              الرائدون في عالم الدعاية والإعلان
+              الرائدون في عالم الدعاية والإعلا��
             </h2>
             <p className="text-xl md:text-2xl mb-8 max-w-4xl mx-auto leading-relaxed font-bold">
               نحن نقدم حلول إعلانية متكاملة ومبتكرة تضمن وصول رسالتك إلى الجمهور المناسب في الوقت المناسب
@@ -780,6 +780,21 @@ ${selectedBillboardsData
       {/* نافذة إعدادات النظام */}
       {showSettings && user?.permissions.some(p => p.name === 'manage_users') && (
         <SystemSettings onClose={() => setShowSettings(false)} />
+      )}
+
+      {/* نافذة إدارة الأسعار */}
+      {showPricingManagement && user?.permissions.some(p => p.name === 'admin_access') && (
+        <PricingManagement onClose={() => setShowPricingManagement(false)} />
+      )}
+
+      {/* نافذة فاتورة العرض */}
+      {showQuoteDialog && user?.permissions.some(p => p.name === 'admin_access') && (
+        <QuoteDialog
+          isOpen={showQuoteDialog}
+          onClose={() => setShowQuoteDialog(false)}
+          selectedBillboards={selectedBillboards}
+          billboards={billboards}
+        />
       )}
     </div>
   )
