@@ -1,6 +1,6 @@
-import { PriceList, PricingZone, BillboardSize, QuoteItem, Quote, CustomerType, PackageDuration } from '@/types'
+import { PriceList, PricingZone, BillboardSize, QuoteItem, Quote, CustomerType, PackageDuration, PriceListType } from '@/types'
 
-// الباقات الزمنية المتاحة
+// البا��ات الزمنية المتاحة
 const DEFAULT_PACKAGES: PackageDuration[] = [
   { value: 1, unit: 'month', label: 'شهر واحد', discount: 0 },
   { value: 3, unit: 'months', label: '3 أشهر', discount: 5 }, // خصم 5%
