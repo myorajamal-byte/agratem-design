@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { Search, MapPin, Star, Award, Users, MessageCircle, Mail } from "lucide-react"
+import { Search, MapPin, Star, Award, Users, MessageCircle, Mail, FileText } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 
@@ -10,6 +10,8 @@ import InteractiveMap from "@/components/InteractiveMap"
 import EmailDialog from "@/components/EmailDialog"
 import Footer from "@/components/Footer"
 import SystemSettings from "@/components/SystemSettings"
+import PricingManagement from "@/components/PricingManagement"
+import QuoteDialog from "@/components/QuoteDialog"
 import { loadBillboardsFromExcel } from "@/services/billboardService"
 import { clientService } from "@/services/clientService"
 import { Billboard } from "@/types"
@@ -20,6 +22,7 @@ export default function MainApp() {
   const [billboards, setBillboards] = useState<Billboard[]>([])
   const [filteredBillboards, setFilteredBillboards] = useState<Billboard[]>([])
   const [searchTerm, setSearchTerm] = useState("")
+  const [contractFilter, setContractFilter] = useState("")
   const [selectedMunicipalities, setSelectedMunicipalities] = useState<string[]>([])
   const [selectedSizes, setSelectedSizes] = useState<string[]>([])
   const [selectedAvailabilities, setSelectedAvailabilities] = useState<string[]>([])
@@ -36,6 +39,8 @@ export default function MainApp() {
   const [customerPhone, setCustomerPhone] = useState("")
   const [emailMessage, setEmailMessage] = useState("")
   const [showSettings, setShowSettings] = useState(false)
+  const [showPricingManagement, setShowPricingManagement] = useState(false)
+  const [showQuoteDialog, setShowQuoteDialog] = useState(false)
 
   const itemsPerPage = 12
 
@@ -67,7 +72,7 @@ export default function MainApp() {
     let filtered = billboards
 
     // Check if any filters are active
-    const hasActiveFilters = searchTerm || selectedMunicipalities.length > 0 || selectedSizes.length > 0 || selectedAvailabilities.length > 0
+    const hasActiveFilters = searchTerm || contractFilter || selectedMunicipalities.length > 0 || selectedSizes.length > 0 || selectedAvailabilities.length > 0
 
     if (searchTerm) {
       filtered = filtered.filter(
@@ -80,6 +85,11 @@ export default function MainApp() {
           (billboard.contractNumber && billboard.contractNumber.toLowerCase().includes(searchTerm.toLowerCase())) ||
           (billboard.advertisementType && billboard.advertisementType.toLowerCase().includes(searchTerm.toLowerCase())),
       )
+    }
+
+    // فلترة برقم العقد
+    if (contractFilter) {
+      filtered = clientService.filterBillboardsByContract(filtered, contractFilter)
     }
 
     if (selectedMunicipalities.length > 0) {
@@ -106,10 +116,11 @@ export default function MainApp() {
     }
 
     setFilteredBillboards(filtered)
-  }, [searchTerm, selectedMunicipalities, selectedSizes, selectedAvailabilities, billboards, showAllBillboards])
+  }, [searchTerm, contractFilter, selectedMunicipalities, selectedSizes, selectedAvailabilities, billboards, showAllBillboards])
 
   const municipalities = Array.from(new Set(billboards.map((b) => b.municipality)))
   const sizes = Array.from(new Set(billboards.map((b) => b.size)))
+  const contracts = clientService.getUniqueContracts(billboards)
 
   const totalPages = Math.ceil(filteredBillboards.length / itemsPerPage)
   const paginatedBillboards = showAllBillboards
@@ -489,7 +500,10 @@ ${selectedBillboardsData
         <img src="/logo-symbol.svg" alt="رمز الشركة" className="w-[600px] h-[600px] object-contain" />
       </div>
 
-      <Header onOpenSettings={() => setShowSettings(true)} />
+      <Header
+        onOpenSettings={() => setShowSettings(true)}
+        onOpenPricing={() => setShowPricingManagement(true)}
+      />
 
 
       {!showAllBillboards && (
@@ -548,6 +562,8 @@ ${selectedBillboardsData
         <SearchFilters
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
+          contractFilter={contractFilter}
+          setContractFilter={setContractFilter}
           selectedMunicipalities={selectedMunicipalities}
           setSelectedMunicipalities={setSelectedMunicipalities}
           selectedSizes={selectedSizes}
@@ -560,6 +576,7 @@ ${selectedBillboardsData
           setShowMap={setShowMap}
           municipalities={municipalities}
           sizes={sizes}
+          contracts={contracts}
           onPrint={handlePrint}
         />
 
@@ -606,6 +623,7 @@ ${selectedBillboardsData
               isSelected={selectedBillboards.has(billboard.id)}
               onToggleSelection={toggleBillboardSelection}
               onViewImage={setSelectedImage}
+              showPricing={user?.permissions.some(p => p.name === 'admin_access')}
             />
           ))}
         </div>
@@ -627,6 +645,15 @@ ${selectedBillboardsData
                 >
                   إلغاء التحديد
                 </Button>
+                {user?.permissions.some(p => p.name === 'admin_access') && (
+                  <Button
+                    onClick={() => setShowQuoteDialog(true)}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-6"
+                  >
+                    <FileText className="w-4 h-4 ml-2" />
+                    إنشاء فاتورة عرض
+                  </Button>
+                )}
                 <Button
                   onClick={() => setShowEmailDialog(true)}
                   className="bg-green-600 hover:bg-green-700 text-white px-6"
@@ -753,6 +780,21 @@ ${selectedBillboardsData
       {/* نافذة إعدادات النظام */}
       {showSettings && user?.permissions.some(p => p.name === 'manage_users') && (
         <SystemSettings onClose={() => setShowSettings(false)} />
+      )}
+
+      {/* نافذة إدارة الأسعار */}
+      {showPricingManagement && user?.permissions.some(p => p.name === 'admin_access') && (
+        <PricingManagement onClose={() => setShowPricingManagement(false)} />
+      )}
+
+      {/* نافذة فاتورة العرض */}
+      {showQuoteDialog && user?.permissions.some(p => p.name === 'admin_access') && (
+        <QuoteDialog
+          isOpen={showQuoteDialog}
+          onClose={() => setShowQuoteDialog(false)}
+          selectedBillboards={selectedBillboards}
+          billboards={billboards}
+        />
       )}
     </div>
   )

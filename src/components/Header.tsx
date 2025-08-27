@@ -6,15 +6,16 @@
  */
 
 import { useState } from "react"
-import { LogOut, Settings, User, ChevronDown } from "lucide-react"
+import { LogOut, Settings, User, ChevronDown, DollarSign } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/contexts/AuthContext"
 
 interface HeaderProps {
   onOpenSettings?: () => void
+  onOpenPricing?: () => void
 }
 
-export default function Header({ onOpenSettings }: HeaderProps) {
+export default function Header({ onOpenSettings, onOpenPricing }: HeaderProps) {
   const { user, logout } = useAuth()
   const [showUserMenu, setShowUserMenu] = useState(false)
 
@@ -80,6 +81,22 @@ export default function Header({ onOpenSettings }: HeaderProps) {
                     </div>
 
                     <div className="p-2">
+                      {user.permissions.some(p => p.name === 'admin_access') && (
+                        <button
+                          onClick={() => {
+                            onOpenPricing?.()
+                            setShowUserMenu(false)
+                          }}
+                          className="w-full flex items-center gap-3 px-4 py-3 text-right hover:bg-green-50 rounded-lg transition-colors text-gray-700"
+                        >
+                          <DollarSign className="w-5 h-5 text-green-600" />
+                          <div>
+                            <p className="font-semibold">إدارة الأسعار</p>
+                            <p className="text-sm text-gray-500">تحديد أسعار اللوحات الإعلانية</p>
+                          </div>
+                        </button>
+                      )}
+
                       {user.permissions.some(p => p.name === 'manage_users') && (
                         <button
                           onClick={() => {

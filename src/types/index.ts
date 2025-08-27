@@ -62,3 +62,71 @@ export interface ClientFilter {
 export interface ContractFilter {
   contractNumber?: string
 }
+
+// أنواع البيانات الخاصة بالأسعار والفواتير
+export type BillboardSize = '5x13' | '4x12' | '4x10' | '3x8' | '3x6' | '3x4'
+
+export type CustomerType = 'marketers' | 'individuals' | 'companies'
+
+export type PackageDuration = {
+  value: number
+  unit: 'month' | 'months' | 'year'
+  label: string
+  discount: number // نسبة الخصم
+}
+
+export interface CustomerTypePricing {
+  marketers: Record<BillboardSize, number> // أسعار المسوقين
+  individuals: Record<BillboardSize, number> // أسعار العاديين
+  companies: Record<BillboardSize, number> // أسعار الشركات
+}
+
+export interface PricingZone {
+  name: string
+  prices: CustomerTypePricing
+}
+
+export interface PriceList {
+  zones: Record<string, PricingZone>
+  packages: PackageDuration[]
+  currency: string
+}
+
+export interface QuoteItem {
+  billboardId: string
+  name: string
+  location: string
+  size: BillboardSize
+  zone: string
+  basePrice: number // السعر الأساسي
+  finalPrice: number // السعر النهائي بعد الخصم
+  duration: number
+  discount: number // نسبة الخصم
+  total: number
+  imageUrl?: string
+}
+
+export interface Quote {
+  id: string
+  customerInfo: {
+    name: string
+    email: string
+    phone: string
+    company?: string
+    type: CustomerType
+  }
+  packageInfo: {
+    duration: number
+    label: string
+    discount: number
+  }
+  items: QuoteItem[]
+  subtotal: number
+  totalDiscount: number
+  tax: number
+  taxRate: number
+  total: number
+  currency: string
+  createdAt: string
+  validUntil: string
+}

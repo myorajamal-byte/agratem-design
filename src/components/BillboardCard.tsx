@@ -1,17 +1,19 @@
-import { MapPin, Eye } from "lucide-react"
+import { MapPin, Eye, DollarSign } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Billboard } from "@/types"
+import { Billboard, BillboardSize } from "@/types"
+import { pricingService } from "@/services/pricingService"
 
 interface BillboardCardProps {
   billboard: Billboard
   isSelected: boolean
   onToggleSelection: (billboardId: string) => void
   onViewImage: (imageUrl: string) => void
+  showPricing?: boolean // عرض الأسعار للأدمن
 }
 
-export default function BillboardCard({ billboard, isSelected, onToggleSelection, onViewImage }: BillboardCardProps) {
+export default function BillboardCard({ billboard, isSelected, onToggleSelection, onViewImage, showPricing = false }: BillboardCardProps) {
   // حساب الأيام المتبقية للانتهاء
   const getDaysRemaining = () => {
     if (!billboard.expiryDate) return null
@@ -27,7 +29,24 @@ export default function BillboardCard({ billboard, isSelected, onToggleSelection
     return diffDays > 0 ? diffDays : 0
   }
 
+  // حساب السعر والمنطقة السعرية
+  const getPricingInfo = () => {
+    if (!showPricing) return null
+
+    const zone = pricingService.determinePricingZone(billboard.municipality, billboard.area)
+    const price = pricingService.getBillboardPrice(billboard.size as BillboardSize, zone)
+    const pricing = pricingService.getPricing()
+
+    return {
+      zone,
+      price,
+      currency: pricing.currency,
+      unit: pricing.unit
+    }
+  }
+
   const daysRemaining = getDaysRemaining()
+  const pricingInfo = getPricingInfo()
 
   return (
     <Card
@@ -162,6 +181,34 @@ export default function BillboardCard({ billboard, isSelected, onToggleSelection
               )}
             </div>
           </div>
+
+          {/* معلومات الأسعار للأدمن */}
+          {showPricing && pricingInfo && (
+            <div className="border-t border-gray-200 pt-3" dir="rtl">
+              <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-3">
+                <h4 className="text-sm font-bold text-green-800 mb-2 text-right font-sans flex items-center gap-2" dir="rtl">
+                  <DollarSign className="w-4 h-4" />
+                  معلومات التسعير
+                </h4>
+                <div className="space-y-1 text-right">
+                  <div className="flex" dir="rtl" style={{justifyContent: 'space-between'}}>
+                    <span className="text-sm text-green-900 font-bold font-sans">{pricingInfo.zone}</span>
+                    <span className="text-sm text-green-700 font-semibold font-sans">:المنطقة السعرية</span>
+                  </div>
+                  <div className="flex" dir="rtl" style={{justifyContent: 'space-between'}}>
+                    <span className="text-lg text-green-900 font-black font-sans">
+                      {pricingInfo.price.toLocaleString()} {pricingInfo.currency}
+                    </span>
+                    <span className="text-sm text-green-700 font-semibold font-sans">:السعر {pricingInfo.unit}</span>
+                  </div>
+                  <div className="flex" dir="rtl" style={{justifyContent: 'space-between'}}>
+                    <span className="text-sm text-green-900 font-bold font-sans">{billboard.size}</span>
+                    <span className="text-sm text-green-700 font-semibold font-sans">:المقاس</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="pt-1">
             <Button

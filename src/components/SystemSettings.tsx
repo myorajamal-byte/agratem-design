@@ -248,7 +248,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
             </div>
           )}
 
-          {/* إضافة مستخدم جديد */}
+          {/* إضا��ة مستخدم جديد */}
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
@@ -438,7 +438,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
                             ))}
                           </select>
                           <p className="text-xs text-gray-500 mt-1">
-                            هذا المستخدم سيرى فقط العقود الخاصة بالزبون المحدد
+                            هذا المستخدم سيرى العقود الخاصة بالزبون المحدد + جمي�� اللوحات المتاحة
                           </p>
                         </div>
                       )}
@@ -532,7 +532,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
                     <>
                       <div>
                         <label className="block text-sm font-bold text-gray-700 mb-2">
-                          الصلاحيات
+                          الص��احيات
                         </label>
                         <div className="space-y-2">
                           {permissions.map((permission) => (
@@ -567,7 +567,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
                             ))}
                           </select>
                           <p className="text-xs text-gray-500 mt-1">
-                            هذا المستخدم سيرى فقط العقود الخاصة بالزبون المحدد
+                            هذا المستخدم سيرى العقود الخاصة بالزبون المحدد + جميع اللوحات المتاحة
                           </p>
                         </div>
                       )}
