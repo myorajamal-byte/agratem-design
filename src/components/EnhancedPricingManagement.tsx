@@ -71,7 +71,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
     levels: [
       { id: 'A', name: 'مستوى A', description: 'مواقع مميزة' },
       { id: 'B', name: 'مستوى B', description: 'مواقع عادية' },
-      { id: 'C', name: 'مستوى C', description: 'مواقع اقتصادي��' }
+      { id: 'C', name: 'مستوى C', description: 'مواقع اقتصادية' }
     ],
     municipalities: [
       { id: '1', name: 'مصراتة', multiplier: 1.0 },
@@ -416,7 +416,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
 
   // Reset all changes
   const resetAllChanges = () => {
-    if (window.confirm('هل أنت متأكد من إلغاء جميع التغييرات غير المحفوظة؟')) {
+    if (window.confirm('هل أنت متأكد من إلغاء جميع ��لتغييرات غير المحفوظة؟')) {
       initializePricingData()
       setUnsavedChanges({ hasChanges: false, changedCells: new Set() })
       showNotification('success', 'تم إلغاء جميع التغييرات')
@@ -691,7 +691,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
             <div className="p-6 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
               <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
                 <Calculator className="w-7 h-7 text-blue-600" />
-                أسعار الإجمالي حسب فئة العميل — {selectedDuration?.label}
+                أسعار الإجم��لي حسب فئة العميل — {selectedDuration?.label}
               </h3>
               <p className="text-base text-gray-700 mt-2 font-medium">
                 المستوى الحالي: <span className="text-blue-600 font-bold">{pricingData.levels.find(l => l.id === pricingData.currentLevel)?.name}</span>
@@ -833,29 +833,30 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
           </Card>
 
           {/* Municipality Multipliers Table */}
-          <Card className="mb-6">
-            <div className="p-4 bg-gray-50 border-b">
-              <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                <FileSpreadsheet className="w-6 h-6" />
+          <Card className="mb-6 shadow-lg rounded-lg overflow-hidden">
+            <div className="p-6 bg-gradient-to-r from-blue-50 to-blue-100 border-b border-blue-200">
+              <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+                <FileSpreadsheet className="w-7 h-7 text-blue-600" />
                 جدول معاملات البلديات
               </h3>
+              <p className="text-base text-gray-700 mt-2">إدارة معاملات الضرب للبلديات المختلفة</p>
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
+            <div className="overflow-x-auto bg-white">
+              <table className="w-full border-collapse municipality-table">
                 <thead>
-                  <tr className="bg-blue-500 text-white">
-                    <th className="border border-gray-300 p-3 text-right font-bold">اسم البلدية</th>
-                    <th className="border border-gray-300 p-3 text-center font-bold">المعامل</th>
-                    <th className="border border-gray-300 p-3 text-center font-bold">الإجراءات</th>
+                  <tr className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+                    <th className="border border-blue-300 p-4 text-right font-bold text-lg">اسم البلدية</th>
+                    <th className="border border-blue-300 p-4 text-center font-bold text-lg">المعامل</th>
+                    <th className="border border-blue-300 p-4 text-center font-bold text-lg">الإجراءات</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {pricingData.municipalities.map((municipality) => (
-                    <tr key={municipality.id} className="hover:bg-gray-50">
-                      <td className="border border-gray-300 p-3 font-semibold">
+                  {pricingData.municipalities.map((municipality, index) => (
+                    <tr key={municipality.id} className={`hover:bg-blue-50 transition-colors ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`}>
+                      <td className="border border-gray-200 p-4 font-semibold text-gray-800 text-lg">
                         {municipality.name}
                       </td>
-                      <td className="border border-gray-300 p-3 text-center">
+                      <td className="border border-gray-200 p-4 text-center">
                         <Input
                           type="number"
                           value={municipality.multiplier}
@@ -870,12 +871,12 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                               )
                             }))
                           }}
-                          className="w-20 text-center"
+                          className="w-24 text-center font-bold text-lg border-2 border-gray-300 rounded-lg focus:border-blue-500"
                           step="0.1"
                           min="0"
                         />
                       </td>
-                      <td className="border border-gray-300 p-3 text-center">
+                      <td className="border border-gray-200 p-4 text-center">
                         <Button
                           onClick={() => {
                             if (window.confirm(`هل تريد حذف "${municipality.name}"؟`)) {
@@ -887,7 +888,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                           }}
                           variant="outline"
                           size="sm"
-                          className="text-red-600 border-red-300"
+                          className="text-red-600 border-red-300 hover:bg-red-50 transition-colors"
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
