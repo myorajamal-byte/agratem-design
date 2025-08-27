@@ -85,6 +85,24 @@ const DEFAULT_PRICING: PriceList = {
           '3x6': 1700,
           '3x4': 1100
         }
+      },
+      abPrices: {
+        A: {
+          '5x13': 4000,
+          '4x12': 3300,
+          '4x10': 2700,
+          '3x8': 2000,
+          '3x6': 1500,
+          '3x4': 1000
+        },
+        B: {
+          '5x13': 5000,
+          '4x12': 4300,
+          '4x10': 3700,
+          '3x8': 3000,
+          '3x6': 2500,
+          '3x4': 2000
+        }
       }
     },
     'شركات': {
@@ -183,7 +201,7 @@ class PricingService {
   }
 
   /**
-   * تحديث قائمة الأسعار
+   * تحديث ��ائمة الأسعار
    */
   updatePricing(pricing: PriceList): { success: boolean; error?: string } {
     try {
