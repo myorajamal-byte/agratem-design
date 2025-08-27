@@ -182,6 +182,34 @@ export default function BillboardCard({ billboard, isSelected, onToggleSelection
             </div>
           </div>
 
+          {/* معلومات الأسعار للأدمن */}
+          {showPricing && pricingInfo && (
+            <div className="border-t border-gray-200 pt-3" dir="rtl">
+              <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-3">
+                <h4 className="text-sm font-bold text-green-800 mb-2 text-right font-sans flex items-center gap-2" dir="rtl">
+                  <DollarSign className="w-4 h-4" />
+                  معلومات التسعير
+                </h4>
+                <div className="space-y-1 text-right">
+                  <div className="flex" dir="rtl" style={{justifyContent: 'space-between'}}>
+                    <span className="text-sm text-green-900 font-bold font-sans">{pricingInfo.zone}</span>
+                    <span className="text-sm text-green-700 font-semibold font-sans">:المنطقة السعرية</span>
+                  </div>
+                  <div className="flex" dir="rtl" style={{justifyContent: 'space-between'}}>
+                    <span className="text-lg text-green-900 font-black font-sans">
+                      {pricingInfo.price.toLocaleString()} {pricingInfo.currency}
+                    </span>
+                    <span className="text-sm text-green-700 font-semibold font-sans">:السعر {pricingInfo.unit}</span>
+                  </div>
+                  <div className="flex" dir="rtl" style={{justifyContent: 'space-between'}}>
+                    <span className="text-sm text-green-900 font-bold font-sans">{billboard.size}</span>
+                    <span className="text-sm text-green-700 font-semibold font-sans">:المقاس</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="pt-1">
             <Button
               className="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-black font-black py-3 rounded-xl shadow-lg transform hover:scale-[1.02] transition-all duration-300 text-base font-sans"
