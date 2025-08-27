@@ -51,9 +51,9 @@ export default function MainApp() {
     const loadData = async () => {
       try {
         setLoading(true)
-        const data = await loadBillboardsFromLocal()
+        const data = await loadBillboardsFromExcel()
 
-        // تطبيق فلترة الزبون المخصص إذا ك��ن المستخدم لديه هذه الصلاحية
+        // تطبيق فلترة الزبون المخصص إذا ك��ن المستخدم ��ديه هذه الصلاحية
         let filteredData = data
         if (user?.permissions.some(p => p.name === 'view_specific_client') && user.assignedClient) {
           filteredData = clientService.filterBillboardsByClient(data, user.assignedClient)
@@ -182,7 +182,7 @@ ${selectedBillboardsData
 
       window.open(mailtoLink, "_blank")
 
-      alert("تم فتح برنامج البريد الإلكتروني مع تفاصيل اللوحا�� المختارة!")
+      alert("تم فتح برنامج البريد الإلكتروني مع تفاصيل اللوحات المختارة!")
       setShowEmailDialog(false)
       clearSelection()
       setCustomerEmail("")
