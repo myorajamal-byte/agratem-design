@@ -253,7 +253,7 @@ const PricingManagement: React.FC<PricingManagementProps> = ({ onClose }) => {
             </div>
           </div>
 
-          {/* تبويبات فئ��ت الزبائن */}
+          {/* تبويبات فئات الزبائن */}
           <div className="mb-6">
             <h3 className="text-lg font-bold text-gray-900 mb-3">اختر فئة الزبون</h3>
             <div className="flex flex-wrap gap-2">
@@ -338,8 +338,8 @@ const PricingManagement: React.FC<PricingManagementProps> = ({ onClose }) => {
                         <td key={size} className="border border-gray-300 p-2">
                           <Input
                             type="number"
-                            value={zone.prices[size]}
-                            onChange={(e) => updatePrice(zoneName, size, parseInt(e.target.value) || 0)}
+                            value={zone.prices[activeCustomerType][size]}
+                            onChange={(e) => updatePrice(zoneName, activeCustomerType, size, parseInt(e.target.value) || 0)}
                             className="text-center font-bold text-green-700"
                             min="0"
                           />
