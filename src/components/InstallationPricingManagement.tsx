@@ -232,21 +232,28 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
 
   // Update zone multiplier
   const updateZoneMultiplier = (zoneName: string, multiplier: number) => {
-    setPricing(prev => ({
-      ...prev,
+    const updatedPricing = {
+      ...pricing,
       zones: {
-        ...prev.zones,
+        ...pricing.zones,
         [zoneName]: {
-          ...prev.zones[zoneName],
+          ...pricing.zones[zoneName],
           multiplier: multiplier
         }
       }
-    }))
+    }
+
+    setPricing(updatedPricing)
+
+    // Save immediately to localStorage to ensure multipliers are persisted
+    installationPricingService.updateInstallationPricing(updatedPricing)
 
     setUnsavedChanges(prev => ({
       hasChanges: true,
       changedCells: new Set([...prev.changedCells, `zone-${zoneName}`])
     }))
+
+    showNotification('success', `تم تحديث معامل ${zoneName} إلى ${multiplier}`)
   }
 
   // Calculate final price with multiplier
