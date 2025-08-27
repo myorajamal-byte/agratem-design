@@ -50,7 +50,7 @@ export default function MainApp() {
     const loadData = async () => {
       try {
         setLoading(true)
-        const data = await loadBillboardsFromExcel()
+        const data = await loadBillboardsFromLocal()
 
         // تطبيق فلترة الزبون المخصص إذا ك��ن المستخدم لديه هذه الصلاحية
         let filteredData = data
@@ -158,7 +158,7 @@ export default function MainApp() {
 البريد الإلكتروني: ${customerEmail}
 رقم الهاتف: ${customerPhone || "غير محدد"}
 
-رسالة العميل:
+رس��لة العميل:
 ${emailMessage || "لا توجد رسالة إضافية"}
 
 اللوحات المختارة (${selectedBillboards.size} لوحة):
