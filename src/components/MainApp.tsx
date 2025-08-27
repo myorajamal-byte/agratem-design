@@ -737,7 +737,7 @@ ${selectedBillboardsData
             <div className="w-24 h-24 mx-auto mb-6 bg-yellow-100 rounded-full flex items-center justify-center">
               <Search className="w-12 h-12 text-yellow-500" />
             </div>
-            <p className="text-gray-600 text-xl mb-4 font-bold">ل�� توجد لوحات تطابق معايير البحث</p>
+            <p className="text-gray-600 text-xl mb-4 font-bold">لا توجد لوحات تطابق معايير البحث</p>
             <p className="text-gray-500 font-semibold">جرب تغيير معايير البحث أو الفلاتر</p>
           </div>
         )}
@@ -784,7 +784,7 @@ ${selectedBillboardsData
 
       {/* نافذة إدارة الأسعار */}
       {showPricingManagement && user?.permissions.some(p => p.name === 'admin_access') && (
-        <ModernPricingManagement onClose={() => setShowPricingManagement(false)} />
+        <EnhancedPricingManagement onClose={() => setShowPricingManagement(false)} />
       )}
 
       {/* نافذة فاتورة العرض */}
