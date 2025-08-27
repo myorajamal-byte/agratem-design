@@ -418,6 +418,22 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
             </div>
           )}
 
+          {/* Explanation Card */}
+          <Card className="mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200">
+            <div className="p-4">
+              <h3 className="text-lg font-bold text-blue-900 mb-2 flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5" />
+                كيفية عمل أسعار التركيب
+              </h3>
+              <div className="text-sm text-blue-800 space-y-1">
+                <p>• السعر الأساسي: السعر المدخل لكل مقاس</p>
+                <p>• المعامل: رقم يضرب في السعر الأساسي حسب المنطقة</p>
+                <p>• السعر النهائي: السعر الأساسي × المعامل</p>
+                <p>• مثال: سعر أساسي 1000 د.ل × معامل 1.2 = 1200 د.ل (السعر النهائي)</p>
+              </div>
+            </div>
+          </Card>
+
           {/* Statistics Cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             <Card className="p-4">
@@ -700,7 +716,7 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
               <h3 className="text-xl font-bold mb-4">إضافة منطقة جديدة</h3>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-1">اسم ��لمنطقة</label>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">اسم المنطقة</label>
                   <Input
                     value={newZone.name}
                     onChange={(e) => setNewZone(prev => ({ ...prev, name: e.target.value }))}
@@ -865,7 +881,7 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
                   className="flex-1 bg-orange-600 hover:bg-orange-700 text-white"
                 >
                   <FileText className="w-4 h-4 mr-2" />
-                  إنشاء وطباعة الفاتورة
+                  إنشاء وطباعة ال��اتورة
                 </Button>
                 <Button
                   onClick={() => setShowQuoteModal(false)}
