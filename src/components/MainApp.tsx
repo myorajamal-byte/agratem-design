@@ -13,7 +13,7 @@ import SystemSettings from "@/components/SystemSettings"
 import EnhancedPricingManagement from "@/components/EnhancedPricingManagement"
 import InstallationPricingManagement from "@/components/InstallationPricingManagement"
 import QuoteDialog from "@/components/QuoteDialog"
-import { loadBillboardsFromLocal } from "@/services/localBillboardService"
+import { loadBillboardsFromExcel } from "@/services/billboardService"
 import { clientService } from "@/services/clientService"
 import { Billboard } from "@/types"
 import { useAuth } from "@/contexts/AuthContext"
@@ -399,7 +399,7 @@ ${selectedBillboardsData
               <th style="width: 12%;">رقم اللوحة</th>
               <th style="width: 22%;">موقع اللوحة</th>
               <th style="width: 14%;">البلدية</th>
-              <th style="width: 14%;">��لمنطقة</th>
+              <th style="width: 14%;">المنطقة</th>
               <th style="width: 12%;">المقاس</th>
               <th style="width: 10%;">الحالة</th>
               <th style="width: 16%;">عرض على الخريطة</th>
