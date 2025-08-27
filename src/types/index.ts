@@ -62,3 +62,48 @@ export interface ClientFilter {
 export interface ContractFilter {
   contractNumber?: string
 }
+
+// أنواع البيانات الخاصة بالأسعار والفواتير
+export type BillboardSize = '5x13' | '4x12' | '4x10' | '3x8' | '3x6' | '3x4'
+
+export interface PricingZone {
+  name: string
+  prices: Record<BillboardSize, number>
+}
+
+export interface PriceList {
+  zones: Record<string, PricingZone>
+  currency: string
+  unit: string
+}
+
+export interface QuoteItem {
+  billboardId: string
+  name: string
+  location: string
+  size: BillboardSize
+  zone: string
+  price: number
+  duration: number
+  total: number
+}
+
+export interface Quote {
+  id: string
+  customerInfo: {
+    name: string
+    email: string
+    phone: string
+    company?: string
+  }
+  items: QuoteItem[]
+  subtotal: number
+  tax: number
+  taxRate: number
+  total: number
+  currency: string
+  unit: string
+  duration: number
+  createdAt: string
+  validUntil: string
+}
