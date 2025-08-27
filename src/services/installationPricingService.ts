@@ -1,4 +1,5 @@
 import { BillboardSize, InstallationPricing, InstallationPriceZone, InstallationQuote, InstallationQuoteItem } from '@/types'
+import { formatGregorianDate } from '@/lib/dateUtils'
 
 // المقاسات المتاحة لأسعار التركيب
 const DEFAULT_INSTALLATION_SIZES: BillboardSize[] = ['5x13', '4x12', '4x10', '3x8', '3x6', '3x4']
@@ -431,7 +432,7 @@ class InstallationPricingService {
             <div class="quote-title">فاتورة عرض التركيب</div>
             <div class="quote-details">
               <div>رقم العرض: ${quote.id}</div>
-              <div>التاريخ: ${new Date(quote.date).toLocaleDateString('ar-SA')}</div>
+              <div>التاريخ: ${formatGregorianDate(quote.date)}</div>
             </div>
           </div>
         </div>
@@ -441,7 +442,7 @@ class InstallationPricingService {
           <div class="customer-details">
             <div><strong>الاسم:</strong> ${quote.customerInfo.name}</div>
             <div><strong>الشركة:</strong> ${quote.customerInfo.company || 'غير محدد'}</div>
-            <div><strong>البريد الإلكتروني:</strong> ${quote.customerInfo.email || 'غير محدد'}</div>
+            <div><strong>البري�� الإلكتروني:</strong> ${quote.customerInfo.email || 'غير محدد'}</div>
             <div><strong>رقم الهاتف:</strong> ${quote.customerInfo.phone || 'غير محدد'}</div>
           </div>
         </div>
@@ -524,7 +525,7 @@ class InstallationPricingService {
   }
 
   /**
-   * التحقق من صحة المقاس
+   * التحق�� من صحة المقاس
    */
   validateSize(size: string): boolean {
     return /^\d+x\d+$/.test(size)
