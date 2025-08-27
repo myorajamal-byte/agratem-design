@@ -34,13 +34,14 @@ export default function BillboardCard({ billboard, isSelected, onToggleSelection
     if (!showPricing) return null
 
     const zone = pricingService.determinePricingZone(billboard.municipality, billboard.area)
-    const price = pricingService.getBillboardPrice(billboard.size as BillboardSize, zone)
+    const price = pricingService.getBillboardPrice(billboard.size as BillboardSize, zone, 'companies') // استخدام سعر الشركات كافتراضي
     const pricing = pricingService.getPricing()
 
     return {
       zone,
       price,
-      currency: pricing.currency
+      currency: pricing.currency,
+      unit: 'شهرياً' // إضافة وحدة الوقت
     }
   }
 
