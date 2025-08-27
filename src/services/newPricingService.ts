@@ -302,13 +302,18 @@ class NewPricingService implements SizeManagement {
     const items: QuoteItem[] = billboards.map(billboard => {
       const zone = this.determinePricingZone(billboard.municipality, billboard.area)
       const priceList = this.determinePriceListFromBillboard(billboard)
-      const basePrice = this.getBillboardPriceABWithDuration(
-        billboard.size, 
-        zone, 
-        priceList, 
+      // Get the duration-adjusted price (already includes duration discount)
+      const finalPrice = this.getBillboardPriceABWithDuration(
+        billboard.size,
+        zone,
+        priceList,
         packageDuration.value
       )
-      const priceCalc = this.calculatePriceWithDiscount(basePrice, packageDuration)
+
+      // Calculate what the base price would have been without duration discount
+      const basePrice = packageDuration.discount > 0
+        ? Math.round(finalPrice / (1 - packageDuration.discount / 100))
+        : finalPrice
 
       return {
         billboardId: billboard.id,
@@ -317,10 +322,10 @@ class NewPricingService implements SizeManagement {
         size: billboard.size,
         zone,
         basePrice,
-        finalPrice: priceCalc.finalPrice,
+        finalPrice,
         duration: packageDuration.value,
-        discount: priceCalc.discount,
-        total: priceCalc.finalPrice * packageDuration.value,
+        discount: packageDuration.discount,
+        total: finalPrice * packageDuration.value,
         imageUrl: billboard.imageUrl
       }
     })
@@ -692,7 +697,7 @@ class NewPricingService implements SizeManagement {
           <div class="info-group">
             <h3>تفاصيل العرض</h3>
             <div class="info-item">
-              <span class="info-label">عدد اللوحات:</span>
+              <span class="info-label">ع��د اللوحات:</span>
               ${quote.items.length} لوحة
             </div>
             <div class="info-item">
