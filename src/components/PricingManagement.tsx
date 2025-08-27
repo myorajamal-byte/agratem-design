@@ -41,7 +41,7 @@ const PricingManagement: React.FC<PricingManagementProps> = ({ onClose }) => {
     setPricing(currentPricing)
   }
 
-  const updatePrice = (zone: string, size: BillboardSize, newPrice: number) => {
+  const updatePrice = (zone: string, customerType: CustomerType, size: BillboardSize, newPrice: number) => {
     if (!pricing) return
 
     const updatedPricing = {
@@ -52,7 +52,10 @@ const PricingManagement: React.FC<PricingManagementProps> = ({ onClose }) => {
           ...pricing.zones[zone],
           prices: {
             ...pricing.zones[zone].prices,
-            [size]: newPrice
+            [customerType]: {
+              ...pricing.zones[zone].prices[customerType],
+              [size]: newPrice
+            }
           }
         }
       }
