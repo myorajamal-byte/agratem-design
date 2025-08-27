@@ -361,7 +361,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       return
     }
 
-    if (!window.confirm(`هل أنت متأكد من حذف مقاس "${size}"؟`)) return
+    if (!window.confirm(`هل أنت متأكد من حذ�� مقاس "${size}"؟`)) return
 
     setPricingData(prev => {
       const updatedSizes = prev.sizes.filter(s => s !== size)
@@ -601,22 +601,26 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                 <Clock className="w-5 h-5" />
                 المدة الزمنية
               </h3>
-              <div className="flex flex-wrap gap-2">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
                 {durationOptions.map((duration) => (
                   <Button
                     key={duration.value}
                     onClick={() => setPricingData(prev => ({ ...prev, currentDuration: duration.value }))}
-                    className={`relative px-4 py-2 rounded-lg font-bold transition-all ${
+                    className={`relative px-3 py-2 rounded-lg font-semibold transition-all text-sm ${
                       pricingData.currentDuration === duration.value
                         ? 'bg-green-600 text-white shadow-lg'
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >
-                    {duration.label}
+                    <div className="text-center">
+                      <div className="font-bold">{duration.label}</div>
+                      {duration.unit === 'day' && <div className="text-xs opacity-75">حساب يومي</div>}
+                      {duration.unit !== 'day' && <div className="text-xs opacity-75">شامل الخصم</div>}
+                    </div>
                     {duration.discount > 0 && (
-                      <Badge 
-                        variant="secondary" 
-                        className="absolute -top-2 -right-2 bg-red-500 text-white text-xs"
+                      <Badge
+                        variant="secondary"
+                        className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1"
                       >
                         -{duration.discount}%
                       </Badge>
@@ -625,8 +629,8 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                 ))}
               </div>
               {selectedDuration && selectedDuration.discount > 0 && (
-                <div className="text-sm text-green-600 font-semibold mt-2">
-                  خصم {selectedDuration.discount}% على الإجمالي
+                <div className="text-sm text-green-600 font-semibold mt-2 text-center">
+                  خصم {selectedDuration.discount}% على الإجمالي • {selectedDuration.label}
                 </div>
               )}
             </Card>
