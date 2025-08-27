@@ -156,3 +156,48 @@ export interface Quote {
   createdAt: string
   validUntil: string
 }
+
+// أنواع البيانات الخاصة بأسعار التركيب
+export interface InstallationPriceZone {
+  name: string
+  prices: Record<BillboardSize, number> // أسعار التركيب حسب المقاس
+  multiplier: number // معامل إضافي للمنطقة
+  description?: string
+}
+
+export interface InstallationPricing {
+  zones: Record<string, InstallationPriceZone>
+  sizes: BillboardSize[]
+  currency: string
+  lastUpdated: string
+}
+
+export interface InstallationQuoteItem {
+  id: string
+  size: BillboardSize
+  zone: string
+  quantity: number
+  unitPrice: number
+  totalPrice: number
+  description?: string
+}
+
+export interface InstallationQuote {
+  id: string
+  date: string
+  customerInfo: {
+    name: string
+    email?: string
+    phone?: string
+    company?: string
+  }
+  items: InstallationQuoteItem[]
+  subtotal: number
+  discount: number
+  discountAmount: number
+  total: number
+  currency: string
+  notes?: string
+  type: 'installation'
+  status: 'draft' | 'sent' | 'approved' | 'rejected'
+}

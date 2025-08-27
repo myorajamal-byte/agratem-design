@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react'
-import '../styles/pricing-management.css'
 import {
   Settings,
   Save,
@@ -82,7 +81,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
     ],
     municipalities: [
       { id: '1', name: 'مصراتة', multiplier: 1.0 },
-      { id: '2', name: 'زليتن', multiplier: 0.8 },
+      { id: '2', name: 'زل��تن', multiplier: 0.8 },
       { id: '3', name: 'بنغازي', multiplier: 1.2 },
       { id: '4', name: 'طرابلس', multiplier: 1.0 }
     ],
@@ -717,72 +716,103 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
           </Card>
 
           {/* Pricing Table */}
-          <Card className="mb-6 shadow-lg rounded-lg overflow-hidden">
-            <div className="p-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
-              <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                <Calculator className="w-6 h-6 text-blue-600" />
-                أسعار حسب فئة العميل — {selectedDuration?.label}
-                {selectedDuration?.unit === 'day' && (
-                  <Badge className="bg-blue-500 text-white text-xs">حساب يومي</Badge>
-                )}
-              </h3>
-              <div className="text-sm text-gray-700 mt-2 font-medium flex flex-wrap gap-4">
-                <span>
-                  المستوى: <span className="text-blue-600 font-bold">{pricingData.levels.find(l => l.id === pricingData.currentLevel)?.name}</span>
-                </span>
+          <Card className="mb-6 shadow-xl rounded-xl overflow-hidden border-0">
+            <div className="p-6 bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 text-white">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-2xl font-bold flex items-center gap-3">
+                    <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                      <Calculator className="w-6 h-6" />
+                    </div>
+                    أسعار حسب فئة العميل
+                    {selectedDuration?.unit === 'day' && (
+                      <Badge className="bg-yellow-500 text-black text-sm font-bold px-3 py-1">حساب يومي</Badge>
+                    )}
+                  </h3>
+                  <p className="text-blue-100 mt-2 text-sm">
+                    جدول الأسعار التفاعلي مع إمكانية التعديل المباشر
+                  </p>
+                </div>
+                <div className="text-right">
+                  <Badge className="bg-white/20 text-white text-lg px-4 py-2 font-bold">
+                    {selectedDuration?.label}
+                  </Badge>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-4 mt-4 text-sm">
+                <div className="bg-white/10 backdrop-blur-sm px-3 py-2 rounded-full">
+                  <span className="text-blue-100">المستوى:</span>
+                  <span className="text-white font-bold mr-2">{pricingData.levels.find(l => l.id === pricingData.currentLevel)?.name}</span>
+                </div>
                 {selectedMunicipality && (
-                  <span className="text-green-600">
-                    البلدية: <span className="font-bold">{selectedMunicipality.name}</span> (معامل: <span className="font-bold">{selectedMunicipality.multiplier}</span>)
-                  </span>
+                  <div className="bg-white/10 backdrop-blur-sm px-3 py-2 rounded-full">
+                    <span className="text-blue-100">البلدية:</span>
+                    <span className="text-white font-bold mr-2">{selectedMunicipality.name}</span>
+                    <span className="text-blue-200">(معامل: {selectedMunicipality.multiplier})</span>
+                  </div>
                 )}
                 {selectedDuration && selectedDuration.discount > 0 && (
-                  <span className="text-red-600">
-                    خصم: <span className="font-bold">{selectedDuration.discount}%</span>
-                  </span>
+                  <div className="bg-red-500/80 backdrop-blur-sm px-3 py-2 rounded-full">
+                    <span className="text-red-100">خصم:</span>
+                    <span className="text-white font-bold mr-2">{selectedDuration.discount}%</span>
+                  </div>
                 )}
               </div>
             </div>
-            <div className="overflow-x-auto bg-white">
+            <div className="overflow-x-auto bg-gradient-to-br from-gray-50 to-white">
               <table className="w-full border-collapse pricing-table">
-                <thead className="sticky top-0 bg-white shadow-sm">
-                  <tr>
-                    <th className="border border-gray-200 p-2 text-right font-bold bg-yellow-50 text-gray-800 text-sm min-w-[80px]">
-                      الحجم
+                <thead className="sticky top-0 z-20">
+                  <tr className="shadow-lg">
+                    <th className="border-0 p-4 text-right font-bold bg-gradient-to-br from-yellow-400 to-yellow-500 text-gray-900 text-sm min-w-[100px] shadow-lg">
+                      <div className="flex items-center gap-2">
+                        <Building2 className="w-4 h-4" />
+                        الحجم
+                      </div>
                     </th>
                     {pricingData.categories.map(category => (
                       <th
                         key={category.id}
-                        className={`border border-gray-200 p-2 text-center font-bold text-white text-sm min-w-[100px] bg-${category.color}-500`}
+                        className="border-0 p-4 text-center font-bold text-white text-sm min-w-[130px] shadow-lg"
                         style={{
-                          backgroundColor: category.color === 'blue' ? '#3B82F6' :
-                                         category.color === 'green' ? '#10B981' :
-                                         category.color === 'purple' ? '#8B5CF6' :
-                                         category.color === 'red' ? '#EF4444' :
-                                         category.color === 'yellow' ? '#F59E0B' :
-                                         category.color === 'pink' ? '#EC4899' :
-                                         category.color === 'indigo' ? '#6366F1' :
-                                         category.color === 'gray' ? '#6B7280' :
-                                         category.color === 'orange' ? '#F97316' :
-                                         category.color === 'teal' ? '#14B8A6' :
-                                         category.color === 'gold' ? '#D4AF37' : '#3B82F6'
+                          background: `linear-gradient(135deg, ${
+                            category.color === 'blue' ? '#3B82F6, #1E40AF' :
+                            category.color === 'green' ? '#10B981, #047857' :
+                            category.color === 'purple' ? '#8B5CF6, #7C3AED' :
+                            category.color === 'red' ? '#EF4444, #DC2626' :
+                            category.color === 'yellow' ? '#F59E0B, #D97706' :
+                            category.color === 'pink' ? '#EC4899, #DB2777' :
+                            category.color === 'indigo' ? '#6366F1, #4F46E5' :
+                            category.color === 'gray' ? '#6B7280, #4B5563' :
+                            category.color === 'orange' ? '#F97316, #EA580C' :
+                            category.color === 'teal' ? '#14B8A6, #0D9488' :
+                            category.color === 'gold' ? '#D4AF37, #B8860B' : '#3B82F6, #1E40AF'
+                          })`
                         }}
                       >
                         <div className="leading-tight">
-                          {category.name}
-                          <div className="text-xs opacity-80 mt-1">يومي</div>
+                          <div className="font-bold text-base">{category.name}</div>
+                          <div className="text-xs opacity-90 mt-1 bg-white/20 px-2 py-1 rounded-full inline-block">
+                            سعر يومي
+                          </div>
                         </div>
                       </th>
                     ))}
-                    <th className="border border-gray-200 p-2 text-center font-bold bg-red-500 text-white text-sm min-w-[80px]">
-                      الإجراءات
+                    <th className="border-0 p-4 text-center font-bold bg-gradient-to-br from-red-500 to-red-600 text-white text-sm min-w-[100px] shadow-lg">
+                      <div className="flex items-center justify-center gap-2">
+                        <Settings className="w-4 h-4" />
+                        الإجراءات
+                      </div>
                     </th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredSizes.map((size, index) => (
-                    <tr key={size} className={`hover:bg-blue-25 transition-colors ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`}>
-                      <td className="border border-gray-200 p-2 font-bold text-gray-900 bg-yellow-50 text-sm text-center">
-                        {size}
+                    <tr key={size} className={`hover:bg-blue-50 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] transform ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}>
+                      <td className="border-0 p-4 font-bold text-gray-900 bg-gradient-to-r from-yellow-100 to-yellow-50 text-base text-center shadow-sm">
+                        <div className="bg-white px-3 py-2 rounded-lg font-black text-lg text-yellow-800 shadow-inner">
+                          {size}
+                        </div>
                       </td>
                       {pricingData.categories.map(category => {
                         const cellKey = `${size}-${category.id}`
@@ -794,54 +824,54 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                         return (
                           <td
                             key={category.id}
-                            className={`border border-gray-200 p-1 text-center relative ${
-                              hasChanges ? 'bg-yellow-100 changed-cell' : ''
+                            className={`border-0 p-2 text-center relative transition-all duration-300 ${
+                              hasChanges ? 'bg-yellow-200 shadow-inner animate-pulse' : 'bg-white'
                             }`}
                           >
                             {isEditing ? (
-                              <div className="flex items-center gap-1 justify-center editing-cell p-1 rounded text-xs">
+                              <div className="flex items-center gap-2 justify-center bg-white p-3 rounded-lg shadow-lg border-2 border-blue-500">
                                 <Input
                                   type="number"
                                   value={editingValue}
                                   onChange={(e) => setEditingValue(e.target.value)}
-                                  className="w-16 text-center font-bold text-sm"
+                                  className="w-20 text-center font-bold text-sm border-2 border-blue-300 focus:border-blue-500"
                                   min="0"
                                   autoFocus
                                 />
                                 <Button
                                   onClick={saveEdit}
                                   size="sm"
-                                  className="bg-green-600 hover:bg-green-700 text-white p-0.5"
+                                  className="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all"
                                 >
-                                  <Check className="w-3 h-3" />
+                                  <Check className="w-4 h-4" />
                                 </Button>
                                 <Button
                                   onClick={cancelEdit}
                                   size="sm"
                                   variant="outline"
-                                  className="text-red-600 border-red-300 p-0.5"
+                                  className="text-red-600 border-red-300 hover:bg-red-50 px-2 py-1 rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all"
                                 >
-                                  <X className="w-3 h-3" />
+                                  <X className="w-4 h-4" />
                                 </Button>
                               </div>
                             ) : (
                               <div
-                                className="cursor-pointer price-cell group py-1 px-2"
+                                className="cursor-pointer price-cell group py-3 px-2 rounded-lg hover:bg-blue-50 hover:shadow-md transform hover:scale-105 transition-all duration-200 border border-transparent hover:border-blue-200"
                                 onClick={() => startEdit(size, category.id)}
                                 title={calculation}
                               >
-                                <div className="flex flex-col items-center justify-center gap-1">
-                                  <div className="flex items-center gap-1">
-                                    <span className="font-bold text-gray-800 text-sm leading-tight">
+                                <div className="flex flex-col items-center justify-center gap-2">
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-bold text-gray-800 text-base leading-tight bg-gray-100 px-2 py-1 rounded-lg group-hover:bg-blue-100 transition-colors">
                                       {formatPrice(basePrice)}
                                     </span>
-                                    <Edit3 className="w-3 h-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-all duration-200" />
+                                    <Edit3 className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 group-hover:text-blue-600 transition-all duration-200" />
                                   </div>
-                                  <div className="text-xs text-blue-600 font-semibold">
+                                  <div className="text-xs text-blue-600 font-semibold bg-blue-50 px-2 py-1 rounded-full">
                                     يومي: {formatPrice(dailyRate)}
                                   </div>
                                   {finalPrice !== basePrice && (
-                                    <div className="text-xs text-green-600 font-semibold px-1 py-0.5 bg-green-100 rounded">
+                                    <div className="text-xs text-green-600 font-semibold px-2 py-1 bg-green-100 rounded-full shadow-sm">
                                       النهائي: {formatPrice(finalPrice)}
                                     </div>
                                   )}
@@ -851,15 +881,15 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                           </td>
                         )
                       })}
-                      <td className="border border-gray-200 p-1 text-center">
+                      <td className="border-0 p-4 text-center bg-gradient-to-r from-gray-50 to-white">
                         <Button
                           onClick={() => deleteSize(size)}
                           variant="outline"
                           size="sm"
-                          className="text-red-600 border-red-300 hover:bg-red-50 transition-colors p-1"
+                          className="text-red-600 border-red-300 hover:bg-red-50 hover:border-red-500 transition-all duration-200 p-2 rounded-lg shadow-sm hover:shadow-md transform hover:scale-105"
                           disabled={pricingData.sizes.length <= 1}
                         >
-                          <Trash2 className="w-3 h-3" />
+                          <Trash2 className="w-4 h-4" />
                         </Button>
                       </td>
                     </tr>
@@ -867,42 +897,77 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                 </tbody>
               </table>
             </div>
-            <div className="p-4 bg-gray-50 border-t">
-              <Button
-                onClick={addSize}
-                className="w-full bg-green-600 hover:bg-green-700 text-white"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                إضافة حجم جديد
-              </Button>
+            <div className="p-6 bg-gradient-to-r from-green-50 to-blue-50 border-t-2 border-green-200">
+              <div className="flex items-center justify-between">
+                <div className="text-sm text-gray-600">
+                  <span className="font-semibold">إجمالي المقاسات:</span>
+                  <Badge className="bg-blue-100 text-blue-800 mr-2">{pricingData.sizes.length}</Badge>
+                  <span className="font-semibold mr-4">إجمالي الفئات:</span>
+                  <Badge className="bg-green-100 text-green-800">{pricingData.categories.length}</Badge>
+                </div>
+                <Button
+                  onClick={addSize}
+                  className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 px-6 py-3 rounded-xl"
+                >
+                  <Plus className="w-5 h-5 mr-2" />
+                  إضافة حجم جديد
+                </Button>
+              </div>
             </div>
           </Card>
 
           {/* Municipality Multipliers Table */}
-          <Card className="mb-6 shadow-lg rounded-lg overflow-hidden">
-            <div className="p-6 bg-gradient-to-r from-blue-50 to-blue-100 border-b border-blue-200">
-              <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-                <FileSpreadsheet className="w-7 h-7 text-blue-600" />
-                جدول معاملات البلديات
-              </h3>
-              <p className="text-base text-gray-700 mt-2">إدارة معاملات الضرب للبلديات المختلفة</p>
+          <Card className="mb-6 shadow-xl rounded-xl overflow-hidden border-0">
+            <div className="p-6 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-2xl font-bold flex items-center gap-3">
+                    <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                      <MapPin className="w-6 h-6" />
+                    </div>
+                    جدول معاملات البلديات
+                  </h3>
+                  <p className="text-purple-100 mt-2">إدارة معاملات الضرب للبلديات المختلفة مع التحكم الكامل</p>
+                </div>
+                <Badge className="bg-white/20 text-white text-lg px-4 py-2 font-bold">
+                  {pricingData.municipalities.length} بلدية
+                </Badge>
+              </div>
             </div>
-            <div className="overflow-x-auto bg-white">
+            <div className="overflow-x-auto bg-gradient-to-br from-gray-50 to-white">
               <table className="w-full border-collapse municipality-table">
                 <thead>
-                  <tr className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
-                    <th className="border border-blue-300 p-2 text-right font-bold text-sm">اسم البلدية</th>
-                    <th className="border border-blue-300 p-2 text-center font-bold text-sm">المعامل</th>
-                    <th className="border border-blue-300 p-2 text-center font-bold text-sm">الإجراءات</th>
+                  <tr className="shadow-lg">
+                    <th className="border-0 p-4 text-right font-bold bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg">
+                      <div className="flex items-center gap-2">
+                        <Building2 className="w-4 h-4" />
+                        اسم البلدية
+                      </div>
+                    </th>
+                    <th className="border-0 p-4 text-center font-bold bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg">
+                      <div className="flex items-center justify-center gap-2">
+                        <TrendingUp className="w-4 h-4" />
+                        المعامل
+                      </div>
+                    </th>
+                    <th className="border-0 p-4 text-center font-bold bg-gradient-to-r from-pink-500 to-red-500 text-white shadow-lg">
+                      <div className="flex items-center justify-center gap-2">
+                        <Settings className="w-4 h-4" />
+                        الإجراءات
+                      </div>
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {pricingData.municipalities.map((municipality, index) => (
-                    <tr key={municipality.id} className={`hover:bg-blue-50 transition-colors ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`}>
-                      <td className="border border-gray-200 p-2 font-semibold text-gray-800 text-sm">
-                        {municipality.name}
+                    <tr key={municipality.id} className={`hover:bg-indigo-50 hover:shadow-lg transform hover:scale-[1.02] transition-all duration-300 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}>
+                      <td className="border-0 p-4 font-semibold text-gray-800">
+                        <div className="flex items-center gap-3">
+                          <div className="w-3 h-3 bg-indigo-500 rounded-full"></div>
+                          <span className="text-base">{municipality.name}</span>
+                        </div>
                       </td>
-                      <td className="border border-gray-200 p-2 text-center">
+                      <td className="border-0 p-4 text-center">
                         <Input
                           type="number"
                           value={municipality.multiplier}
@@ -917,12 +982,12 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                               )
                             }))
                           }}
-                          className="w-16 text-center font-bold text-sm border border-gray-300 rounded focus:border-blue-500"
+                          className="w-20 text-center font-bold text-base border-2 border-purple-200 rounded-lg focus:border-purple-500 bg-white shadow-sm hover:shadow-md transition-all"
                           step="0.1"
                           min="0"
                         />
                       </td>
-                      <td className="border border-gray-200 p-2 text-center">
+                      <td className="border-0 p-4 text-center">
                         <Button
                           onClick={() => {
                             if (window.confirm(`هل تريد حذف "${municipality.name}"؟`)) {
@@ -934,9 +999,9 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                           }}
                           variant="outline"
                           size="sm"
-                          className="text-red-600 border-red-300 hover:bg-red-50 transition-colors p-1"
+                          className="text-red-600 border-red-300 hover:bg-red-50 hover:border-red-500 transition-all duration-200 p-2 rounded-lg shadow-sm hover:shadow-md transform hover:scale-105"
                         >
-                          <Trash2 className="w-3 h-3" />
+                          <Trash2 className="w-4 h-4" />
                         </Button>
                       </td>
                     </tr>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { Search, MapPin, Star, Award, Users, MessageCircle, Mail, FileText } from "lucide-react"
+import { Search, MapPin, Star, Award, Users, MessageCircle, Mail, FileText, Settings, DollarSign, Wrench } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 
@@ -11,6 +11,7 @@ import EmailDialog from "@/components/EmailDialog"
 import Footer from "@/components/Footer"
 import SystemSettings from "@/components/SystemSettings"
 import EnhancedPricingManagement from "@/components/EnhancedPricingManagement"
+import InstallationPricingManagement from "@/components/InstallationPricingManagement"
 import QuoteDialog from "@/components/QuoteDialog"
 import { loadBillboardsFromExcel } from "@/services/billboardService"
 import { clientService } from "@/services/clientService"
@@ -40,6 +41,7 @@ export default function MainApp() {
   const [emailMessage, setEmailMessage] = useState("")
   const [showSettings, setShowSettings] = useState(false)
   const [showPricingManagement, setShowPricingManagement] = useState(false)
+  const [showInstallationPricing, setShowInstallationPricing] = useState(false)
   const [showQuoteDialog, setShowQuoteDialog] = useState(false)
 
   const itemsPerPage = 12
@@ -488,7 +490,7 @@ ${selectedBillboardsData
             </div>
           </div>
           <h2 className="text-3xl font-black text-gray-900 mb-4 tracking-tight">جاري تحميل البيانات...</h2>
-          <p className="text-lg font-semibold text-gray-700">يتم قراءة البيانات</p>
+          <p className="text-lg font-semibold text-gray-700">يتم قراءة البيان��ت</p>
         </div>
       </div>
     )
@@ -503,6 +505,7 @@ ${selectedBillboardsData
       <Header
         onOpenSettings={() => setShowSettings(true)}
         onOpenPricing={() => setShowPricingManagement(true)}
+        onOpenInstallationPricing={() => setShowInstallationPricing(true)}
       />
 
 
@@ -513,7 +516,7 @@ ${selectedBillboardsData
               الرائدون في عالم الدعاية والإعلان
             </h2>
             <p className="text-xl md:text-2xl mb-8 max-w-4xl mx-auto leading-relaxed font-bold">
-              نحن نقدم حلول إعلانية متكاملة ومبتكرة تضمن وصول رسالتك إلى الجمهور المناسب في الوقت المناسب
+              نحن نقدم حلول إعلانية متكاملة ومبتكرة تضمن وصول رسالتك إلى الجمهور المناسب في الوقت ال��ناسب
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mt-12">
@@ -579,6 +582,32 @@ ${selectedBillboardsData
           contracts={contracts}
           onPrint={handlePrint}
         />
+
+        {/* أزرار إدارة الأسعار للمدراء */}
+        {user?.permissions.some(p => p.name === 'admin_access') && (
+          <div className="bg-white rounded-xl shadow-lg p-4 mb-6 border-2 border-blue-200">
+            <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <Settings className="w-5 h-5 text-blue-600" />
+              إدارة الأسعار
+            </h3>
+            <div className="flex flex-wrap gap-3">
+              <Button
+                onClick={() => setShowPricingManagement(true)}
+                className="bg-green-600 hover:bg-green-700 text-white"
+              >
+                <DollarSign className="w-4 h-4 mr-2" />
+                قائمة الأسعار العادية
+              </Button>
+              <Button
+                onClick={() => setShowInstallationPricing(true)}
+                className="bg-orange-600 hover:bg-orange-700 text-white"
+              >
+                <Wrench className="w-4 h-4 mr-2" />
+                أسعار التركيب
+              </Button>
+            </div>
+          </div>
+        )}
 
         {showMap && <InteractiveMap billboards={filteredBillboards} onImageView={setSelectedImage} />}
 
@@ -659,7 +688,7 @@ ${selectedBillboardsData
                   className="bg-green-600 hover:bg-green-700 text-white px-6"
                 >
                   <Mail className="w-4 h-4 ml-2" />
-                  إرسال القائمة
+                  إرسال ال��ائمة
                 </Button>
               </div>
             </div>
@@ -737,7 +766,7 @@ ${selectedBillboardsData
             <div className="w-24 h-24 mx-auto mb-6 bg-yellow-100 rounded-full flex items-center justify-center">
               <Search className="w-12 h-12 text-yellow-500" />
             </div>
-            <p className="text-gray-600 text-xl mb-4 font-bold">لا توجد لوحات تطابق معايير البحث</p>
+            <p className="text-gray-600 text-xl mb-4 font-bold">لا توجد لوحات تطا��ق معايير البحث</p>
             <p className="text-gray-500 font-semibold">جرب تغيير معايير البحث أو الفلاتر</p>
           </div>
         )}
@@ -785,6 +814,11 @@ ${selectedBillboardsData
       {/* نافذة إدارة الأسعار */}
       {showPricingManagement && user?.permissions.some(p => p.name === 'admin_access') && (
         <EnhancedPricingManagement onClose={() => setShowPricingManagement(false)} />
+      )}
+
+      {/* نافذة إدارة أسعار التركيب */}
+      {showInstallationPricing && user?.permissions.some(p => p.name === 'admin_access') && (
+        <InstallationPricingManagement onClose={() => setShowInstallationPricing(false)} />
       )}
 
       {/* نافذة فاتورة العرض */}

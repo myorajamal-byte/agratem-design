@@ -40,8 +40,7 @@ export default function BillboardCard({ billboard, isSelected, onToggleSelection
     return {
       zone,
       price,
-      currency: pricing.currency,
-      unit: pricing.unit
+      currency: pricing.currency
     }
   }
 

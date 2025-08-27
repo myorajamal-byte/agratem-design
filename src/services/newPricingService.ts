@@ -124,7 +124,7 @@ class NewPricingService implements SizeManagement {
   }
 
   /**
-   * إضافة مقاس جديد
+   * إضا��ة مقاس جديد
    */
   addSize(size: BillboardSize): boolean {
     if (!this.validateSize(size) || this.sizes.includes(size)) {
@@ -302,13 +302,18 @@ class NewPricingService implements SizeManagement {
     const items: QuoteItem[] = billboards.map(billboard => {
       const zone = this.determinePricingZone(billboard.municipality, billboard.area)
       const priceList = this.determinePriceListFromBillboard(billboard)
-      const basePrice = this.getBillboardPriceABWithDuration(
-        billboard.size, 
-        zone, 
-        priceList, 
+      // Get the duration-adjusted price (already includes duration discount)
+      const finalPrice = this.getBillboardPriceABWithDuration(
+        billboard.size,
+        zone,
+        priceList,
         packageDuration.value
       )
-      const priceCalc = this.calculatePriceWithDiscount(basePrice, packageDuration)
+
+      // Calculate what the base price would have been without duration discount
+      const basePrice = packageDuration.discount > 0
+        ? Math.round(finalPrice / (1 - packageDuration.discount / 100))
+        : finalPrice
 
       return {
         billboardId: billboard.id,
@@ -317,10 +322,10 @@ class NewPricingService implements SizeManagement {
         size: billboard.size,
         zone,
         basePrice,
-        finalPrice: priceCalc.finalPrice,
+        finalPrice,
         duration: packageDuration.value,
-        discount: priceCalc.discount,
-        total: priceCalc.finalPrice * packageDuration.value,
+        discount: packageDuration.discount,
+        total: finalPrice * packageDuration.value,
         imageUrl: billboard.imageUrl
       }
     })
@@ -355,8 +360,8 @@ class NewPricingService implements SizeManagement {
    * تحديد المنطقة السعرية بناءً على البلدية أو المنطقة
    */
   determinePricingZone(municipality: string, area: string): string {
-    const municipalityLower = municipality.toLowerCase()
-    const areaLower = area.toLowerCase()
+    const municipalityLower = municipality.toLowerCase().trim()
+    const areaLower = area.toLowerCase().trim()
     
     if (municipalityLower.includes('مصراتة')) return 'مصراتة'
     if (municipalityLower.includes('أبو سليم') || areaLower.includes('أبو سليم')) return 'أبو سليم'
@@ -385,7 +390,7 @@ class NewPricingService implements SizeManagement {
   }
 
   /**
-   * الحصول على قوائم الأسعار المتاحة (A و B)
+   * الحصول على قوائم الأسعار ��لمتاحة (A و B)
    */
   getPriceListTypes(): Array<{value: PriceListType, label: string}> {
     return [
@@ -692,7 +697,7 @@ class NewPricingService implements SizeManagement {
           <div class="info-group">
             <h3>تفاصيل العرض</h3>
             <div class="info-item">
-              <span class="info-label">عدد اللوحات:</span>
+              <span class="info-label">ع��د اللوحات:</span>
               ${quote.items.length} لوحة
             </div>
             <div class="info-item">
@@ -806,7 +811,7 @@ class NewPricingService implements SizeManagement {
             <li>الأسعار تحدد تلقائياً حسب تصنيف اللوحة (A أو B)</li>
             <li>يتم الدفع مقدماً قبل بدء الحملة الإعلانية</li>
             <li>في حالة إلغاء الحجز، يتم استرداد 50% من المبلغ المدفوع</li>
-            <li>الشركة غير مسؤولة عن أي أضرار طبيعية قد تلحق باللوحة</li>
+            <li>الشركة غير مسؤولة ��ن أي أضرار طبيعية قد تلحق باللوحة</li>
             <li>يحق للشركة تغيير موقع اللوحة في حالات الضرورة القصوى</li>
           </ul>
         </div>
