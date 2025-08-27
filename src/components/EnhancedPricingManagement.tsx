@@ -732,13 +732,13 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
               <table className="w-full border-collapse pricing-table">
                 <thead className="sticky top-0 bg-white shadow-sm">
                   <tr>
-                    <th className="border border-gray-200 p-4 text-right font-bold bg-yellow-50 text-gray-800 text-lg min-w-[120px]">
+                    <th className="border border-gray-200 p-2 text-right font-bold bg-yellow-50 text-gray-800 text-sm min-w-[80px]">
                       الحجم
                     </th>
                     {pricingData.categories.map(category => (
                       <th
                         key={category.id}
-                        className={`border border-gray-200 p-4 text-center font-bold text-white text-lg min-w-[140px] bg-${category.color}-500`}
+                        className={`border border-gray-200 p-2 text-center font-bold text-white text-sm min-w-[100px] bg-${category.color}-500`}
                         style={{
                           backgroundColor: category.color === 'blue' ? '#3B82F6' :
                                          category.color === 'green' ? '#10B981' :
@@ -753,10 +753,13 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                                          category.color === 'gold' ? '#D4AF37' : '#3B82F6'
                         }}
                       >
-                        {category.name}
+                        <div className="leading-tight">
+                          {category.name}
+                          <div className="text-xs opacity-80 mt-1">يومي</div>
+                        </div>
                       </th>
                     ))}
-                    <th className="border border-gray-200 p-4 text-center font-bold bg-red-500 text-white text-lg min-w-[120px]">
+                    <th className="border border-gray-200 p-2 text-center font-bold bg-red-500 text-white text-sm min-w-[80px]">
                       الإجراءات
                     </th>
                   </tr>
