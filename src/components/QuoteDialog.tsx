@@ -82,44 +82,53 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
     return Math.round(basePrice * installationZone.multiplier)
   }
 
-  // تهيئة الباقة الاف��راضية
+  // تهيئة الباقة الافتراضية
   React.useEffect(() => {
     if (packages.length > 0 && !selectedPackage) {
       setSelectedPackage(packages[0])
     }
   }, [packages, selectedPackage])
 
-  // حساب التفاصيل المالية
+  // حساب التفاصيل المالية المحسنة
   const calculateQuoteDetails = () => {
-    if (!selectedPackage) return { items: [], subtotal: 0, totalDiscount: 0, tax: 0, total: 0 }
+    if (!selectedPackage) return { items: [], subtotal: 0, totalDiscount: 0, installationTotal: 0, tax: 0, total: 0 }
 
     const items = selectedBillboardsData.map(billboard => {
       const zone = newPricingService.determinePricingZone(billboard.municipality, billboard.area)
       const priceList = newPricingService.determinePriceListFromBillboard(billboard)
-      // Get the duration-adjusted price (already includes duration discount)
-      const finalPrice = newPricingService.getBillboardPriceABWithDuration(billboard.size as BillboardSize, zone, priceList, selectedPackage.value)
+
+      // Get the duration-adjusted price using custom duration
+      const finalPrice = newPricingService.getBillboardPriceABWithDuration(billboard.size as BillboardSize, zone, priceList, duration)
 
       // Calculate what the base price would have been without duration discount
       const basePrice = selectedPackage.discount > 0
         ? Math.round(finalPrice / (1 - selectedPackage.discount / 100))
         : finalPrice
 
+      // حساب سعر التركيب
+      const installationPrice = getInstallationPrice(billboard)
+
       return {
         billboard,
         zone,
+        priceList,
         basePrice,
         finalPrice,
+        installationPrice,
         discount: selectedPackage.discount,
-        total: finalPrice * selectedPackage.value
+        monthlyTotal: finalPrice,
+        installationTotal: installationPrice,
+        total: (finalPrice * duration) + installationPrice
       }
     })
 
-    const subtotal = items.reduce((sum, item) => sum + (item.basePrice * selectedPackage.value), 0)
-    const totalDiscount = items.reduce((sum, item) => sum + ((item.basePrice - item.finalPrice) * selectedPackage.value), 0)
+    const subtotal = items.reduce((sum, item) => sum + (item.basePrice * duration), 0)
+    const totalDiscount = items.reduce((sum, item) => sum + ((item.basePrice - item.finalPrice) * duration), 0)
+    const installationTotal = items.reduce((sum, item) => sum + item.installationPrice, 0)
     const tax = 0 // يمكن إضافة نسبة ضريبة هنا
-    const total = subtotal - totalDiscount + tax
+    const total = subtotal - totalDiscount + installationTotal + tax
 
-    return { items, subtotal, totalDiscount, tax, total }
+    return { items, subtotal, totalDiscount, installationTotal, tax, total }
   }
 
   const quoteDetails = calculateQuoteDetails()
