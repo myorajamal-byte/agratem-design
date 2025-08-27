@@ -237,7 +237,19 @@ class PricingService {
    * حساب إجمالي عرض السعر
    */
   calculateQuoteTotal(items: QuoteItem[]): number {
-    return items.reduce((total, item) => total + (item.price * item.duration), 0)
+    return items.reduce((total, item) => total + item.total, 0)
+  }
+
+  /**
+   * ترجمة فئة الزبون إلى العربية
+   */
+  getCustomerTypeLabel(type: CustomerType): string {
+    const labels = {
+      marketers: 'المسوقين',
+      individuals: 'العاديين',
+      companies: 'الشركات'
+    }
+    return labels[type] || 'غير محدد'
   }
 
   /**
@@ -530,7 +542,7 @@ class PricingService {
 
         <div class="quote-header">
           <div class="quote-title">عرض سعر إعلاني</div>
-          <div style="color: #666; font-size: 14px;">رقم العرض: ${quote.id}</div>
+          <div style="color: #666; font-size: 14px;">رقم ��لعرض: ${quote.id}</div>
           <div style="color: #666; font-size: 12px;">تاريخ العرض: ${new Date(quote.createdAt).toLocaleDateString('ar-SA')}</div>
           <div style="color: #666; font-size: 12px;">صالح حتى: ${new Date(quote.validUntil).toLocaleDateString('ar-SA')}</div>
         </div>
@@ -558,7 +570,7 @@ class PricingService {
             ` : ''}
           </div>
           <div class="info-group">
-            <h3>تف��صيل العرض</h3>
+            <h3>تفاصيل العرض</h3>
             <div class="info-item">
               <span class="info-label">عدد اللوحات:</span>
               ${quote.items.length} لوحة
@@ -624,8 +636,8 @@ class PricingService {
           <h3>الشروط والأحكام</h3>
           <ul>
             <li>هذا العرض صالح لمدة 30 يوماً من تاريخ الإصدار</li>
-            <li>الأسعار المذكورة شاملة جم��ع الخدمات</li>
-            <li>يتم الدفع مقدماً قبل بدء الحملة الإعلانية</li>
+            <li>الأسعار المذكورة شاملة جميع الخدمات</li>
+            <li>يتم الدفع ��قدماً قبل بدء الحملة الإعلانية</li>
             <li>في حالة إلغاء الحجز، يتم استرداد 50% من المبلغ المدفوع</li>
             <li>الشركة غير مسؤولة عن أي أضرار طبيعية قد تلحق باللوحة</li>
             <li>يحق للشركة تغيير موقع اللوحة في حالات الضرورة القصوى</li>
