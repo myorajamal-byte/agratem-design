@@ -489,7 +489,7 @@ ${selectedBillboardsData
               <img src="logo-symbol.svg" alt="رمز الشركة" className="w-16 h-16 object-contain" />
             </div>
           </div>
-          <h2 className="text-3xl font-black text-gray-900 mb-4 tracking-tight">جاري تحميل البيانات...</h2>
+          <h2 className="text-3xl font-black text-gray-900 mb-4 tracking-tight">جاري تحميل ا��بيانات...</h2>
           <p className="text-lg font-semibold text-gray-700">يتم قراءة البيانات</p>
         </div>
       </div>
@@ -582,6 +582,32 @@ ${selectedBillboardsData
           contracts={contracts}
           onPrint={handlePrint}
         />
+
+        {/* أزرار إدارة الأسعار للمدراء */}
+        {user?.permissions.some(p => p.name === 'admin_access') && (
+          <div className="bg-white rounded-xl shadow-lg p-4 mb-6 border-2 border-blue-200">
+            <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <Settings className="w-5 h-5 text-blue-600" />
+              إدارة الأسعار
+            </h3>
+            <div className="flex flex-wrap gap-3">
+              <Button
+                onClick={() => setShowPricingManagement(true)}
+                className="bg-green-600 hover:bg-green-700 text-white"
+              >
+                <DollarSign className="w-4 h-4 mr-2" />
+                قائمة الأسعار العادية
+              </Button>
+              <Button
+                onClick={() => setShowInstallationPricing(true)}
+                className="bg-orange-600 hover:bg-orange-700 text-white"
+              >
+                <Wrench className="w-4 h-4 mr-2" />
+                أسعار التركيب
+              </Button>
+            </div>
+          </div>
+        )}
 
         {showMap && <InteractiveMap billboards={filteredBillboards} onImageView={setSelectedImage} />}
 
