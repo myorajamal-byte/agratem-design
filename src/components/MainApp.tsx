@@ -112,7 +112,7 @@ export default function MainApp() {
     }
 
     setFilteredBillboards(filtered)
-  }, [searchTerm, selectedMunicipalities, selectedSizes, selectedAvailabilities, billboards, showAllBillboards])
+  }, [searchTerm, contractFilter, selectedMunicipalities, selectedSizes, selectedAvailabilities, billboards, showAllBillboards])
 
   const municipalities = Array.from(new Set(billboards.map((b) => b.municipality)))
   const sizes = Array.from(new Set(billboards.map((b) => b.size)))
@@ -394,7 +394,7 @@ ${selectedBillboardsData
               <th style="width: 14%;">المنطقة</th>
               <th style="width: 12%;">المقاس</th>
               <th style="width: 10%;">الحالة</th>
-              <th style="width: 16%;">عرض على الخريط��</th>
+              <th style="width: 16%;">عرض على الخريطة</th>
             </tr>
           </thead>
           <tbody>
@@ -638,7 +638,7 @@ ${selectedBillboardsData
                   className="bg-green-600 hover:bg-green-700 text-white px-6"
                 >
                   <Mail className="w-4 h-4 ml-2" />
-                  إرسال القائمة
+                  إ��سال القائمة
                 </Button>
               </div>
             </div>
@@ -706,7 +706,7 @@ ${selectedBillboardsData
               disabled={currentPage === totalPages}
               className="border-yellow-400 text-yellow-600 hover:bg-yellow-50"
             >
-              التالي
+              التال��
             </Button>
           </div>
         )}
