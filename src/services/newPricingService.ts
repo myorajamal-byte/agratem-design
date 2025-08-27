@@ -124,7 +124,7 @@ class NewPricingService implements SizeManagement {
   }
 
   /**
-   * إضافة مقاس جديد
+   * إضا��ة مقاس جديد
    */
   addSize(size: BillboardSize): boolean {
     if (!this.validateSize(size) || this.sizes.includes(size)) {
@@ -360,8 +360,8 @@ class NewPricingService implements SizeManagement {
    * تحديد المنطقة السعرية بناءً على البلدية أو المنطقة
    */
   determinePricingZone(municipality: string, area: string): string {
-    const municipalityLower = municipality.toLowerCase()
-    const areaLower = area.toLowerCase()
+    const municipalityLower = municipality.toLowerCase().trim()
+    const areaLower = area.toLowerCase().trim()
     
     if (municipalityLower.includes('مصراتة')) return 'مصراتة'
     if (municipalityLower.includes('أبو سليم') || areaLower.includes('أبو سليم')) return 'أبو سليم'
@@ -390,7 +390,7 @@ class NewPricingService implements SizeManagement {
   }
 
   /**
-   * الحصول على قوائم الأسعار المتاحة (A و B)
+   * الحصول على قوائم الأسعار ��لمتاحة (A و B)
    */
   getPriceListTypes(): Array<{value: PriceListType, label: string}> {
     return [
@@ -811,7 +811,7 @@ class NewPricingService implements SizeManagement {
             <li>الأسعار تحدد تلقائياً حسب تصنيف اللوحة (A أو B)</li>
             <li>يتم الدفع مقدماً قبل بدء الحملة الإعلانية</li>
             <li>في حالة إلغاء الحجز، يتم استرداد 50% من المبلغ المدفوع</li>
-            <li>الشركة غير مسؤولة عن أي أضرار طبيعية قد تلحق باللوحة</li>
+            <li>الشركة غير مسؤولة ��ن أي أضرار طبيعية قد تلحق باللوحة</li>
             <li>يحق للشركة تغيير موقع اللوحة في حالات الضرورة القصوى</li>
           </ul>
         </div>
