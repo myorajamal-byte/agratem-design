@@ -52,25 +52,38 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
 
   const selectedBillboardsData = billboards.filter(b => selectedBillboards.has(b.id))
 
+  // تهيئة الباقة الافتراضية
+  React.useEffect(() => {
+    if (packages.length > 0 && !selectedPackage) {
+      setSelectedPackage(packages[0])
+    }
+  }, [packages, selectedPackage])
+
   // حساب التفاصيل المالية
   const calculateQuoteDetails = () => {
+    if (!selectedPackage) return { items: [], subtotal: 0, totalDiscount: 0, tax: 0, total: 0 }
+
     const items = selectedBillboardsData.map(billboard => {
       const zone = pricingService.determinePricingZone(billboard.municipality, billboard.area)
-      const price = pricingService.getBillboardPrice(billboard.size as BillboardSize, zone)
-      
+      const basePrice = pricingService.getBillboardPrice(billboard.size as BillboardSize, zone, customerInfo.type)
+      const priceCalc = pricingService.calculatePriceWithDiscount(basePrice, selectedPackage)
+
       return {
         billboard,
         zone,
-        price,
-        total: price * duration
+        basePrice,
+        finalPrice: priceCalc.finalPrice,
+        discount: priceCalc.discount,
+        total: priceCalc.finalPrice * selectedPackage.value
       }
     })
 
-    const subtotal = items.reduce((sum, item) => sum + item.total, 0)
+    const subtotal = items.reduce((sum, item) => sum + (item.basePrice * selectedPackage.value), 0)
+    const totalDiscount = items.reduce((sum, item) => sum + ((item.basePrice - item.finalPrice) * selectedPackage.value), 0)
     const tax = 0 // يمكن إضافة نسبة ضريبة هنا
-    const total = subtotal + tax
+    const total = subtotal - totalDiscount + tax
 
-    return { items, subtotal, tax, total }
+    return { items, subtotal, totalDiscount, tax, total }
   }
 
   const quoteDetails = calculateQuoteDetails()
@@ -187,7 +200,7 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
 
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">
-                      البريد ال��لكتروني *
+                      البريد الإلكتروني *
                     </label>
                     <Input
                       type="email"
@@ -248,7 +261,7 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
                 <div className="space-y-4">
                   {/* ملخص اللوحات */}
                   <div className="bg-blue-50 p-4 rounded-lg">
-                    <h3 className="font-bold text-blue-900 mb-2">��للوحات المختارة</h3>
+                    <h3 className="font-bold text-blue-900 mb-2">اللوحات المختارة</h3>
                     <div className="grid gap-2 max-h-60 overflow-y-auto">
                       {quoteDetails.items.map(({ billboard, zone, price, total }, index) => (
                         <div key={billboard.id} className="bg-white p-3 rounded border">
