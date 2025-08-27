@@ -98,8 +98,8 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
       const zone = newPricingService.determinePricingZone(billboard.municipality, billboard.area)
       const priceList = newPricingService.determinePriceListFromBillboard(billboard)
 
-      // Get the duration-adjusted price using custom duration
-      const finalPrice = newPricingService.getBillboardPriceABWithDuration(billboard.size as BillboardSize, zone, priceList, duration)
+      // Get the duration-adjusted price using custom duration with municipality multiplier
+      const finalPrice = newPricingService.getBillboardPriceABWithDuration(billboard.size as BillboardSize, zone, priceList, duration, billboard.municipality)
 
       // Calculate what the base price would have been without duration discount
       const basePrice = selectedPackage.discount > 0
