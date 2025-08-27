@@ -80,7 +80,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       { id: '4', name: 'طرابلس', multiplier: 1.0 }
     ],
     categories: [
-      { id: 'marketers', name: 'مسوقين', description: 'خصم للمسوقين', color: 'blue' },
+      { id: 'marketers', name: 'مس��قين', description: 'خصم للمسوقين', color: 'blue' },
       { id: 'companies', name: 'شركات', description: 'أسعار الشركات', color: 'green' },
       { id: 'individuals', name: 'أفراد', description: 'الأسعار العادية', color: 'purple' }
     ],
@@ -105,9 +105,11 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
 
   // Duration options with discounts
   const durationOptions = [
-    { value: 1, label: 'شهر واحد', discount: 0 },
-    { value: 6, label: '6 أشهر', discount: 10 },
-    { value: 12, label: 'سنة كاملة', discount: 20 }
+    { value: 1, label: 'يوم واحد', discount: 0, unit: 'day' },
+    { value: 30, label: 'شهر واحد', discount: 0, unit: 'month' },
+    { value: 90, label: '3 أشهر', discount: 5, unit: 'months' },
+    { value: 180, label: '6 أشهر', discount: 10, unit: 'months' },
+    { value: 365, label: 'سنة كاملة', discount: 20, unit: 'year' }
   ]
 
   // Initialize pricing data
@@ -700,7 +702,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                 المستوى الحالي: <span className="text-blue-600 font-bold">{pricingData.levels.find(l => l.id === pricingData.currentLevel)?.name}</span>
                 {selectedMunicipality && (
                   <span className="mr-6 text-green-600">
-                    البلدية: <span className="font-bold">{selectedMunicipality.name}</span> (معامل: <span className="font-bold">{selectedMunicipality.multiplier}</span>)
+                    البل��ية: <span className="font-bold">{selectedMunicipality.name}</span> (معامل: <span className="font-bold">{selectedMunicipality.multiplier}</span>)
                   </span>
                 )}
               </p>
@@ -844,7 +846,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                 <FileSpreadsheet className="w-7 h-7 text-blue-600" />
                 جدول معاملات البلديات
               </h3>
-              <p className="text-base text-gray-700 mt-2">إدارة معاملات الضرب للبلديات المختلفة</p>
+              <p className="text-base text-gray-700 mt-2">إدارة معاملات الضرب للبلديات المخ��لفة</p>
             </div>
             <div className="overflow-x-auto bg-white">
               <table className="w-full border-collapse municipality-table">
