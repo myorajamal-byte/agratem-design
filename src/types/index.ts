@@ -98,9 +98,12 @@ export interface QuoteItem {
   location: string
   size: BillboardSize
   zone: string
-  price: number
+  basePrice: number // السعر الأساسي
+  finalPrice: number // السعر النهائي بعد الخصم
   duration: number
+  discount: number // نسبة الخصم
   total: number
+  imageUrl?: string
 }
 
 export interface Quote {
@@ -110,15 +113,20 @@ export interface Quote {
     email: string
     phone: string
     company?: string
+    type: CustomerType
+  }
+  packageInfo: {
+    duration: number
+    label: string
+    discount: number
   }
   items: QuoteItem[]
   subtotal: number
+  totalDiscount: number
   tax: number
   taxRate: number
   total: number
   currency: string
-  unit: string
-  duration: number
   createdAt: string
   validUntil: string
 }
