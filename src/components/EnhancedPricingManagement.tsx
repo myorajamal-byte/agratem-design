@@ -78,7 +78,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
     levels: [
       { id: 'A', name: 'مستوى A', description: 'مواقع مميزة' },
       { id: 'B', name: 'مستوى B', description: 'مواقع عادية' },
-      { id: 'C', name: 'مستوى C', description: 'مواقع اقتصادية' }
+      { id: 'C', name: 'مستوى C', description: 'مواقع اقتصادي��' }
     ],
     municipalities: [
       { id: '1', name: 'مصراتة', multiplier: 1.0 },
@@ -351,7 +351,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       }
     })
 
-    showNotification('success', `تم إضافة مقاس "${newSize}" بنجاح`)
+    showNotification('success', `تم إضافة ��قاس "${newSize}" بنجاح`)
   }
 
   // Delete size
@@ -718,19 +718,29 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
 
           {/* Pricing Table */}
           <Card className="mb-6 shadow-lg rounded-lg overflow-hidden">
-            <div className="p-6 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
-              <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-                <Calculator className="w-7 h-7 text-blue-600" />
-                أسعار الإجمالي حسب فئة العميل — {selectedDuration?.label}
+            <div className="p-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
+              <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                <Calculator className="w-6 h-6 text-blue-600" />
+                أسعار حسب فئة العميل — {selectedDuration?.label}
+                {selectedDuration?.unit === 'day' && (
+                  <Badge className="bg-blue-500 text-white text-xs">حساب يومي</Badge>
+                )}
               </h3>
-              <p className="text-base text-gray-700 mt-2 font-medium">
-                المستوى الحالي: <span className="text-blue-600 font-bold">{pricingData.levels.find(l => l.id === pricingData.currentLevel)?.name}</span>
+              <div className="text-sm text-gray-700 mt-2 font-medium flex flex-wrap gap-4">
+                <span>
+                  المستوى: <span className="text-blue-600 font-bold">{pricingData.levels.find(l => l.id === pricingData.currentLevel)?.name}</span>
+                </span>
                 {selectedMunicipality && (
-                  <span className="mr-6 text-green-600">
+                  <span className="text-green-600">
                     البلدية: <span className="font-bold">{selectedMunicipality.name}</span> (معامل: <span className="font-bold">{selectedMunicipality.multiplier}</span>)
                   </span>
                 )}
-              </p>
+                {selectedDuration && selectedDuration.discount > 0 && (
+                  <span className="text-red-600">
+                    خصم: <span className="font-bold">{selectedDuration.discount}%</span>
+                  </span>
+                )}
+              </div>
             </div>
             <div className="overflow-x-auto bg-white">
               <table className="w-full border-collapse pricing-table">
