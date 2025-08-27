@@ -17,6 +17,7 @@ import { loadBillboardsFromLocal } from "@/services/localBillboardService"
 import { clientService } from "@/services/clientService"
 import { Billboard } from "@/types"
 import { useAuth } from "@/contexts/AuthContext"
+import { systemTest } from "@/utils/systemTest"
 
 export default function MainApp() {
   const { user } = useAuth()
@@ -181,7 +182,7 @@ ${selectedBillboardsData
 
       window.open(mailtoLink, "_blank")
 
-      alert("تم فتح برنامج البريد الإلكتروني مع تفاصيل اللوحات المختارة!")
+      alert("تم فتح برنامج البريد الإلكتروني مع تفاصيل اللوحا�� المختارة!")
       setShowEmailDialog(false)
       clearSelection()
       setCustomerEmail("")
@@ -398,7 +399,7 @@ ${selectedBillboardsData
               <th style="width: 12%;">رقم اللوحة</th>
               <th style="width: 22%;">موقع اللوحة</th>
               <th style="width: 14%;">البلدية</th>
-              <th style="width: 14%;">المنطقة</th>
+              <th style="width: 14%;">��لمنطقة</th>
               <th style="width: 12%;">المقاس</th>
               <th style="width: 10%;">الحالة</th>
               <th style="width: 16%;">عرض على الخريطة</th>
