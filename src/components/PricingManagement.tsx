@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
 import { pricingService } from '@/services/pricingService'
-import { PriceList, BillboardSize } from '@/types'
+import { PriceList, BillboardSize, CustomerType } from '@/types'
 
 interface PricingManagementProps {
   onClose: () => void
@@ -106,7 +106,7 @@ const PricingManagement: React.FC<PricingManagementProps> = ({ onClose }) => {
     }
 
     setPricing(updatedPricing)
-    setSuccess(`تم حذف المنطقة "${zoneName}" بنجاح`)
+    setSuccess(`��م حذف المنطقة "${zoneName}" بنجاح`)
   }
 
   const savePricing = async () => {
@@ -124,7 +124,7 @@ const PricingManagement: React.FC<PricingManagementProps> = ({ onClose }) => {
   }
 
   const resetPricing = () => {
-    if (window.confirm('هل أنت متأكد من إعادة تعيين ج��يع الأسعار للقيم الافتراضية؟')) {
+    if (window.confirm('هل أنت متأكد من إعادة تعيين جميع الأسعار للقيم الافتراضية؟')) {
       loadPricing()
       setSuccess('تم إعادة تعيين الأسعار للقيم الافتراضية')
     }
