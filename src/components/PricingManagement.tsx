@@ -24,11 +24,13 @@ const PricingManagement: React.FC<PricingManagementProps> = ({ onClose }) => {
   const [editingZone, setEditingZone] = useState<string | null>(null)
   const [newZoneName, setNewZoneName] = useState('')
   const [showAddZone, setShowAddZone] = useState(false)
+  const [activeCustomerType, setActiveCustomerType] = useState<CustomerType>('individuals')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
   const sizes: BillboardSize[] = ['5x13', '4x12', '4x10', '3x8', '3x6', '3x4']
+  const customerTypes = pricingService.getCustomerTypes()
 
   useEffect(() => {
     loadPricing()
@@ -106,7 +108,7 @@ const PricingManagement: React.FC<PricingManagementProps> = ({ onClose }) => {
     }
 
     setPricing(updatedPricing)
-    setSuccess(`��م حذف المنطقة "${zoneName}" بنجاح`)
+    setSuccess(`تم حذف المنطقة "${zoneName}" بنجاح`)
   }
 
   const savePricing = async () => {
