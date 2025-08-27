@@ -376,17 +376,58 @@ class NewPricingService implements SizeManagement {
   }
 
   /**
-   * تحديد المنطقة السعرية بناءً على البلدية أو المنطقة
+   * تحديد المنطقة السعرية بناءً على البلدية مباشرة
+   * المنطقة السعرية هي نفس اسم البلدية
    */
-  determinePricingZone(municipality: string, area: string): string {
+  determinePricingZone(municipality: string, area?: string): string {
+    // استخدام اسم البلدية مباشرة كمنطقة سعرية
+    const zoneName = municipality.trim()
+
+    // التأكد من وجود أسعار لهذه المنطقة
+    const pricing = this.getPricing()
+    if (pricing.zones[zoneName]) {
+      return zoneName
+    }
+
+    // إذا لم توجد أسعار لهذه البلدية، البحث عن أقرب تطابق
+    const availableZones = Object.keys(pricing.zones)
     const municipalityLower = municipality.toLowerCase().trim()
-    const areaLower = area.toLowerCase().trim()
 
-    if (municipalityLower.includes('مصراتة')) return 'مصراتة'
-    if (municipalityLower.includes('أبو سليم') || areaLower.includes('أبو سليم')) return 'أبو سليم'
-    if (municipalityLower.includes('طرابلس') && areaLower.includes('الشط')) return 'شركات'
+    for (const zone of availableZones) {
+      if (zone.toLowerCase().includes(municipalityLower) || municipalityLower.includes(zone.toLowerCase())) {
+        return zone
+      }
+    }
 
-    return 'مصراتة'
+    // إعادة المنطقة الافتراضية إذا لم يوجد تطابق
+    return availableZones[0] || 'مصراتة'
+  }
+
+  /**
+   * إضافة منطقة سعرية جديدة بناءً على البلدية
+   */
+  addPricingZoneForMunicipality(municipality: string, baseZone: string = 'مصراتة'): boolean {
+    const pricing = this.getPricing()
+    const zoneName = municipality.trim()
+
+    // إذا كانت المنطقة موجودة، لا تفعل شيء
+    if (pricing.zones[zoneName]) {
+      return true
+    }
+
+    // نسخ أسعار المنطقة الأساسية
+    const baseZoneData = pricing.zones[baseZone]
+    if (!baseZoneData) {
+      return false
+    }
+
+    // إنشاء منطقة جديدة بنفس أسعار المنطقة الأساسية
+    pricing.zones[zoneName] = {
+      ...baseZoneData,
+      name: zoneName
+    }
+
+    return this.updatePricing(pricing).success
   }
 
   /**
@@ -486,7 +527,7 @@ class NewPricingService implements SizeManagement {
     const pricing = this.getPricing()
     const updatedPricing = { ...pricing }
 
-    // حذف المقاس من جميع المناطق
+    // حذف المقاس من ج��يع المناطق
     Object.keys(updatedPricing.zones).forEach(zoneName => {
       const zone = updatedPricing.zones[zoneName]
       
@@ -698,7 +739,7 @@ class NewPricingService implements SizeManagement {
           <div class="logo-section">
             <img src="${window.location.origin}/logo-symbol.svg" alt="شعار الشركة" class="logo" />
             <div class="company-info">
-              <div class="company-name-ar">الفــــارس الذهبــــي</div>
+              <div class="company-name-ar">الفــــارس ��لذهبــــي</div>
               <div class="company-name-en">AL FARES AL DAHABI</div>
               <div class="company-name-ar" style="font-size: 12px;">للدعــــــاية والإعـــلان</div>
             </div>
@@ -709,7 +750,7 @@ class NewPricingService implements SizeManagement {
           <div class="quote-title">عرض سعر إعلاني محدث</div>
           <div style="color: #666; font-size: 14px;">رقم العرض: ${quote.id}</div>
           <div style="color: #666; font-size: 12px;">تاريخ العرض: ${formatGregorianDate(quote.createdAt)}</div>
-          <div style="color: #666; font-size: 12px;">صالح حت��: ${formatGregorianDate(quote.validUntil)}</div>
+          <div style="color: #666; font-size: 12px;">صالح حتى: ${formatGregorianDate(quote.validUntil)}</div>
         </div>
 
         <div class="customer-section">
@@ -879,7 +920,7 @@ class NewPricingService implements SizeManagement {
   }
 
   /**
-   * ترجمة فئة ��لزبون إلى العربية
+   * ترجمة فئة الزبون إلى العربية
    */
   getCustomerTypeLabel(type: string): string {
     const labels: Record<string, string> = {
