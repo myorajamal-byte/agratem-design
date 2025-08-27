@@ -361,7 +361,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       return
     }
 
-    if (!window.confirm(`هل أنت متأكد من حذ�� مقاس "${size}"؟`)) return
+    if (!window.confirm(`هل أنت متأكد من حذف مقاس "${size}"؟`)) return
 
     setPricingData(prev => {
       const updatedSizes = prev.sizes.filter(s => s !== size)
@@ -881,18 +881,18 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
               <table className="w-full border-collapse municipality-table">
                 <thead>
                   <tr className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
-                    <th className="border border-blue-300 p-4 text-right font-bold text-lg">اسم البلدية</th>
-                    <th className="border border-blue-300 p-4 text-center font-bold text-lg">المعامل</th>
-                    <th className="border border-blue-300 p-4 text-center font-bold text-lg">الإجراءات</th>
+                    <th className="border border-blue-300 p-2 text-right font-bold text-sm">اسم البلدية</th>
+                    <th className="border border-blue-300 p-2 text-center font-bold text-sm">المعامل</th>
+                    <th className="border border-blue-300 p-2 text-center font-bold text-sm">الإجراءات</th>
                   </tr>
                 </thead>
                 <tbody>
                   {pricingData.municipalities.map((municipality, index) => (
                     <tr key={municipality.id} className={`hover:bg-blue-50 transition-colors ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`}>
-                      <td className="border border-gray-200 p-4 font-semibold text-gray-800 text-lg">
+                      <td className="border border-gray-200 p-2 font-semibold text-gray-800 text-sm">
                         {municipality.name}
                       </td>
-                      <td className="border border-gray-200 p-4 text-center">
+                      <td className="border border-gray-200 p-2 text-center">
                         <Input
                           type="number"
                           value={municipality.multiplier}
@@ -907,12 +907,12 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                               )
                             }))
                           }}
-                          className="w-24 text-center font-bold text-lg border-2 border-gray-300 rounded-lg focus:border-blue-500"
+                          className="w-16 text-center font-bold text-sm border border-gray-300 rounded focus:border-blue-500"
                           step="0.1"
                           min="0"
                         />
                       </td>
-                      <td className="border border-gray-200 p-4 text-center">
+                      <td className="border border-gray-200 p-2 text-center">
                         <Button
                           onClick={() => {
                             if (window.confirm(`هل تريد حذف "${municipality.name}"؟`)) {
@@ -924,9 +924,9 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                           }}
                           variant="outline"
                           size="sm"
-                          className="text-red-600 border-red-300 hover:bg-red-50 transition-colors"
+                          className="text-red-600 border-red-300 hover:bg-red-50 transition-colors p-1"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-3 h-3" />
                         </Button>
                       </td>
                     </tr>
