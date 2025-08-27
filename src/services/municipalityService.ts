@@ -43,7 +43,7 @@ class MunicipalityService {
   }
 
   /**
-   * الحصول على جميع البلديات
+   * الحصول على ج��يع البلديات
    */
   getMunicipalities(): Municipality[] {
     try {
@@ -141,7 +141,7 @@ class MunicipalityService {
   }
 
   /**
-   * الحصول على بلدية بالمعرف
+   * الحصول على ب��دية بالمعرف
    */
   getMunicipalityById(id: string): Municipality | null {
     const municipalities = this.getMunicipalities()
@@ -405,3 +405,8 @@ class MunicipalityService {
 }
 
 export const municipalityService = new MunicipalityService()
+
+// Export to global scope for easier access from pricing services
+if (typeof window !== 'undefined') {
+  (window as any).municipalityService = municipalityService
+}
