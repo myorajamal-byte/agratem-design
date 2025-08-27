@@ -159,7 +159,7 @@ export default function MainApp() {
 رسالة العميل:
 ${emailMessage || "لا توجد رسالة إضافية"}
 
-اللوحات المخ��ارة (${selectedBillboards.size} لوحة):
+اللوحات المختارة (${selectedBillboards.size} لوحة):
 ${selectedBillboardsData
   .map(
     (billboard, index) =>
@@ -644,6 +644,15 @@ ${selectedBillboardsData
                 >
                   إلغاء التحديد
                 </Button>
+                {user?.permissions.some(p => p.name === 'admin_access') && (
+                  <Button
+                    onClick={() => setShowQuoteDialog(true)}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-6"
+                  >
+                    <MessageCircle className="w-4 h-4 ml-2" />
+                    إنشاء فاتورة عرض
+                  </Button>
+                )}
                 <Button
                   onClick={() => setShowEmailDialog(true)}
                   className="bg-green-600 hover:bg-green-700 text-white px-6"
@@ -735,7 +744,7 @@ ${selectedBillboardsData
 
       <div className="fixed bottom-6 right-6 z-50">
         <a
-          href="https://wa.me/218913228908?text=مرحباً، أريد الاستفسار عن اللوحات الإعلانية الم��احة"
+          href="https://wa.me/218913228908?text=مرحباً، أريد الاستفسار عن اللوحات الإعلانية المتاحة"
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center justify-center w-16 h-16 bg-green-500 hover:bg-green-600 text-white rounded-full shadow-2xl hover:shadow-3xl transform hover:scale-110 transition-all duration-300 animate-pulse hover:animate-none"
