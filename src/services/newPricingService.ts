@@ -1,7 +1,7 @@
 import { PriceList, BillboardSize, QuoteItem, Quote, CustomerType, PackageDuration, PriceListType, SizeManagement, DurationPricing } from '@/types'
 import { formatGregorianDate } from '@/lib/dateUtils'
 
-// المقاسات الافتراضية
+// المقاسات الافت��اضية
 const DEFAULT_SIZES: BillboardSize[] = ['5x13', '4x12', '4x10', '3x8', '3x6', '3x4']
 
 // الباقات الزمنية المتاحة
@@ -81,7 +81,7 @@ const DEFAULT_PRICING_NEW: PriceList = {
 
 /**
  * خدمة إدارة الأسعار المحدثة
- * تدعم المدد المختلفة والمقاسات الديناميكية
+ * تدعم المدد المختلفة والمقاسات الدينام��كية
  */
 class NewPricingService implements SizeManagement {
   private readonly PRICING_STORAGE_KEY = 'al-fares-pricing-v2'
@@ -187,10 +187,11 @@ class NewPricingService implements SizeManagement {
    * الحصول على سعر لو��ة حسب القائمة والمدة
    */
   getBillboardPriceABWithDuration(
-    size: BillboardSize, 
-    zone: string, 
-    priceList: PriceListType = 'A', 
-    duration: number = 1
+    size: BillboardSize,
+    zone: string,
+    priceList: PriceListType = 'A',
+    duration: number = 1,
+    municipality?: string
   ): number {
     const pricing = this.getPricing()
     const zoneData = pricing.zones[zone]
@@ -206,7 +207,15 @@ class NewPricingService implements SizeManagement {
       return 0
     }
 
-    return durationPrices[size]
+    const basePrice = durationPrices[size]
+
+    // تطبيق معامل البلدية إذا تم توفيره (افتراضي: 1)
+    if (municipality) {
+      const multiplier = this.getMunicipalityMultiplier(municipality)
+      return Math.round(basePrice * multiplier)
+    }
+
+    return basePrice
   }
 
   /**
@@ -746,7 +755,7 @@ class NewPricingService implements SizeManagement {
             <tr>
               <th>م</th>
               <th>صورة اللوحة</th>
-              <th>اسم اللوحة</th>
+              <th>��سم اللوحة</th>
               <th>الموقع</th>
               <th>المقاس</th>
               <th>قائمة السعر</th>
@@ -839,7 +848,7 @@ class NewPricingService implements SizeManagement {
         </div>
 
         <div class="footer">
-          <p>الفارس الذهبي للدعاية والإعلان | هاتف: 218913228908+ | البريد: g.faris.business@gmail.com</p>
+          <p>الفارس الذهبي للدع��ية والإعلان | هاتف: 218913228908+ | البريد: g.faris.business@gmail.com</p>
           <p>نشكركم لثقتكم بخدماتنا ونتطلع للعمل معكم</p>
         </div>
 
