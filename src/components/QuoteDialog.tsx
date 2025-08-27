@@ -91,7 +91,7 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
 
   const generateQuote = () => {
     if (!customerInfo.name || !customerInfo.email || !customerInfo.phone || !selectedPackage) {
-      setError('يرجى ملء جميع الحقول المطلوبة واختيار باقة')
+      setError('يرجى ملء جميع الحقول المطلوبة واختيار ��اقة')
       return
     }
 
@@ -238,16 +238,48 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
 
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">
-                      مدة الإعلان (بالأشهر)
+                      نوع الزبون *
                     </label>
-                    <Input
-                      type="number"
-                      min="1"
-                      max="12"
-                      value={duration}
-                      onChange={(e) => setDuration(parseInt(e.target.value) || 1)}
-                      className="w-full"
-                    />
+                    <select
+                      value={customerInfo.type}
+                      onChange={(e) => setCustomerInfo(prev => ({ ...prev, type: e.target.value as CustomerType }))}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    >
+                      {customerTypes.map(type => (
+                        <option key={type.value} value={type.value}>
+                          {type.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">
+                      الباقة الزمنية *
+                    </label>
+                    <div className="grid grid-cols-1 gap-2">
+                      {packages.map(pkg => (
+                        <label key={pkg.value} className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                          <input
+                            type="radio"
+                            name="package"
+                            checked={selectedPackage?.value === pkg.value}
+                            onChange={() => setSelectedPackage(pkg)}
+                            className="w-4 h-4 text-blue-600"
+                          />
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between">
+                              <span className="font-bold">{pkg.label}</span>
+                              {pkg.discount > 0 && (
+                                <Badge className="bg-green-100 text-green-800">
+                                  خصم {pkg.discount}%
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                        </label>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </Card>
@@ -330,7 +362,7 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
               </Card>
             </div>
           ) : (
-            /* عرض الفاتورة المُنشأة */
+            /* عرض الفا��ورة المُنشأة */
             <div className="space-y-6">
               <div className="bg-green-50 border-2 border-green-200 rounded-lg p-6">
                 <div className="flex items-center justify-between mb-4">
