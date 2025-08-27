@@ -482,7 +482,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-yellow-800">
                   <AlertTriangle className="w-5 h-5" />
-                  <span className="font-semibold">لديك تغييرات غير محف��ظة</span>
+                  <span className="font-semibold">لديك تغييرات غير محفوظة</span>
                   <Badge variant="outline" className="bg-yellow-100 text-yellow-800">
                     {unsavedChanges.changedCells.size} تغيير
                   </Badge>
@@ -687,37 +687,50 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
           </Card>
 
           {/* Pricing Table */}
-          <Card className="mb-6">
-            <div className="p-4 bg-gray-50 border-b">
-              <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                <Calculator className="w-6 h-6" />
+          <Card className="mb-6 shadow-lg rounded-lg overflow-hidden">
+            <div className="p-6 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
+              <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+                <Calculator className="w-7 h-7 text-blue-600" />
                 أسعار الإجمالي حسب فئة العميل — {selectedDuration?.label}
               </h3>
-              <p className="text-sm text-gray-600 mt-1">
-                المستوى الحالي: {pricingData.levels.find(l => l.id === pricingData.currentLevel)?.name}
+              <p className="text-base text-gray-700 mt-2 font-medium">
+                المستوى الحالي: <span className="text-blue-600 font-bold">{pricingData.levels.find(l => l.id === pricingData.currentLevel)?.name}</span>
                 {selectedMunicipality && (
-                  <span className="mr-4">
-                    البلدية: {selectedMunicipality.name} (معامل: {selectedMunicipality.multiplier})
+                  <span className="mr-6 text-green-600">
+                    البلدية: <span className="font-bold">{selectedMunicipality.name}</span> (معامل: <span className="font-bold">{selectedMunicipality.multiplier}</span>)
                   </span>
                 )}
               </p>
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead className="sticky top-0 bg-white">
+            <div className="overflow-x-auto bg-white">
+              <table className="w-full border-collapse pricing-table">
+                <thead className="sticky top-0 bg-white shadow-sm">
                   <tr>
-                    <th className="border border-gray-300 p-3 text-right font-bold bg-gray-100">
+                    <th className="border border-gray-200 p-4 text-right font-bold bg-yellow-50 text-gray-800 text-lg min-w-[120px]">
                       الحجم
                     </th>
                     {pricingData.categories.map(category => (
                       <th
                         key={category.id}
-                        className={`border border-gray-300 p-3 text-center font-bold bg-${category.color}-500 text-white`}
+                        className={`border border-gray-200 p-4 text-center font-bold text-white text-lg min-w-[140px] bg-${category.color}-500`}
+                        style={{
+                          backgroundColor: category.color === 'blue' ? '#3B82F6' :
+                                         category.color === 'green' ? '#10B981' :
+                                         category.color === 'purple' ? '#8B5CF6' :
+                                         category.color === 'red' ? '#EF4444' :
+                                         category.color === 'yellow' ? '#F59E0B' :
+                                         category.color === 'pink' ? '#EC4899' :
+                                         category.color === 'indigo' ? '#6366F1' :
+                                         category.color === 'gray' ? '#6B7280' :
+                                         category.color === 'orange' ? '#F97316' :
+                                         category.color === 'teal' ? '#14B8A6' :
+                                         category.color === 'gold' ? '#D4AF37' : '#3B82F6'
+                        }}
                       >
                         {category.name}
                       </th>
                     ))}
-                    <th className="border border-gray-300 p-3 text-center font-bold bg-red-500 text-white">
+                    <th className="border border-gray-200 p-4 text-center font-bold bg-red-500 text-white text-lg min-w-[120px]">
                       الإجراءات
                     </th>
                   </tr>
