@@ -33,7 +33,9 @@ export default function BillboardCard({ billboard, isSelected, onToggleSelection
   const getPricingInfo = () => {
     if (!showPricing) return null
 
-    const zone = pricingService.determinePricingZone(billboard.municipality, billboard.area)
+    // استخدام البلدية مباشرة كمنطقة سعرية مع إضافة المنطقة إذا لم توجد
+    const zone = pricingService.determinePricingZone(billboard.municipality)
+    pricingService.addPricingZoneForMunicipality(billboard.municipality)
     const price = pricingService.getBillboardPrice(billboard.size as BillboardSize, zone, 'companies', billboard.municipality) // استخدام سعر الشركات كافتراضي مع معامل البلدية
     const pricing = pricingService.getPricing()
 
