@@ -179,6 +179,24 @@ const DEFAULT_PRICING: PriceList = {
           '3x6': 1200,
           '3x4': 900
         }
+      },
+      abPrices: {
+        A: {
+          '5x13': 3500,
+          '4x12': 2800,
+          '4x10': 2200,
+          '3x8': 1500,
+          '3x6': 1000,
+          '3x4': 800
+        },
+        B: {
+          '5x13': 4500,
+          '4x12': 3800,
+          '4x10': 3200,
+          '3x8': 2500,
+          '3x6': 2000,
+          '3x4': 1500
+        }
       }
     }
   },
@@ -188,7 +206,7 @@ const DEFAULT_PRICING: PriceList = {
 
 /**
  * خدمة إدارة الأسعار والفواتير
- * تشمل إدارة أسعار اللوحات وإنشاء فواتير العروض
+ * تشمل إدارة أسعار اللوحات وإنشاء فواتير العرو��
  */
 class PricingService {
   private readonly PRICING_STORAGE_KEY = 'al-fares-pricing'
@@ -620,7 +638,7 @@ class PricingService {
               ${quote.customerInfo.name}
             </div>
             <div class="info-item">
-              <span class="info-label">البريد الإلكتروني:</span>
+              <span class="info-label">البريد الإلك��روني:</span>
               ${quote.customerInfo.email}
             </div>
             <div class="info-item">
