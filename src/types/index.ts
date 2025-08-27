@@ -16,6 +16,8 @@ export interface Billboard {
   contractNumber?: string
   clientName?: string
   advertisementType?: string
+  // تصنيف السعر (A أو B)
+  priceCategory?: PriceListType
 }
 
 export interface User {
