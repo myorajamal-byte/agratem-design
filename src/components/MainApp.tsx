@@ -20,6 +20,7 @@ export default function MainApp() {
   const [billboards, setBillboards] = useState<Billboard[]>([])
   const [filteredBillboards, setFilteredBillboards] = useState<Billboard[]>([])
   const [searchTerm, setSearchTerm] = useState("")
+  const [contractFilter, setContractFilter] = useState("")
   const [selectedMunicipalities, setSelectedMunicipalities] = useState<string[]>([])
   const [selectedSizes, setSelectedSizes] = useState<string[]>([])
   const [selectedAvailabilities, setSelectedAvailabilities] = useState<string[]>([])
@@ -45,7 +46,7 @@ export default function MainApp() {
         setLoading(true)
         const data = await loadBillboardsFromExcel()
 
-        // تطبيق فلترة الزبون المخصص إذا كان المستخدم لديه هذه الصلاحية
+        // تطبيق فلترة ��لزبون المخصص إذا كان المستخدم لديه هذه الصلاحية
         let filteredData = data
         if (user?.permissions.some(p => p.name === 'view_specific_client') && user.assignedClient) {
           filteredData = clientService.filterBillboardsByClient(data, user.assignedClient)
