@@ -56,12 +56,33 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
 
   const packages = newPricingService.getPackages()
   const customerTypes = newPricingService.getCustomerTypes()
+  const installationPricing = installationPricingService.getInstallationPricing()
 
   if (!isOpen) return null
 
   const selectedBillboardsData = billboards.filter(b => selectedBillboards.has(b.id))
 
-  // تهيئة الباقة الافتراضية
+  // حساب تاريخ النهاية
+  const calculateEndDate = (startDateStr: string, durationMonths: number) => {
+    const start = new Date(startDateStr)
+    const end = new Date(start)
+    end.setMonth(end.getMonth() + durationMonths)
+    return end.toISOString().split('T')[0]
+  }
+
+  const endDate = calculateEndDate(startDate, duration)
+
+  // الحصول على سعر التركيب للوحة
+  const getInstallationPrice = (billboard: Billboard) => {
+    if (!includeInstallation) return 0
+
+    const zone = newPricingService.determinePricingZone(billboard.municipality, billboard.area)
+    const installationZone = installationPricing.zones[zone] || installationPricing.zones['مصراتة']
+    const basePrice = installationZone.prices[billboard.size as BillboardSize] || 0
+    return Math.round(basePrice * installationZone.multiplier)
+  }
+
+  // تهيئة الباقة الاف��راضية
   React.useEffect(() => {
     if (packages.length > 0 && !selectedPackage) {
       setSelectedPackage(packages[0])
@@ -383,7 +404,7 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
                       )}
                       <div className="border-t border-green-300 pt-2">
                         <div className="flex justify-between text-lg">
-                          <span className="font-bold">الإجمالي النه��ئي:</span>
+                          <span className="font-bold">الإجمالي النهائي:</span>
                           <span className="font-black text-green-700">
                             {quoteDetails.total.toLocaleString()} {pricing.currency}
                           </span>
