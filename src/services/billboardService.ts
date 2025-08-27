@@ -130,7 +130,7 @@ async function readExcelFromUrl(url: string, timeoutMs = 10000, retries = 2) {
 
       if (!isExcel && !isOldExcel) {
         console.log(
-          `[Service] تحذير: الملف المحمل قد لا يكون ملف إكسل صحيح. البايتات الأولى: ${Array.from(uint8Array.slice(0, 10))
+          `[Service] تحذير: الملف المحمل قد لا يكون م��ف إكسل صحيح. البايتات الأولى: ${Array.from(uint8Array.slice(0, 10))
             .map((b) => b.toString(16))
             .join(" ")}`,
         )
@@ -257,7 +257,7 @@ function processBillboardData(billboard: any, index: number): Billboard {
   const size = billboard['حجم'] || billboard['الحجم'] || billboard['المقاس مع الدغاية'] || '12X4'
   const coordinates = billboard['احداثي - GPS'] || billboard['الإحداثيات GPS'] || '32.8872,13.1913'
 
-  // بيانات العميل - استخدام أسماء الأعمدة الصحيحة
+  // بيانات العميل - استخدام أسماء الأعمدة الصح��حة
   const contractNumber = (billboard['رقم العقد'] || '').toString()
   const clientName = (billboard['اسم الزبون'] || billboard['اسم العميل'] || billboard['العميل'] || '').toString()
   const advertisementType = (billboard['نوع الاعلان'] || '').toString()
@@ -313,7 +313,7 @@ function processBillboardData(billboard: any, index: number): Billboard {
     : 'https://www.google.com/maps?q=32.8872,13.1913'
   
   // تحديد فئة السعر من مستوى اللوحة
-  const levelValue = billboard['مستوى'] || billboard['المستوى'] || billboard['تصنيف'] || 'A'
+  const levelValue = billboard['مستوى'] || billboard['المستو��'] || billboard['تصنيف'] || 'A'
   const priceCategory = (levelValue === 'A' || levelValue === 'B') ? levelValue : 'A'
 
   return {
@@ -351,9 +351,9 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
     console.log(`[Service] هل الرابط متاح؟ ${isUrlAccessible}`)
 
     try {
-      console.log("[Service] محاولة قراءة البيانات بصيغة CSV...")
+      console.log("[Service] مح��ولة قراءة البيانات بصيغة CSV...")
       workbook = await readCsvFromUrl(CSV_URL, 15000)
-      console.log("[Service] تم تحميل البيانات بصيغة CSV بنجاح ✅ - سيتم المحاولة مع Excel")
+      console.log("[Service] تم تحميل البيانات بصيغة CSV بنجاح ✅ - ��يتم المحاولة مع Excel")
     } catch (csvError: any) {
       console.warn("[Service] فشل تحميل CSV:", csvError.message)
 
@@ -536,6 +536,7 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
           contractNumber: "CT-2024-003",
           clientName: "بنك الجمهورية",
           advertisementType: "مصرفي",
+          priceCategory: "B",
         },
         {
           id: "917",
