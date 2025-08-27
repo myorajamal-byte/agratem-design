@@ -167,7 +167,7 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
     }
 
     if (pricing.sizes.includes(newSize)) {
-      showNotification('error', 'هذا المقاس موجود بالفعل')
+      showNotification('error', 'هذا المقاس موج��د بالفعل')
       return
     }
 
@@ -607,21 +607,25 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
                               </div>
                             ) : (
                               <div
-                                className="cursor-pointer group py-2 px-3"
+                                className="cursor-pointer group py-2 px-3 hover:bg-orange-50 rounded-lg transition-all"
                                 onClick={() => startEdit(zone.name, size)}
+                                title={`السعر الأساسي: ${formatPrice(basePrice)}\nالمعامل: ×${zone.multiplier}\nالسعر النهائي: ${formatPrice(finalPrice)}`}
                               >
                                 <div className="flex flex-col items-center justify-center gap-1">
                                   <div className="flex items-center gap-1">
-                                    <span className="font-bold text-gray-800 text-sm">
+                                    <span className="font-bold text-gray-800 text-sm bg-gray-100 px-2 py-1 rounded">
                                       {formatPrice(basePrice)}
                                     </span>
-                                    <Edit3 className="w-3 h-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-all duration-200" />
+                                    <Edit3 className="w-3 h-3 text-gray-400 opacity-0 group-hover:opacity-100 group-hover:text-orange-600 transition-all duration-200" />
                                   </div>
                                   {zone.multiplier !== 1.0 && (
-                                    <div className="text-xs text-orange-600 font-semibold">
-                                      النهائي: {formatPrice(finalPrice)}
+                                    <div className="text-xs text-purple-600 font-semibold bg-purple-50 px-1 py-0.5 rounded">
+                                      معامل: ×{zone.multiplier}
                                     </div>
                                   )}
+                                  <div className="text-sm text-orange-600 font-bold bg-orange-100 px-2 py-1 rounded">
+                                    النهائي: {formatPrice(finalPrice)}
+                                  </div>
                                 </div>
                               </div>
                             )}
@@ -722,7 +726,7 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
                   className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
                 >
                   <Plus className="w-4 h-4 mr-2" />
-                  إضافة
+                  إ��افة
                 </Button>
                 <Button
                   onClick={() => setShowAddZoneModal(false)}
