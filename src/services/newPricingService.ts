@@ -1,227 +1,160 @@
-import { PriceList, PricingZone, BillboardSize, QuoteItem, Quote, CustomerType, PackageDuration, PriceListType } from '@/types'
+import { PriceList, BillboardSize, QuoteItem, Quote, CustomerType, PackageDuration, PriceListType, SizeManagement, DurationPricing } from '@/types'
+
+// المقاسات الافتراضية
+const DEFAULT_SIZES: BillboardSize[] = ['5x13', '4x12', '4x10', '3x8', '3x6', '3x4']
 
 // الباقات الزمنية المتاحة
 const DEFAULT_PACKAGES: PackageDuration[] = [
   { value: 1, unit: 'month', label: 'شهر واحد', discount: 0 },
-  { value: 3, unit: 'months', label: '3 أشهر', discount: 5 }, // خصم 5%
-  { value: 6, unit: 'months', label: '6 أشهر', discount: 10 }, // خصم 10%
-  { value: 12, unit: 'year', label: 'سنة كاملة', discount: 20 } // خصم 20%
+  { value: 3, unit: 'months', label: '3 أشهر', discount: 5 },
+  { value: 6, unit: 'months', label: '6 أشهر', discount: 10 },
+  { value: 12, unit: 'year', label: 'سنة كاملة', discount: 20 }
 ]
 
-// قائمة الأسعار الافتراضية مع فئات الزبائن
-const DEFAULT_PRICING: PriceList = {
+// إنشاء أسعار افتراضية لمدة معينة
+const createDefaultPricesForDuration = (duration: number): Record<BillboardSize, number> => {
+  const basePrices: Record<BillboardSize, number> = {
+    '5x13': 3500,
+    '4x12': 2800,
+    '4x10': 2200,
+    '3x8': 1500,
+    '3x6': 1000,
+    '3x4': 800
+  }
+
+  // تطبيق خصم حسب المدة
+  const discount = duration === 1 ? 0 : duration === 3 ? 0.05 : duration === 6 ? 0.1 : duration === 12 ? 0.2 : 0
+  
+  const result: Record<BillboardSize, number> = {}
+  Object.entries(basePrices).forEach(([size, price]) => {
+    result[size] = Math.round(price * (1 - discount))
+  })
+  
+  return result
+}
+
+// إنشاء أسعار A/B افتراضية مع المدد
+const createDefaultABPricing = (): DurationPricing => ({
+  '1': createDefaultPricesForDuration(1),
+  '3': createDefaultPricesForDuration(3),
+  '6': createDefaultPricesForDuration(6),
+  '12': createDefaultPricesForDuration(12)
+})
+
+// قائمة الأسعار الافتراضية الجديدة
+const DEFAULT_PRICING_NEW: PriceList = {
   zones: {
     'مصراتة': {
       name: 'مصراتة',
       prices: {
-        marketers: { // أسعار المسوقين (الأقل)
-          '5x13': 3000,
-          '4x12': 2400,
-          '4x10': 1900,
-          '3x8': 1300,
-          '3x6': 900,
-          '3x4': 700
-        },
-        individuals: { // أسعار العاديين
-          '5x13': 3500,
-          '4x12': 2800,
-          '4x10': 2200,
-          '3x8': 1500,
-          '3x6': 1000,
-          '3x4': 800
-        },
-        companies: { // أسعار الشركات (الأعلى)
-          '5x13': 4000,
-          '4x12': 3200,
-          '4x10': 2500,
-          '3x8': 1700,
-          '3x6': 1200,
-          '3x4': 900
-        }
+        marketers: createDefaultPricesForDuration(1),
+        individuals: createDefaultPricesForDuration(1),
+        companies: createDefaultPricesForDuration(1)
       },
-      abPrices: { // قوائم الأسعار الجديدة A و B
-        A: {
-          '5x13': 3500,
-          '4x12': 2800,
-          '4x10': 2200,
-          '3x8': 1500,
-          '3x6': 1000,
-          '3x4': 800
-        },
+      abPrices: {
+        A: createDefaultABPricing(),
         B: {
-          '5x13': 4500,
-          '4x12': 3800,
-          '4x10': 3200,
-          '3x8': 2500,
-          '3x6': 2000,
-          '3x4': 1500
+          '1': createDefaultPricesForDuration(1),
+          '3': createDefaultPricesForDuration(3),
+          '6': createDefaultPricesForDuration(6),
+          '12': createDefaultPricesForDuration(12)
         }
       }
     },
     'أبو سليم': {
       name: 'أبو سليم',
       prices: {
-        marketers: {
-          '5x13': 3400,
-          '4x12': 2800,
-          '4x10': 2300,
-          '3x8': 1700,
-          '3x6': 1300,
-          '3x4': 900
-        },
-        individuals: {
-          '5x13': 4000,
-          '4x12': 3300,
-          '4x10': 2700,
-          '3x8': 2000,
-          '3x6': 1500,
-          '3x4': 1000
-        },
-        companies: {
-          '5x13': 4600,
-          '4x12': 3800,
-          '4x10': 3100,
-          '3x8': 2300,
-          '3x6': 1700,
-          '3x4': 1100
-        }
+        marketers: createDefaultPricesForDuration(1),
+        individuals: createDefaultPricesForDuration(1),
+        companies: createDefaultPricesForDuration(1)
       },
       abPrices: {
-        A: {
-          '5x13': 4000,
-          '4x12': 3300,
-          '4x10': 2700,
-          '3x8': 2000,
-          '3x6': 1500,
-          '3x4': 1000
-        },
-        B: {
-          '5x13': 5000,
-          '4x12': 4300,
-          '4x10': 3700,
-          '3x8': 3000,
-          '3x6': 2500,
-          '3x4': 2000
-        }
-      }
-    },
-    'شركات': {
-      name: 'شركات',
-      prices: {
-        marketers: {
-          '5x13': 3800,
-          '4x12': 3200,
-          '4x10': 2700,
-          '3x8': 2100,
-          '3x6': 1700,
-          '3x4': 1300
-        },
-        individuals: {
-          '5x13': 4500,
-          '4x12': 3800,
-          '4x10': 3200,
-          '3x8': 2500,
-          '3x6': 2000,
-          '3x4': 1500
-        },
-        companies: {
-          '5x13': 5200,
-          '4x12': 4400,
-          '4x10': 3700,
-          '3x8': 2900,
-          '3x6': 2300,
-          '3x4': 1700
-        }
-      },
-      abPrices: {
-        A: {
-          '5x13': 4500,
-          '4x12': 3800,
-          '4x10': 3200,
-          '3x8': 2500,
-          '3x6': 2000,
-          '3x4': 1500
-        },
-        B: {
-          '5x13': 5500,
-          '4x12': 4800,
-          '4x10': 4200,
-          '3x8': 3500,
-          '3x6': 3000,
-          '3x4': 2500
-        }
-      }
-    },
-    'إجرامات': {
-      name: 'إجرامات',
-      prices: {
-        marketers: {
-          '5x13': 3000,
-          '4x12': 2400,
-          '4x10': 1900,
-          '3x8': 1300,
-          '3x6': 900,
-          '3x4': 700
-        },
-        individuals: {
-          '5x13': 3500,
-          '4x12': 2800,
-          '4x10': 2200,
-          '3x8': 1500,
-          '3x6': 1000,
-          '3x4': 800
-        },
-        companies: {
-          '5x13': 4000,
-          '4x12': 3200,
-          '4x10': 2500,
-          '3x8': 1700,
-          '3x6': 1200,
-          '3x4': 900
-        }
-      },
-      abPrices: {
-        A: {
-          '5x13': 3500,
-          '4x12': 2800,
-          '4x10': 2200,
-          '3x8': 1500,
-          '3x6': 1000,
-          '3x4': 800
-        },
-        B: {
-          '5x13': 4500,
-          '4x12': 3800,
-          '4x10': 3200,
-          '3x8': 2500,
-          '3x6': 2000,
-          '3x4': 1500
-        }
+        A: createDefaultABPricing(),
+        B: createDefaultABPricing()
       }
     }
   },
   packages: DEFAULT_PACKAGES,
-  currency: 'د.ل' // دينار ليبي
+  currency: 'د.ل'
 }
 
 /**
- * خدمة إدارة الأسعار والفواتير
- * تشمل إدارة أسعار اللوحات وإنشاء فواتير العرو��
+ * خدمة إدارة الأسعار المحدثة
+ * تدعم المدد المختلفة والمقاسات الديناميكية
  */
-class PricingService {
-  private readonly PRICING_STORAGE_KEY = 'al-fares-pricing'
+class NewPricingService implements SizeManagement {
+  private readonly PRICING_STORAGE_KEY = 'al-fares-pricing-v2'
+  private readonly SIZES_STORAGE_KEY = 'al-fares-sizes'
+  public sizes: BillboardSize[] = []
 
   constructor() {
-    this.initializeDefaultPricing()
+    this.initializeDefaults()
+    this.loadSizes()
   }
 
   /**
-   * تهيئة الأسعار ��لافتراضية
+   * تهيئة البيانات الافتراضية
    */
-  private initializeDefaultPricing() {
+  private initializeDefaults() {
     if (!localStorage.getItem(this.PRICING_STORAGE_KEY)) {
-      localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(DEFAULT_PRICING))
+      localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(DEFAULT_PRICING_NEW))
     }
+    if (!localStorage.getItem(this.SIZES_STORAGE_KEY)) {
+      localStorage.setItem(this.SIZES_STORAGE_KEY, JSON.stringify(DEFAULT_SIZES))
+    }
+  }
+
+  /**
+   * تحميل المقاسات من التخزين
+   */
+  private loadSizes() {
+    try {
+      const sizes = localStorage.getItem(this.SIZES_STORAGE_KEY)
+      this.sizes = sizes ? JSON.parse(sizes) : DEFAULT_SIZES
+    } catch {
+      this.sizes = DEFAULT_SIZES
+    }
+  }
+
+  /**
+   * حفظ المقاسات في التخزين
+   */
+  private saveSizes() {
+    localStorage.setItem(this.SIZES_STORAGE_KEY, JSON.stringify(this.sizes))
+  }
+
+  /**
+   * إضافة مقاس جديد
+   */
+  addSize(size: BillboardSize): boolean {
+    if (!this.validateSize(size) || this.sizes.includes(size)) {
+      return false
+    }
+    this.sizes.push(size)
+    this.saveSizes()
+    return true
+  }
+
+  /**
+   * ح��ف مقاس
+   */
+  removeSize(size: BillboardSize): boolean {
+    const index = this.sizes.indexOf(size)
+    if (index === -1 || this.sizes.length <= 1) {
+      return false
+    }
+    this.sizes.splice(index, 1)
+    this.saveSizes()
+    return true
+  }
+
+  /**
+   * التحقق من صحة المقاس
+   */
+  validateSize(size: string): boolean {
+    // تحقق من أن المقاس بصيغة مثل "5x13" أو "4x12"
+    const sizePattern = /^\d+x\d+$/
+    return sizePattern.test(size) && size.length <= 10
   }
 
   /**
@@ -230,14 +163,14 @@ class PricingService {
   getPricing(): PriceList {
     try {
       const pricing = localStorage.getItem(this.PRICING_STORAGE_KEY)
-      return pricing ? JSON.parse(pricing) : DEFAULT_PRICING
+      return pricing ? JSON.parse(pricing) : DEFAULT_PRICING_NEW
     } catch {
-      return DEFAULT_PRICING
+      return DEFAULT_PRICING_NEW
     }
   }
 
   /**
-   * تحديث ��ائمة الأسعار
+   * تحديث قائمة الأسعار
    */
   updatePricing(pricing: PriceList): { success: boolean; error?: string } {
     try {
@@ -250,7 +183,33 @@ class PricingService {
   }
 
   /**
-   * الحصول على سعر لوحة معينة حسب فئة الزبون
+   * الحصول على سعر لو��ة حسب القائمة والمدة
+   */
+  getBillboardPriceABWithDuration(
+    size: BillboardSize, 
+    zone: string, 
+    priceList: PriceListType = 'A', 
+    duration: number = 1
+  ): number {
+    const pricing = this.getPricing()
+    const zoneData = pricing.zones[zone]
+
+    if (!zoneData || !zoneData.abPrices || !zoneData.abPrices[priceList]) {
+      return 0
+    }
+
+    const durationKey = duration.toString() as keyof DurationPricing
+    const durationPrices = zoneData.abPrices[priceList][durationKey]
+
+    if (!durationPrices || !durationPrices[size]) {
+      return 0
+    }
+
+    return durationPrices[size]
+  }
+
+  /**
+   * الحصول على سعر لوحة حسب فئة الزبون (للنظام القديم)
    */
   getBillboardPrice(size: BillboardSize, zone: string, customerType: CustomerType = 'individuals'): number {
     const pricing = this.getPricing()
@@ -264,17 +223,27 @@ class PricingService {
   }
 
   /**
-   * ا��حصول على سعر لوحة معينة حسب قائمة الأسعار A أو B
+   * تحديد قائمة الأسعار من بيانات اللوحة
    */
-  getBillboardPriceAB(size: BillboardSize, zone: string, priceList: PriceListType = 'A'): number {
-    const pricing = this.getPricing()
-    const zoneData = pricing.zones[zone]
-
-    if (!zoneData || !zoneData.abPrices || !zoneData.abPrices[priceList] || !zoneData.abPrices[priceList][size]) {
-      return 0
+  determinePriceListFromBillboard(billboard: any): PriceListType {
+    // إذا كان للوحة تصنيف سعر محدد
+    if (billboard.priceCategory && (billboard.priceCategory === 'A' || billboard.priceCategory === 'B')) {
+      return billboard.priceCategory
     }
 
-    return zoneData.abPrices[priceList][size]
+    // إذا كان المستوى يحدد القائمة
+    if (billboard.level) {
+      const level = billboard.level.toLowerCase()
+      if (level.includes('مسوق') || level.includes('a') || level === '1') {
+        return 'A'
+      }
+      if (level.includes('شرك') || level.includes('b') || level === '2') {
+        return 'B'
+      }
+    }
+
+    // القيمة الافتراضية
+    return 'A'
   }
 
   /**
@@ -304,42 +273,7 @@ class PricingService {
   }
 
   /**
-   * تحديد المنطقة السعرية بناءً على البلدية أو المنطقة
-   */
-  determinePricingZone(municipality: string, area: string): string {
-    const municipalityLower = municipality.toLowerCase()
-    const areaLower = area.toLowerCase()
-    
-    // تحديد المنطقة بناءً على البلدية
-    if (municipalityLower.includes('مصراتة')) return 'مصرا��ة'
-    if (municipalityLower.includes('أبو سليم') || areaLower.includes('أبو س��يم')) return 'أبو سليم'
-    if (municipalityLower.includes('طرابلس') && areaLower.includes('الشط')) return 'شركات'
-    
-    // إعادة المنطقة الافتراضية
-    return 'مصراتة'
-  }
-
-  /**
-   * حساب إجمالي عرض السعر
-   */
-  calculateQuoteTotal(items: QuoteItem[]): number {
-    return items.reduce((total, item) => total + item.total, 0)
-  }
-
-  /**
-   * ترجمة فئة الزبون إلى العربية
-   */
-  getCustomerTypeLabel(type: CustomerType): string {
-    const labels = {
-      marketers: 'المسوقين',
-      individuals: 'العاديين',
-      companies: 'الشركات'
-    }
-    return labels[type] || 'غير محدد'
-  }
-
-  /**
-   * إنشاء فاتورة عرض
+   * إنشاء فاتورة عرض محدثة
    */
   generateQuote(
     customerInfo: {
@@ -358,6 +292,8 @@ class PricingService {
       size: BillboardSize
       status: string
       imageUrl?: string
+      level?: string
+      priceCategory?: PriceListType
     }>,
     packageDuration: PackageDuration
   ): Quote {
@@ -365,7 +301,13 @@ class PricingService {
 
     const items: QuoteItem[] = billboards.map(billboard => {
       const zone = this.determinePricingZone(billboard.municipality, billboard.area)
-      const basePrice = this.getBillboardPrice(billboard.size, zone, customerInfo.type)
+      const priceList = this.determinePriceListFromBillboard(billboard)
+      const basePrice = this.getBillboardPriceABWithDuration(
+        billboard.size, 
+        zone, 
+        priceList, 
+        packageDuration.value
+      )
       const priceCalc = this.calculatePriceWithDiscount(basePrice, packageDuration)
 
       return {
@@ -385,7 +327,7 @@ class PricingService {
 
     const subtotal = items.reduce((sum, item) => sum + (item.basePrice * item.duration), 0)
     const totalDiscount = items.reduce((sum, item) => sum + ((item.basePrice - item.finalPrice) * item.duration), 0)
-    const taxRate = 0.0 // يمكن تعديلها حسب الحاجة
+    const taxRate = 0.0
     const tax = (subtotal - totalDiscount) * taxRate
     const total = subtotal - totalDiscount + tax
 
@@ -405,8 +347,22 @@ class PricingService {
       total,
       currency: pricing.currency,
       createdAt: new Date().toISOString(),
-      validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // صالح لـ 30 يوم
+      validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
     }
+  }
+
+  /**
+   * تحديد المنطقة السعرية بناءً على البلدية أو المنطقة
+   */
+  determinePricingZone(municipality: string, area: string): string {
+    const municipalityLower = municipality.toLowerCase()
+    const areaLower = area.toLowerCase()
+    
+    if (municipalityLower.includes('مصراتة')) return 'مصراتة'
+    if (municipalityLower.includes('أبو سليم') || areaLower.includes('أبو سليم')) return 'أبو سليم'
+    if (municipalityLower.includes('طرابلس') && areaLower.includes('الشط')) return 'شركات'
+    
+    return 'مصراتة'
   }
 
   /**
@@ -418,20 +374,13 @@ class PricingService {
   }
 
   /**
-   * الحصول على قائمة المقاسات المتاحة
-   */
-  getAvailableSizes(): BillboardSize[] {
-    return ['5x13', '4x12', '4x10', '3x8', '3x6', '3x4']
-  }
-
-  /**
    * الحصول على قائمة فئات الزبائن المتاحة
    */
   getCustomerTypes(): Array<{value: CustomerType, label: string}> {
     return [
       { value: 'marketers', label: 'المسوقين' },
       { value: 'individuals', label: 'العاديين' },
-      { value: 'companies', label: 'الشر��ات' }
+      { value: 'companies', label: 'الشركات' }
     ]
   }
 
@@ -440,54 +389,101 @@ class PricingService {
    */
   getPriceListTypes(): Array<{value: PriceListType, label: string}> {
     return [
-      { value: 'A', label: 'قائمة أسعار A' },
-      { value: 'B', label: '��ائمة أسعار B' }
+      { value: 'A', label: 'مستوى 1 - سيتي A' },
+      { value: 'B', label: 'مستوى 2 - مسوقين' }
     ]
   }
 
   /**
-   * مقارنة الأسعار بين قائمتي A و B لمنطقة معينة
+   * إضافة مقاس جديد لجميع المناطق والقوائم
    */
-  comparePriceListsForZone(zone: string): {
-    zone: string,
-    sizes: Array<{
-      size: BillboardSize,
-      priceA: number,
-      priceB: number,
-      difference: number,
-      percentDifference: number
-    }>
-  } | null {
+  addSizeToAllZones(size: BillboardSize, defaultPrice: number = 1000): boolean {
+    if (!this.addSize(size)) {
+      return false
+    }
+
     const pricing = this.getPricing()
-    const zoneData = pricing.zones[zone]
+    const updatedPricing = { ...pricing }
 
-    if (!zoneData || !zoneData.abPrices) {
-      return null
-    }
+    // إضافة المقاس لجميع المناطق
+    Object.keys(updatedPricing.zones).forEach(zoneName => {
+      const zone = updatedPricing.zones[zoneName]
+      
+      // إضافة للأسعار العادية
+      if (zone.prices) {
+        Object.keys(zone.prices).forEach(customerType => {
+          zone.prices[customerType as CustomerType][size] = defaultPrice
+        })
+      }
 
-    const sizes: BillboardSize[] = ['5x13', '4x12', '4x10', '3x8', '3x6', '3x4']
+      // إضافة لقوائم A/B
+      if (zone.abPrices) {
+        Object.keys(zone.abPrices).forEach(priceList => {
+          const list = zone.abPrices[priceList as PriceListType]
+          Object.keys(list).forEach(duration => {
+            list[duration as keyof DurationPricing][size] = defaultPrice
+          })
+        })
+      }
+    })
 
-    return {
-      zone,
-      sizes: sizes.map(size => {
-        const priceA = zoneData.abPrices.A[size]
-        const priceB = zoneData.abPrices.B[size]
-        const difference = priceB - priceA
-        const percentDifference = ((difference / priceA) * 100)
-
-        return {
-          size,
-          priceA,
-          priceB,
-          difference,
-          percentDifference: Math.round(percentDifference * 100) / 100
-        }
-      })
-    }
+    return this.updatePricing(updatedPricing).success
   }
 
   /**
-   * تصدير فاتورة العرض لـ PDF
+   * حذف مقاس من جميع المناطق والقوائم
+   */
+  removeSizeFromAllZones(size: BillboardSize): boolean {
+    if (!this.removeSize(size)) {
+      return false
+    }
+
+    const pricing = this.getPricing()
+    const updatedPricing = { ...pricing }
+
+    // حذف المقاس من جميع المناطق
+    Object.keys(updatedPricing.zones).forEach(zoneName => {
+      const zone = updatedPricing.zones[zoneName]
+      
+      // حذف من الأسعار العادية
+      if (zone.prices) {
+        Object.keys(zone.prices).forEach(customerType => {
+          delete zone.prices[customerType as CustomerType][size]
+        })
+      }
+
+      // حذف من قوائم A/B
+      if (zone.abPrices) {
+        Object.keys(zone.abPrices).forEach(priceList => {
+          const list = zone.abPrices[priceList as PriceListType]
+          Object.keys(list).forEach(duration => {
+            delete list[duration as keyof DurationPricing][size]
+          })
+        })
+      }
+    })
+
+    return this.updatePricing(updatedPricing).success
+  }
+
+  /**
+   * طباعة فاتورة العرض
+   */
+  printQuote(quote: Quote): void {
+    const printContent = this.exportQuoteToPDF(quote)
+    const printWindow = window.open('', '_blank')
+
+    if (!printWindow) {
+      alert('يرجى السماح بفتح النوافذ المنبثقة لطباعة الفاتورة')
+      return
+    }
+
+    printWindow.document.write(printContent)
+    printWindow.document.close()
+  }
+
+  /**
+   * تصدير فاتورة العرض لـ PDF - نسخة محدثة
    */
   exportQuoteToPDF(quote: Quote): string {
     const printContent = `
@@ -499,10 +495,7 @@ class PricingService {
         <title>عرض سعر - الفارس الذهبي</title>
         <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
         <style>
-          @page {
-            size: A4;
-            margin: 15mm;
-          }
+          @page { size: A4; margin: 15mm; }
           * { margin: 0; padding: 0; box-sizing: border-box; }
           body {
             font-family: 'Tajawal', 'Cairo', 'Arial', sans-serif;
@@ -512,11 +505,11 @@ class PricingService {
             line-height: 1.6;
             font-size: 12px;
           }
-          .header { 
+          .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px; 
+            margin-bottom: 20px;
             padding: 15px 0;
             border-bottom: 3px solid #D4AF37;
           }
@@ -525,22 +518,16 @@ class PricingService {
             align-items: center;
             gap: 15px;
           }
-          .logo { 
-            width: 80px; 
-            height: 80px; 
-            object-fit: contain;
-          }
-          .company-info {
-            text-align: right;
-          }
-          .company-name-ar { 
-            font-size: 20px; 
-            font-weight: 700; 
-            color: #000; 
+          .logo { width: 80px; height: 80px; object-fit: contain; }
+          .company-info { text-align: right; }
+          .company-name-ar {
+            font-size: 20px;
+            font-weight: 700;
+            color: #000;
             margin-bottom: 3px;
           }
-          .company-name-en { 
-            font-size: 14px; 
+          .company-name-en {
+            font-size: 14px;
             color: #666;
             font-weight: 400;
           }
@@ -557,13 +544,6 @@ class PricingService {
             border-radius: 25px;
             display: inline-block;
             margin-bottom: 10px;
-          }
-          .quote-info {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 25px;
-            border: 2px solid #D4AF37;
           }
           .customer-section {
             display: grid;
@@ -606,13 +586,8 @@ class PricingService {
             font-weight: 700;
             font-size: 12px;
           }
-          tr:nth-child(even) {
-            background: #FFFEF7;
-          }
-          .price {
-            font-weight: 700;
-            color: #D4AF37;
-          }
+          tr:nth-child(even) { background: #FFFEF7; }
+          .price { font-weight: 700; color: #D4AF37; }
           .totals-section {
             background: #f8f9fa;
             padding: 20px;
@@ -646,10 +621,7 @@ class PricingService {
             margin-bottom: 10px;
             font-size: 14px;
           }
-          .terms ul {
-            list-style: none;
-            padding-right: 20px;
-          }
+          .terms ul { list-style: none; padding-right: 20px; }
           .terms li {
             margin-bottom: 5px;
             font-size: 11px;
@@ -689,7 +661,7 @@ class PricingService {
         </div>
 
         <div class="quote-header">
-          <div class="quote-title">عرض سعر إعلاني</div>
+          <div class="quote-title">عرض سعر إعلاني محدث</div>
           <div style="color: #666; font-size: 14px;">رقم العرض: ${quote.id}</div>
           <div style="color: #666; font-size: 12px;">تاريخ العرض: ${new Date(quote.createdAt).toLocaleDateString('ar-SA')}</div>
           <div style="color: #666; font-size: 12px;">صالح حتى: ${new Date(quote.validUntil).toLocaleDateString('ar-SA')}</div>
@@ -699,11 +671,11 @@ class PricingService {
           <div class="info-group">
             <h3>بيانات العميل</h3>
             <div class="info-item">
-              <span class="info-label">الاس��:</span>
+              <span class="info-label">الاسم:</span>
               ${quote.customerInfo.name}
             </div>
             <div class="info-item">
-              <span class="info-label">البريد الإلك��روني:</span>
+              <span class="info-label">البريد الإلكتروني:</span>
               ${quote.customerInfo.email}
             </div>
             <div class="info-item">
@@ -745,15 +717,15 @@ class PricingService {
         <table>
           <thead>
             <tr>
-              <th style="width: 8%;">م</th>
-              <th style="width: 12%;">صورة اللوحة</th>
-              <th style="width: 20%;">اسم اللوحة</th>
-              <th style="width: 18%;">الموقع</th>
-              <th style="width: 8%;">المقاس</th>
-              <th style="width: 12%;">المنطقة</th>
-              <th style="width: 10%;">السعر الأساسي</th>
-              <th style="width: 8%;">الخصم</th>
-              <th style="width: 12%;">الإجمالي</th>
+              <th>م</th>
+              <th>صورة اللوحة</th>
+              <th>اسم اللوحة</th>
+              <th>الموقع</th>
+              <th>المقاس</th>
+              <th>قائمة السعر</th>
+              <th>السعر الأساسي</th>
+              <th>الخصم</th>
+              <th>الإجمالي</th>
             </tr>
           </thead>
           <tbody>
@@ -764,13 +736,13 @@ class PricingService {
                   ${item.imageUrl ? `
                     <img src="${item.imageUrl}"
                          alt="صورة اللوحة ${item.name}"
-                         style="width: 70px; height: 50px; object-fit: cover; border-radius: 4px; border: 1px solid #D4AF37;"
+                         style="width: 60px; height: 40px; object-fit: cover; border-radius: 4px; border: 1px solid #D4AF37;"
                          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                    <div style="display: none; width: 70px; height: 50px; background: #f8f9fa; border: 1px solid #D4AF37; border-radius: 4px; align-items: center; justify-content: center; font-size: 8px; color: #666;">
+                    <div style="display: none; width: 60px; height: 40px; background: #f8f9fa; border: 1px solid #D4AF37; border-radius: 4px; align-items: center; justify-content: center; font-size: 8px; color: #666;">
                       <span>صورة اللوحة</span>
                     </div>
                   ` : `
-                    <div style="width: 70px; height: 50px; background: #f8f9fa; border: 1px solid #D4AF37; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 8px; color: #666; margin: 0 auto;">
+                    <div style="width: 60px; height: 40px; background: #f8f9fa; border: 1px solid #D4AF37; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 8px; color: #666; margin: 0 auto;">
                       <span>صورة اللوحة</span>
                     </div>
                   `}
@@ -778,11 +750,11 @@ class PricingService {
                 <td style="text-align: right; padding-right: 8px; font-size: 10px;">${item.name}</td>
                 <td style="text-align: right; padding-right: 8px; font-size: 9px;">${item.location}</td>
                 <td style="font-size: 9px;">${item.size}</td>
-                <td style="font-size: 9px;">${item.zone}</td>
+                <td style="font-size: 9px; font-weight: bold; color: #D4AF37;">تلقائي</td>
                 <td class="price" style="font-size: 9px;">
                   ${item.basePrice.toLocaleString()} ${quote.currency}
                   <br>
-                  <span style="font-size: 8px; color: #666;">شهرياً</span>
+                  <span style="font-size: 8px; color: #666;">للمدة</span>
                 </td>
                 <td style="font-size: 9px; color: #e53e3e;">
                   ${item.discount > 0 ? `${item.discount}%` : 'لا يوجد'}
@@ -822,7 +794,7 @@ class PricingService {
           </div>
           <div style="margin-top: 15px; padding: 10px; background: #e6fffa; border: 1px solid #38b2ac; border-radius: 6px;">
             <div style="text-align: center; color: #38b2ac; font-weight: bold; font-size: 12px;">
-              🎉 لقد وفرت ${quote.totalDiscount.toLocaleString()} ${quote.currency} مع باقة "${quote.packageInfo.label}"!
+              🎉 وفرت ${quote.totalDiscount.toLocaleString()} ${quote.currency} مع باقة "${quote.packageInfo.label}"!
             </div>
           </div>
         </div>
@@ -831,7 +803,7 @@ class PricingService {
           <h3>الشروط والأحكام</h3>
           <ul>
             <li>هذا العرض صالح لمدة 30 يوماً من تاريخ الإصدار</li>
-            <li>الأسعار المذكورة شاملة جميع الخدمات</li>
+            <li>الأسعار تحدد تلقائياً حسب تصنيف اللوحة (A أو B)</li>
             <li>يتم الدفع مقدماً قبل بدء الحملة الإعلانية</li>
             <li>في حالة إلغاء الحجز، يتم استرداد 50% من المبلغ المدفوع</li>
             <li>الشركة غير مسؤولة عن أي أضرار طبيعية قد تلحق باللوحة</li>
@@ -840,7 +812,7 @@ class PricingService {
         </div>
 
         <div class="footer">
-          <p>ا��فارس الذهبي للدعاية والإعلان | هاتف: 218913228908+ | البريد: g.faris.business@gmail.com</p>
+          <p>الفارس الذهبي للدعاية والإعلان | هاتف: 218913228908+ | البريد: g.faris.business@gmail.com</p>
           <p>نشكركم لثقتكم بخدماتنا ونتطلع للعمل معكم</p>
         </div>
 
@@ -862,20 +834,16 @@ class PricingService {
   }
 
   /**
-   * فتح نافذة طباعة فاتورة العرض
+   * ترجمة فئة الزبون إلى العربية
    */
-  printQuote(quote: Quote): void {
-    const printContent = this.exportQuoteToPDF(quote)
-    const printWindow = window.open('', '_blank')
-    
-    if (!printWindow) {
-      alert('يرجى السماح بفتح النوافذ المنبثقة لطباعة الفاتورة')
-      return
+  getCustomerTypeLabel(type: string): string {
+    const labels: Record<string, string> = {
+      marketers: 'المسوقين',
+      individuals: 'العاديين',
+      companies: 'الشركات'
     }
-
-    printWindow.document.write(printContent)
-    printWindow.document.close()
+    return labels[type] || 'غير محدد'
   }
 }
 
-export const pricingService = new PricingService()
+export const newPricingService = new NewPricingService()

@@ -18,7 +18,7 @@ import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Billboard, BillboardSize, Quote, CustomerType, PackageDuration } from '@/types'
-import { pricingService } from '@/services/pricingService'
+import { newPricingService } from '@/services/newPricingService'
 
 interface QuoteDialogProps {
   isOpen: boolean
@@ -45,8 +45,8 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
   const [error, setError] = useState('')
   const [generatedQuote, setGeneratedQuote] = useState<Quote | null>(null)
 
-  const packages = pricingService.getPackages()
-  const customerTypes = pricingService.getCustomerTypes()
+  const packages = newPricingService.getPackages()
+  const customerTypes = newPricingService.getCustomerTypes()
 
   if (!isOpen) return null
 
@@ -64,9 +64,10 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
     if (!selectedPackage) return { items: [], subtotal: 0, totalDiscount: 0, tax: 0, total: 0 }
 
     const items = selectedBillboardsData.map(billboard => {
-      const zone = pricingService.determinePricingZone(billboard.municipality, billboard.area)
-      const basePrice = pricingService.getBillboardPrice(billboard.size as BillboardSize, zone, customerInfo.type)
-      const priceCalc = pricingService.calculatePriceWithDiscount(basePrice, selectedPackage)
+      const zone = newPricingService.determinePricingZone(billboard.municipality, billboard.area)
+      const priceList = newPricingService.determinePriceListFromBillboard(billboard)
+      const basePrice = newPricingService.getBillboardPriceABWithDuration(billboard.size as BillboardSize, zone, priceList, selectedPackage.value)
+      const priceCalc = newPricingService.calculatePriceWithDiscount(basePrice, selectedPackage)
 
       return {
         billboard,
@@ -87,7 +88,7 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
   }
 
   const quoteDetails = calculateQuoteDetails()
-  const pricing = pricingService.getPricing()
+  const pricing = newPricingService.getPricing()
 
   const generateQuote = () => {
     if (!customerInfo.name || !customerInfo.email || !customerInfo.phone || !selectedPackage) {
@@ -98,7 +99,7 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
     setLoading(true)
 
     try {
-      const quote = pricingService.generateQuote(
+      const quote = newPricingService.generateQuote(
         customerInfo,
         selectedBillboardsData.map(billboard => ({
           id: billboard.id,
@@ -108,7 +109,9 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
           area: billboard.area,
           size: billboard.size as BillboardSize,
           status: billboard.status,
-          imageUrl: billboard.imageUrl
+          imageUrl: billboard.imageUrl,
+          level: billboard.level,
+          priceCategory: billboard.priceCategory
         })),
         selectedPackage
       )
@@ -125,7 +128,7 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
 
   const printQuote = () => {
     if (generatedQuote) {
-      pricingService.printQuote(generatedQuote)
+      newPricingService.printQuote(generatedQuote)
     }
   }
 
@@ -342,7 +345,7 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
                   <div className="bg-green-50 p-4 rounded-lg border-2 border-green-200">
                     <h3 className="font-bold text-green-900 mb-3 flex items-center gap-2">
                       <DollarSign className="w-5 h-5" />
-                      الملخص المالي
+                      الملخص ا��مالي
                     </h3>
                     
                     <div className="space-y-2 text-sm">

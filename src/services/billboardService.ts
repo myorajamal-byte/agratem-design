@@ -204,7 +204,7 @@ function parseExcelDate(dateValue: any): Date | null {
     const dateStr = dateValue.trim()
     if (!dateStr) return null
     
-    // محاولة تحويل النص إلى تاريخ
+    // محاو��ة تحويل النص إلى تاريخ
     const formats = [
       // صيغ التاريخ المختلفة
       /^\d{4}-\d{2}-\d{2}$/, // 2024-12-31
@@ -312,6 +312,10 @@ function processBillboardData(billboard: any, index: number): Billboard {
     ? `https://www.google.com/maps?q=${coords[0]},${coords[1]}`
     : 'https://www.google.com/maps?q=32.8872,13.1913'
   
+  // تحديد فئة السعر من مستوى اللوحة
+  const levelValue = billboard['مستوى'] || billboard['المستوى'] || billboard['تصنيف'] || 'A'
+  const priceCategory = (levelValue === 'A' || levelValue === 'B') ? levelValue : 'A'
+
   return {
     id: id.toString(),
     name: name.toString(),
@@ -320,7 +324,7 @@ function processBillboardData(billboard: any, index: number): Billboard {
     city: city.toString(),
     area: area.toString(),
     size: size.toString(),
-    level: billboard['مستوى'] || 'A',
+    level: levelValue.toString(),
     status: status.toString(),
     expiryDate: expiryDate ? expiryDate.toISOString().split('T')[0] : null,
     coordinates: coordinates.toString(),
@@ -330,6 +334,8 @@ function processBillboardData(billboard: any, index: number): Billboard {
     contractNumber: contractNumber,
     clientName: clientName,
     advertisementType: advertisementType,
+    // تصنيف السعر (A أو B) - يتم أخذه من مستوى اللوحة
+    priceCategory: priceCategory as 'A' | 'B',
   }
 }
 
@@ -371,7 +377,7 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
           console.log("[Service] تم تحميل ملف الإكسل من الرابط بنجاح ✅")
           break
         } catch (err: any) {
-          console.warn(`[Service] فشل قراءة الملف من الرابط ${url}:`, err.message)
+          console.warn(`[Service] فشل قراءة الملف من ا��رابط ${url}:`, err.message)
           lastError = err
           continue
         }
@@ -431,13 +437,13 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
   } catch (error) {
     console.error('[Service] خطأ في تحميل ملف Excel من Google Sheets:', error)
     
-    // محاولة تحميل المل�� المحلي كبديل
+    // محاولة تحميل المل�� المحل�� كبديل
     try {
       console.log('[Service] محاولة تحميل الملف المحلي كبديل...')
       const response = await fetch('/billboards.xlsx')
       
       if (!response.ok) {
-        throw new Error('فشل في تحميل ملف Excel المحلي')
+        throw new Error('فشل في ��حميل ملف Excel المحلي')
       }
       
       const buffer = await response.arrayBuffer()
@@ -463,7 +469,7 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
       console.log('[Service] تم تحميل', billboards.length, 'لوحة من الملف المحلي')
       return billboards
     } catch (localError) {
-      console.error('[Service] فشل في تحميل ال��لف المحلي أيضاً:', localError)
+      console.error('[Service] فشل في تحميل ال��لف ا��محلي أيضاً:', localError)
       
       // بيانات احتياطية
       const today = new Date()
@@ -492,6 +498,7 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
           contractNumber: "CT-2024-001",
           clientName: "شركة الفارس الذهبي",
           advertisementType: "تجاري",
+          priceCategory: "B",
         },
         {
           id: "943",
@@ -510,6 +517,7 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
           contractNumber: "CT-2024-002",
           clientName: "مؤسسة النور للإعلان",
           advertisementType: "خدمي",
+          priceCategory: "A",
         },
         {
           id: "134",
@@ -526,8 +534,9 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
           imageUrl: "https://lh3.googleusercontent.com/d/1J1D2ZEhnQZbRuSKxNVE4XTifkhvHabYs",
           gpsLink: "https://www.google.com/maps?q=32.566533,14.344944",
           contractNumber: "CT-2024-003",
-          clientName: "بنك الجمهورية",
+          clientName: "بنك الجم��ورية",
           advertisementType: "مصرفي",
+          priceCategory: "B",
         },
         {
           id: "917",
@@ -546,6 +555,7 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
           contractNumber: "CT-2024-004",
           clientName: "شركة الاتصالات الليبية",
           advertisementType: "اتصالات",
+          priceCategory: "A",
         },
         {
           id: "130",
@@ -564,6 +574,7 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
           contractNumber: "",
           clientName: "",
           advertisementType: "",
+          priceCategory: "B",
         },
         {
           id: "140",
@@ -582,6 +593,7 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
           contractNumber: "CT-2024-006",
           clientName: "شركة المدار الجديد",
           advertisementType: "اتصالات",
+          priceCategory: "B",
         },
         {
           id: "150",
@@ -600,6 +612,7 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
           contractNumber: "",
           clientName: "",
           advertisementType: "",
+          priceCategory: "A",
         },
       ]
     }
