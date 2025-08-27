@@ -731,7 +731,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                     )}
                   </h3>
                   <p className="text-blue-100 mt-2 text-sm">
-                    جدول ��لأسعار التفاعلي مع إمكانية التعديل المباشر
+                    جدول الأسعار التفاعلي مع إمكانية التعديل المباشر
                   </p>
                 </div>
                 <div className="text-right">
@@ -873,7 +873,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                                   </div>
                                   {finalPrice !== basePrice && (
                                     <div className="text-xs text-green-600 font-semibold px-2 py-1 bg-green-100 rounded-full shadow-sm">
-                                      النهائ��: {formatPrice(finalPrice)}
+                                      النهائي: {formatPrice(finalPrice)}
                                     </div>
                                   )}
                                 </div>
@@ -898,14 +898,22 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                 </tbody>
               </table>
             </div>
-            <div className="p-4 bg-gray-50 border-t">
-              <Button
-                onClick={addSize}
-                className="w-full bg-green-600 hover:bg-green-700 text-white"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                إضافة حجم جديد
-              </Button>
+            <div className="p-6 bg-gradient-to-r from-green-50 to-blue-50 border-t-2 border-green-200">
+              <div className="flex items-center justify-between">
+                <div className="text-sm text-gray-600">
+                  <span className="font-semibold">إجمالي المقاسات:</span>
+                  <Badge className="bg-blue-100 text-blue-800 mr-2">{pricingData.sizes.length}</Badge>
+                  <span className="font-semibold mr-4">إجمالي الفئات:</span>
+                  <Badge className="bg-green-100 text-green-800">{pricingData.categories.length}</Badge>
+                </div>
+                <Button
+                  onClick={addSize}
+                  className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 px-6 py-3 rounded-xl"
+                >
+                  <Plus className="w-5 h-5 mr-2" />
+                  إضافة حجم جديد
+                </Button>
+              </div>
             </div>
           </Card>
 
