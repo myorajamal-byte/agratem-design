@@ -918,30 +918,57 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
           </Card>
 
           {/* Municipality Multipliers Table */}
-          <Card className="mb-6 shadow-lg rounded-lg overflow-hidden">
-            <div className="p-6 bg-gradient-to-r from-blue-50 to-blue-100 border-b border-blue-200">
-              <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-                <FileSpreadsheet className="w-7 h-7 text-blue-600" />
-                جدول معاملات البلديات
-              </h3>
-              <p className="text-base text-gray-700 mt-2">إدارة معاملات الضرب للبلديات المختلفة</p>
+          <Card className="mb-6 shadow-xl rounded-xl overflow-hidden border-0">
+            <div className="p-6 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-2xl font-bold flex items-center gap-3">
+                    <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                      <MapPin className="w-6 h-6" />
+                    </div>
+                    جدول معاملات البلديات
+                  </h3>
+                  <p className="text-purple-100 mt-2">إدارة معاملات الضرب للبلديات المختلفة مع التحكم الكامل</p>
+                </div>
+                <Badge className="bg-white/20 text-white text-lg px-4 py-2 font-bold">
+                  {pricingData.municipalities.length} بلدية
+                </Badge>
+              </div>
             </div>
-            <div className="overflow-x-auto bg-white">
+            <div className="overflow-x-auto bg-gradient-to-br from-gray-50 to-white">
               <table className="w-full border-collapse municipality-table">
                 <thead>
-                  <tr className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
-                    <th className="border border-blue-300 p-2 text-right font-bold text-sm">اسم البلدية</th>
-                    <th className="border border-blue-300 p-2 text-center font-bold text-sm">المعامل</th>
-                    <th className="border border-blue-300 p-2 text-center font-bold text-sm">الإجراءات</th>
+                  <tr className="shadow-lg">
+                    <th className="border-0 p-4 text-right font-bold bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg">
+                      <div className="flex items-center gap-2">
+                        <Building2 className="w-4 h-4" />
+                        اسم البلدية
+                      </div>
+                    </th>
+                    <th className="border-0 p-4 text-center font-bold bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg">
+                      <div className="flex items-center justify-center gap-2">
+                        <TrendingUp className="w-4 h-4" />
+                        المعامل
+                      </div>
+                    </th>
+                    <th className="border-0 p-4 text-center font-bold bg-gradient-to-r from-pink-500 to-red-500 text-white shadow-lg">
+                      <div className="flex items-center justify-center gap-2">
+                        <Settings className="w-4 h-4" />
+                        الإجراءات
+                      </div>
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {pricingData.municipalities.map((municipality, index) => (
-                    <tr key={municipality.id} className={`hover:bg-blue-50 transition-colors ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`}>
-                      <td className="border border-gray-200 p-2 font-semibold text-gray-800 text-sm">
-                        {municipality.name}
+                    <tr key={municipality.id} className={`hover:bg-indigo-50 hover:shadow-lg transform hover:scale-[1.02] transition-all duration-300 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}>
+                      <td className="border-0 p-4 font-semibold text-gray-800">
+                        <div className="flex items-center gap-3">
+                          <div className="w-3 h-3 bg-indigo-500 rounded-full"></div>
+                          <span className="text-base">{municipality.name}</span>
+                        </div>
                       </td>
-                      <td className="border border-gray-200 p-2 text-center">
+                      <td className="border-0 p-4 text-center">
                         <Input
                           type="number"
                           value={municipality.multiplier}
@@ -956,12 +983,12 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                               )
                             }))
                           }}
-                          className="w-16 text-center font-bold text-sm border border-gray-300 rounded focus:border-blue-500"
+                          className="w-20 text-center font-bold text-base border-2 border-purple-200 rounded-lg focus:border-purple-500 bg-white shadow-sm hover:shadow-md transition-all"
                           step="0.1"
                           min="0"
                         />
                       </td>
-                      <td className="border border-gray-200 p-2 text-center">
+                      <td className="border-0 p-4 text-center">
                         <Button
                           onClick={() => {
                             if (window.confirm(`هل تريد حذف "${municipality.name}"؟`)) {
@@ -973,9 +1000,9 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                           }}
                           variant="outline"
                           size="sm"
-                          className="text-red-600 border-red-300 hover:bg-red-50 transition-colors p-1"
+                          className="text-red-600 border-red-300 hover:bg-red-50 hover:border-red-500 transition-all duration-200 p-2 rounded-lg shadow-sm hover:shadow-md transform hover:scale-105"
                         >
-                          <Trash2 className="w-3 h-3" />
+                          <Trash2 className="w-4 h-4" />
                         </Button>
                       </td>
                     </tr>
