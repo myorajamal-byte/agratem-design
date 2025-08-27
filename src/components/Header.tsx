@@ -6,12 +6,13 @@
  */
 
 import { useState } from "react"
-import { LogOut, Settings, User, ChevronDown } from "lucide-react"
+import { LogOut, Settings, User, ChevronDown, DollarSign } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/contexts/AuthContext"
 
 interface HeaderProps {
   onOpenSettings?: () => void
+  onOpenPricing?: () => void
 }
 
 export default function Header({ onOpenSettings }: HeaderProps) {
