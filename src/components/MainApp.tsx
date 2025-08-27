@@ -10,7 +10,7 @@ import InteractiveMap from "@/components/InteractiveMap"
 import EmailDialog from "@/components/EmailDialog"
 import Footer from "@/components/Footer"
 import SystemSettings from "@/components/SystemSettings"
-import ModernPricingManagement from "@/components/ModernPricingManagement"
+import EnhancedPricingManagement from "@/components/EnhancedPricingManagement"
 import QuoteDialog from "@/components/QuoteDialog"
 import { loadBillboardsFromExcel } from "@/services/billboardService"
 import { clientService } from "@/services/clientService"
@@ -784,7 +784,7 @@ ${selectedBillboardsData
 
       {/* نافذة إدارة الأسعار */}
       {showPricingManagement && user?.permissions.some(p => p.name === 'admin_access') && (
-        <ModernPricingManagement onClose={() => setShowPricingManagement(false)} />
+        <EnhancedPricingManagement onClose={() => setShowPricingManagement(false)} />
       )}
 
       {/* نافذة فاتورة العرض */}
