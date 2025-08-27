@@ -267,7 +267,7 @@ class PricingService {
   /**
    * ا��حصول على سعر لوحة معينة حسب قائمة الأسعار A أو B
    */
-  getBillboardPriceAB(size: BillboardSize, zone: string, priceList: PriceListType = 'A'): number {
+  getBillboardPriceAB(size: BillboardSize, zone: string, priceList: PriceListType = 'A', municipality?: string): number {
     const pricing = this.getPricing()
     const zoneData = pricing.zones[zone]
 
@@ -275,7 +275,36 @@ class PricingService {
       return 0
     }
 
-    return zoneData.abPrices[priceList][size]
+    const basePrice = zoneData.abPrices[priceList][size]
+
+    // تطبيق معامل البلدية إذا تم توفيره (افتراضي: 1)
+    if (municipality) {
+      const multiplier = this.getMunicipalityMultiplier(municipality)
+      return Math.round(basePrice * multiplier)
+    }
+
+    return basePrice
+  }
+
+  /**
+   * الحصول على معامل البلدية مع الافتراضي 1
+   */
+  getMunicipalityMultiplier(municipality: string): number {
+    // محاولة الحصول على معامل البلدية من خدمة البلديات
+    try {
+      const municipalityService = (window as any)?.municipalityService
+      if (municipalityService) {
+        const municipalityData = municipalityService.getMunicipalityByName(municipality)
+        if (municipalityData && municipalityData.multiplier) {
+          return municipalityData.multiplier
+        }
+      }
+    } catch (error) {
+      console.warn('خطأ في الحصول على معامل البلدية:', error)
+    }
+
+    // الافتراضي هو 1 إذا لم يجد المعامل
+    return 1.0
   }
 
   /**
@@ -441,7 +470,7 @@ class PricingService {
    */
   getPriceListTypes(): Array<{value: PriceListType, label: string}> {
     return [
-      { value: 'A', label: 'قائمة أسعار A' },
+      { value: 'A', label: 'قائمة أسع��ر A' },
       { value: 'B', label: '��ائمة أسعار B' }
     ]
   }
