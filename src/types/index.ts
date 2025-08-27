@@ -63,10 +63,12 @@ export interface ContractFilter {
   contractNumber?: string
 }
 
-// أنواع البيانات الخاصة بالأسعار والفواتير
+// أنواع البي��نات الخاصة بالأسعار والفواتير
 export type BillboardSize = '5x13' | '4x12' | '4x10' | '3x8' | '3x6' | '3x4'
 
 export type CustomerType = 'marketers' | 'individuals' | 'companies'
+
+export type PriceListType = 'A' | 'B'
 
 export type PackageDuration = {
   value: number
@@ -81,9 +83,16 @@ export interface CustomerTypePricing {
   companies: Record<BillboardSize, number> // أسعار الشركات
 }
 
+// نظام قوائم الأسعار A و B
+export interface ABPricing {
+  A: Record<BillboardSize, number> // قائمة الأسعار A
+  B: Record<BillboardSize, number> // قائمة الأسعار B
+}
+
 export interface PricingZone {
   name: string
-  prices: CustomerTypePricing
+  prices: CustomerTypePricing // للنظام القديم
+  abPrices: ABPricing // نظام قوائم A و B الجديد
 }
 
 export interface PriceList {
