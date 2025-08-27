@@ -241,7 +241,7 @@ class PricingService {
   }
 
   /**
-   * ترجمة فئة الزبون إلى العربية
+   * ��رجمة فئة الزبون إلى العربية
    */
   getCustomerTypeLabel(type: CustomerType): string {
     const labels = {
@@ -597,27 +597,53 @@ class PricingService {
         <table>
           <thead>
             <tr>
-              <th>م</th>
-              <th>اسم اللوحة</th>
-              <th>الموقع</th>
-              <th>المقاس</th>
-              <th>المنطقة السعرية</th>
-              <th>السعر ${quote.unit}</th>
-              <th>المدة</th>
-              <th>الإجمالي</th>
+              <th style="width: 8%;">م</th>
+              <th style="width: 12%;">صورة اللوحة</th>
+              <th style="width: 20%;">اسم اللوحة</th>
+              <th style="width: 18%;">الموقع</th>
+              <th style="width: 8%;">المقاس</th>
+              <th style="width: 12%;">المنطقة</th>
+              <th style="width: 10%;">السعر الأساسي</th>
+              <th style="width: 8%;">الخصم</th>
+              <th style="width: 12%;">الإجمالي</th>
             </tr>
           </thead>
           <tbody>
             ${quote.items.map((item, index) => `
-              <tr>
+              <tr style="height: 80px;">
                 <td>${index + 1}</td>
-                <td style="text-align: right; padding-right: 8px;">${item.name}</td>
-                <td style="text-align: right; padding-right: 8px;">${item.location}</td>
-                <td>${item.size}</td>
-                <td>${item.zone}</td>
-                <td class="price">${item.price.toLocaleString()} ${quote.currency}</td>
-                <td>${item.duration} شهر</td>
-                <td class="price">${item.total.toLocaleString()} ${quote.currency}</td>
+                <td style="text-align: center; padding: 4px;">
+                  ${item.imageUrl ? `
+                    <img src="${item.imageUrl}"
+                         alt="صورة اللوحة ${item.name}"
+                         style="width: 70px; height: 50px; object-fit: cover; border-radius: 4px; border: 1px solid #D4AF37;"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div style="display: none; width: 70px; height: 50px; background: #f8f9fa; border: 1px solid #D4AF37; border-radius: 4px; align-items: center; justify-content: center; font-size: 8px; color: #666;">
+                      <span>صورة اللوحة</span>
+                    </div>
+                  ` : `
+                    <div style="width: 70px; height: 50px; background: #f8f9fa; border: 1px solid #D4AF37; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 8px; color: #666; margin: 0 auto;">
+                      <span>صورة اللوحة</span>
+                    </div>
+                  `}
+                </td>
+                <td style="text-align: right; padding-right: 8px; font-size: 10px;">${item.name}</td>
+                <td style="text-align: right; padding-right: 8px; font-size: 9px;">${item.location}</td>
+                <td style="font-size: 9px;">${item.size}</td>
+                <td style="font-size: 9px;">${item.zone}</td>
+                <td class="price" style="font-size: 9px;">
+                  ${item.basePrice.toLocaleString()} ${quote.currency}
+                  <br>
+                  <span style="font-size: 8px; color: #666;">شهرياً</span>
+                </td>
+                <td style="font-size: 9px; color: #e53e3e;">
+                  ${item.discount > 0 ? `${item.discount}%` : 'لا يوجد'}
+                </td>
+                <td class="price" style="font-size: 10px; font-weight: bold;">
+                  ${item.total.toLocaleString()} ${quote.currency}
+                  <br>
+                  <span style="font-size: 8px; color: #666;">لـ ${item.duration} ${item.duration === 1 ? 'شهر' : 'شهر'}</span>
+                </td>
               </tr>
             `).join('')}
           </tbody>
