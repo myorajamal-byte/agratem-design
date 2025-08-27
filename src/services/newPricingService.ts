@@ -1,4 +1,5 @@
 import { PriceList, BillboardSize, QuoteItem, Quote, CustomerType, PackageDuration, PriceListType, SizeManagement, DurationPricing } from '@/types'
+import { formatGregorianDate } from '@/lib/dateUtils'
 
 // المقاسات الافتراضية
 const DEFAULT_SIZES: BillboardSize[] = ['5x13', '4x12', '4x10', '3x8', '3x6', '3x4']
@@ -668,8 +669,8 @@ class NewPricingService implements SizeManagement {
         <div class="quote-header">
           <div class="quote-title">عرض سعر إعلاني محدث</div>
           <div style="color: #666; font-size: 14px;">رقم العرض: ${quote.id}</div>
-          <div style="color: #666; font-size: 12px;">تاريخ العرض: ${new Date(quote.createdAt).toLocaleDateString('ar-SA')}</div>
-          <div style="color: #666; font-size: 12px;">صالح حتى: ${new Date(quote.validUntil).toLocaleDateString('ar-SA')}</div>
+          <div style="color: #666; font-size: 12px;">تاريخ العرض: ${formatGregorianDate(quote.createdAt)}</div>
+          <div style="color: #666; font-size: 12px;">صالح حتى: ${formatGregorianDate(quote.validUntil)}</div>
         </div>
 
         <div class="customer-section">
@@ -697,7 +698,7 @@ class NewPricingService implements SizeManagement {
           <div class="info-group">
             <h3>تفاصيل العرض</h3>
             <div class="info-item">
-              <span class="info-label">ع��د اللوحات:</span>
+              <span class="info-label">ع��د الل��حات:</span>
               ${quote.items.length} لوحة
             </div>
             <div class="info-item">
