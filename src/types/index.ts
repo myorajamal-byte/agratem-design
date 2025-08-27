@@ -85,10 +85,17 @@ export interface CustomerTypePricing {
   companies: Record<BillboardSize, number> // أسعار الشركات
 }
 
-// نظام قوائم الأسعار A و B
+// نظام قوائم الأسعار A و B مع المدد
+export interface DurationPricing {
+  '1': Record<BillboardSize, number> // شهر واحد
+  '3': Record<BillboardSize, number> // 3 أشهر
+  '6': Record<BillboardSize, number> // 6 أشهر
+  '12': Record<BillboardSize, number> // سنة
+}
+
 export interface ABPricing {
-  A: Record<BillboardSize, number> // قائمة الأسعار A
-  B: Record<BillboardSize, number> // قائمة الأسعار B
+  A: DurationPricing // قائمة الأسعار A لجميع المدد
+  B: DurationPricing // قائمة الأسعار B لجميع المدد
 }
 
 export interface PricingZone {
