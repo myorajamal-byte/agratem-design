@@ -473,7 +473,7 @@ class PricingService {
         const priceA = zoneData.abPrices.A[size]
         const priceB = zoneData.abPrices.B[size]
         const difference = priceB - priceA
-        const percentDifference = ((difference / priceA) * 100)
+        const percentDifference = priceA === 0 ? (priceB > 0 ? 100 : 0) : ((difference / priceA) * 100)
 
         return {
           size,
