@@ -1,0 +1,399 @@
+/* Enhanced Pricing Management Custom Styles */
+
+/* Color Variants for Category Badges */
+.bg-blue-100 { background-color: #dbeafe; }
+.text-blue-800 { color: #1e40af; }
+.border-blue-200 { border-color: #bfdbfe; }
+.bg-blue-500 { background-color: #3b82f6; }
+
+.bg-green-100 { background-color: #dcfce7; }
+.text-green-800 { color: #166534; }
+.border-green-200 { border-color: #bbf7d0; }
+.bg-green-500 { background-color: #22c55e; }
+
+.bg-purple-100 { background-color: #f3e8ff; }
+.text-purple-800 { color: #6b21a8; }
+.border-purple-200 { border-color: #d8b4fe; }
+.bg-purple-500 { background-color: #a855f7; }
+
+.bg-red-100 { background-color: #fee2e2; }
+.text-red-800 { color: #991b1b; }
+.border-red-200 { border-color: #fecaca; }
+.bg-red-500 { background-color: #ef4444; }
+
+.bg-yellow-100 { background-color: #fef3c7; }
+.text-yellow-800 { color: #92400e; }
+.border-yellow-200 { border-color: #fde68a; }
+.bg-yellow-500 { background-color: #f59e0b; }
+
+.bg-pink-100 { background-color: #fce7f3; }
+.text-pink-800 { color: #9d174d; }
+.border-pink-200 { border-color: #fbcfe8; }
+.bg-pink-500 { background-color: #ec4899; }
+
+.bg-indigo-100 { background-color: #e0e7ff; }
+.text-indigo-800 { color: #3730a3; }
+.border-indigo-200 { border-color: #c7d2fe; }
+.bg-indigo-500 { background-color: #6366f1; }
+
+.bg-gray-100 { background-color: #f3f4f6; }
+.text-gray-800 { color: #1f2937; }
+.border-gray-200 { border-color: #e5e7eb; }
+.bg-gray-500 { background-color: #6b7280; }
+
+.bg-orange-100 { background-color: #fed7aa; }
+.text-orange-800 { color: #9a3412; }
+.border-orange-200 { border-color: #fed7aa; }
+.bg-orange-500 { background-color: #f97316; }
+
+.bg-teal-100 { background-color: #ccfbf1; }
+.text-teal-800 { color: #115e59; }
+.border-teal-200 { border-color: #99f6e4; }
+.bg-teal-500 { background-color: #14b8a6; }
+
+.bg-gold-100 { background-color: #fef3c7; }
+.text-gold-800 { color: #92400e; }
+.border-gold-200 { border-color: #fde68a; }
+.bg-gold-500 { background-color: #d4af37; }
+
+/* Sticky Table Header */
+.pricing-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Cell Editing Styles */
+.editing-cell {
+  background-color: #f0f9ff !important;
+  border: 2px solid #3b82f6 !important;
+  border-radius: 4px;
+}
+
+.changed-cell {
+  background-color: #fef3c7 !important;
+  position: relative;
+}
+
+.changed-cell::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 6px;
+  height: 6px;
+  background-color: #f59e0b;
+  border-radius: 50%;
+}
+
+/* Hover Effects */
+.price-cell:hover {
+  background-color: #f8fafc;
+  transform: scale(1.02);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+/* Loading Animation */
+.loading-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Notification Animations */
+.notification-enter {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+.notification-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.notification-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.notification-exit-active {
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: opacity 300ms, transform 300ms;
+}
+
+/* Municipality Table Styles */
+.municipality-table {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.municipality-table th {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: white;
+  font-weight: bold;
+  padding: 12px;
+  text-align: center;
+}
+
+.municipality-table td {
+  padding: 10px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.municipality-table tr:hover {
+  background-color: #f8fafc;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { 
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Button Hover Effects */
+.btn-hover-effect {
+  transition: all 0.2s ease;
+}
+
+.btn-hover-effect:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Card Hover Effects */
+.card-hover {
+  transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Tooltip Styles */
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 200px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 8px;
+  position: absolute;
+  z-index: 1000;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -100px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.tooltip .tooltiptext::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #333 transparent transparent transparent;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Progress Bar for Import/Export */
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background-color: #e5e7eb;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+/* Search Highlight */
+.search-highlight {
+  background-color: #fef3c7;
+  padding: 1px 3px;
+  border-radius: 2px;
+  font-weight: bold;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .pricing-table {
+    font-size: 12px;
+  }
+  
+  .pricing-table th,
+  .pricing-table td {
+    padding: 6px 4px;
+  }
+  
+  .modal-content {
+    margin: 10px;
+    max-width: calc(100vw - 20px);
+  }
+  
+  .btn-hover-effect:hover {
+    transform: none;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  .pricing-table {
+    font-size: 10px;
+  }
+  
+  .pricing-table th,
+  .pricing-table td {
+    padding: 4px;
+    border: 1px solid #000 !important;
+  }
+  
+  .modal-overlay {
+    display: none !important;
+  }
+}
+
+/* Dark Mode Support (if needed in future) */
+@media (prefers-color-scheme: dark) {
+  .tooltip .tooltiptext {
+    background-color: #1f2937;
+    color: #f9fafb;
+  }
+  
+  .tooltip .tooltiptext::after {
+    border-color: #1f2937 transparent transparent transparent;
+  }
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f1f5f9;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Focus Styles */
+.focus-ring:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Badge Animations */
+.badge-pulse {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Table Zebra Stripes */
+.table-striped tbody tr:nth-child(even) {
+  background-color: #f8fafc;
+}
+
+.table-striped tbody tr:nth-child(odd) {
+  background-color: #ffffff;
+}
+
+/* Success/Error States */
+.state-success {
+  border-left: 4px solid #10b981;
+  background-color: #f0fdf4;
+}
+
+.state-error {
+  border-left: 4px solid #ef4444;
+  background-color: #fef2f2;
+}
+
+.state-warning {
+  border-left: 4px solid #f59e0b;
+  background-color: #fffbeb;
+}
+
+.state-info {
+  border-left: 4px solid #3b82f6;
+  background-color: #eff6ff;
+}
