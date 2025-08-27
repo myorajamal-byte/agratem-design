@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { Search, MapPin, Star, Award, Users, MessageCircle, Mail, FileText } from "lucide-react"
+import { Search, MapPin, Star, Award, Users, MessageCircle, Mail, FileText, Settings, DollarSign, Wrench } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 
@@ -489,8 +489,8 @@ ${selectedBillboardsData
               <img src="logo-symbol.svg" alt="رمز الشركة" className="w-16 h-16 object-contain" />
             </div>
           </div>
-          <h2 className="text-3xl font-black text-gray-900 mb-4 tracking-tight">جاري تحميل ا��بيانات...</h2>
-          <p className="text-lg font-semibold text-gray-700">يتم قراءة البيانات</p>
+          <h2 className="text-3xl font-black text-gray-900 mb-4 tracking-tight">جاري تحميل البيانات...</h2>
+          <p className="text-lg font-semibold text-gray-700">يتم قراءة البيان��ت</p>
         </div>
       </div>
     )
@@ -516,7 +516,7 @@ ${selectedBillboardsData
               الرائدون في عالم الدعاية والإعلان
             </h2>
             <p className="text-xl md:text-2xl mb-8 max-w-4xl mx-auto leading-relaxed font-bold">
-              نحن نقدم حلول إعلانية متكاملة ومبتكرة تضمن وصول رسالتك إلى الجمهور المناسب في الوقت المناسب
+              نحن نقدم حلول إعلانية متكاملة ومبتكرة تضمن وصول رسالتك إلى الجمهور المناسب في الوقت ال��ناسب
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mt-12">
@@ -688,7 +688,7 @@ ${selectedBillboardsData
                   className="bg-green-600 hover:bg-green-700 text-white px-6"
                 >
                   <Mail className="w-4 h-4 ml-2" />
-                  إرسال القائمة
+                  إرسال ال��ائمة
                 </Button>
               </div>
             </div>
@@ -766,7 +766,7 @@ ${selectedBillboardsData
             <div className="w-24 h-24 mx-auto mb-6 bg-yellow-100 rounded-full flex items-center justify-center">
               <Search className="w-12 h-12 text-yellow-500" />
             </div>
-            <p className="text-gray-600 text-xl mb-4 font-bold">لا توجد لوحات تطابق معايير البحث</p>
+            <p className="text-gray-600 text-xl mb-4 font-bold">لا توجد لوحات تطا��ق معايير البحث</p>
             <p className="text-gray-500 font-semibold">جرب تغيير معايير البحث أو الفلاتر</p>
           </div>
         )}
