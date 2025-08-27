@@ -49,6 +49,13 @@ interface Level {
   discount?: number
 }
 
+interface DurationOption {
+  value: number
+  label: string
+  discount: number
+  unit: 'day' | 'month' | 'months' | 'year'
+}
+
 interface PricingData {
   levels: Level[]
   municipalities: Municipality[]
@@ -80,7 +87,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       { id: '4', name: 'طرابلس', multiplier: 1.0 }
     ],
     categories: [
-      { id: 'marketers', name: 'مس��قين', description: 'خصم للمسوقين', color: 'blue' },
+      { id: 'marketers', name: 'مسوقين', description: 'خصم للمسوقين', color: 'blue' },
       { id: 'companies', name: 'شركات', description: 'أسعار الشركات', color: 'green' },
       { id: 'individuals', name: 'أفراد', description: 'الأسعار العادية', color: 'purple' }
     ],
@@ -702,7 +709,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                 المستوى الحالي: <span className="text-blue-600 font-bold">{pricingData.levels.find(l => l.id === pricingData.currentLevel)?.name}</span>
                 {selectedMunicipality && (
                   <span className="mr-6 text-green-600">
-                    البل��ية: <span className="font-bold">{selectedMunicipality.name}</span> (معامل: <span className="font-bold">{selectedMunicipality.multiplier}</span>)
+                    البلدية: <span className="font-bold">{selectedMunicipality.name}</span> (معامل: <span className="font-bold">{selectedMunicipality.multiplier}</span>)
                   </span>
                 )}
               </p>
@@ -846,7 +853,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                 <FileSpreadsheet className="w-7 h-7 text-blue-600" />
                 جدول معاملات البلديات
               </h3>
-              <p className="text-base text-gray-700 mt-2">إدارة معاملات الضرب للبلديات المخ��لفة</p>
+              <p className="text-base text-gray-700 mt-2">إدارة معاملات الضرب للبلديات المختلفة</p>
             </div>
             <div className="overflow-x-auto bg-white">
               <table className="w-full border-collapse municipality-table">
