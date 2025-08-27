@@ -120,7 +120,7 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
       setError('')
     } catch (error) {
       setError('حدث خطأ في إنشاء الفاتورة')
-      console.error('خطأ في إ��شاء الفاتورة:', error)
+      console.error('خطأ في إنشاء الفاتورة:', error)
     } finally {
       setLoading(false)
     }
@@ -128,8 +128,7 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
 
   const printQuote = () => {
     if (generatedQuote) {
-      // TODO: تحديث دالة الطباعة في newPricingService
-      console.log('سيتم طباعة الفاتورة:', generatedQuote)
+      newPricingService.printQuote(generatedQuote)
     }
   }
 
@@ -346,7 +345,7 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
                   <div className="bg-green-50 p-4 rounded-lg border-2 border-green-200">
                     <h3 className="font-bold text-green-900 mb-3 flex items-center gap-2">
                       <DollarSign className="w-5 h-5" />
-                      الملخص المالي
+                      الملخص ا��مالي
                     </h3>
                     
                     <div className="space-y-2 text-sm">
