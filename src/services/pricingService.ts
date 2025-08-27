@@ -153,7 +153,7 @@ class PricingService {
   }
 
   /**
-   * الحصو�� على قائمة الأسعار
+   * الحصول على قائمة الأسعار
    */
   getPricing(): PriceList {
     try {
@@ -178,17 +178,43 @@ class PricingService {
   }
 
   /**
-   * الحصول على سعر لوحة معينة
+   * الحصول على سعر لوحة معينة حسب فئة الزبون
    */
-  getBillboardPrice(size: BillboardSize, zone: string): number {
+  getBillboardPrice(size: BillboardSize, zone: string, customerType: CustomerType = 'individuals'): number {
     const pricing = this.getPricing()
     const zoneData = pricing.zones[zone]
-    
-    if (!zoneData || !zoneData.prices[size]) {
+
+    if (!zoneData || !zoneData.prices[customerType] || !zoneData.prices[customerType][size]) {
       return 0
     }
-    
-    return zoneData.prices[size]
+
+    return zoneData.prices[customerType][size]
+  }
+
+  /**
+   * الحصول على الباقات الزمنية المتاحة
+   */
+  getPackages(): PackageDuration[] {
+    const pricing = this.getPricing()
+    return pricing.packages || DEFAULT_PACKAGES
+  }
+
+  /**
+   * حساب السعر مع الخصم حسب الباقة
+   */
+  calculatePriceWithDiscount(basePrice: number, packageDuration: PackageDuration): {
+    finalPrice: number
+    discount: number
+    totalDiscount: number
+  } {
+    const discountAmount = (basePrice * packageDuration.discount) / 100
+    const finalPrice = basePrice - discountAmount
+
+    return {
+      finalPrice,
+      discount: packageDuration.discount,
+      totalDiscount: discountAmount * packageDuration.value
+    }
   }
 
   /**
@@ -589,7 +615,7 @@ class PricingService {
           <ul>
             <li>هذا العرض صالح لمدة 30 يوماً من تاريخ الإصدار</li>
             <li>الأسعار المذكورة شاملة جميع الخدمات</li>
-            <li>يتم الدفع مقدماً قبل بدء الحملة الإعلانية</li>
+            <li>يتم الدفع مقدماً قبل بدء الح��لة الإعلانية</li>
             <li>في حالة إلغاء الحجز، يتم استرداد 50% من المبلغ المدفوع</li>
             <li>الشركة غير مسؤولة عن أي أضرار طبيعية قد تلحق باللوحة</li>
             <li>يحق للشركة تغيير موقع اللوحة في حالات الضرورة القصوى</li>
@@ -626,7 +652,7 @@ class PricingService {
     const printWindow = window.open('', '_blank')
     
     if (!printWindow) {
-      alert('يرجى السماح بفتح النوافذ المنبثقة لطباعة الفاتورة')
+      alert('يرجى السماح بف��ح النوافذ المنبثقة لطباعة الفاتورة')
       return
     }
 
