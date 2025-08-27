@@ -77,7 +77,9 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
   const getInstallationPrice = (billboard: Billboard) => {
     if (!includeInstallation) return 0
 
-    const zone = newPricingService.determinePricingZone(billboard.municipality, billboard.area)
+    // استخدام البلدية مباشرة كمنطقة سعرية
+    const zone = newPricingService.determinePricingZone(billboard.municipality)
+    newPricingService.addPricingZoneForMunicipality(billboard.municipality)
     const installationZone = installationPricing.zones[zone] || installationPricing.zones['مصراتة']
     const basePrice = installationZone.prices[billboard.size as BillboardSize] || 0
     return Math.round(basePrice * installationZone.multiplier)
@@ -95,7 +97,9 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
     if (!selectedPackage) return { items: [], subtotal: 0, totalDiscount: 0, installationTotal: 0, tax: 0, total: 0 }
 
     const items = selectedBillboardsData.map(billboard => {
-      const zone = newPricingService.determinePricingZone(billboard.municipality, billboard.area)
+      // استخدام البلدية مباشرة كمنطقة سعرية
+    const zone = newPricingService.determinePricingZone(billboard.municipality)
+    newPricingService.addPricingZoneForMunicipality(billboard.municipality)
       const priceList = newPricingService.determinePriceListFromBillboard(billboard)
 
       // Get the duration-adjusted price using custom duration with municipality multiplier
