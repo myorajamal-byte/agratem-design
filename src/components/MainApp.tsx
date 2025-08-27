@@ -39,6 +39,8 @@ export default function MainApp() {
   const [customerPhone, setCustomerPhone] = useState("")
   const [emailMessage, setEmailMessage] = useState("")
   const [showSettings, setShowSettings] = useState(false)
+  const [showPricingManagement, setShowPricingManagement] = useState(false)
+  const [showQuoteDialog, setShowQuoteDialog] = useState(false)
 
   const itemsPerPage = 12
 
@@ -392,7 +394,7 @@ ${selectedBillboardsData
             <tr>
               <th style="width: 16%;">صورة اللوحة</th>
               <th style="width: 12%;">رقم اللوحة</th>
-              <th style="width: 22%;">موقع اللوح��</th>
+              <th style="width: 22%;">موقع اللوحة</th>
               <th style="width: 14%;">البلدية</th>
               <th style="width: 14%;">المنطقة</th>
               <th style="width: 12%;">المقاس</th>
