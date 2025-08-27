@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   FileText,
   Calculator,
@@ -91,7 +91,7 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
 
   const generateQuote = () => {
     if (!customerInfo.name || !customerInfo.email || !customerInfo.phone || !selectedPackage) {
-      setError('يرجى ملء جميع الحقول المطلوبة واختيار ��اقة')
+      setError('يرجى ملء جميع الحقول المطلوبة واختيار باقة')
       return
     }
 
@@ -362,7 +362,7 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
               </Card>
             </div>
           ) : (
-            /* عرض الفا��ورة المُنشأة */
+            /* ع��ض الفاتورة المُنشأة */
             <div className="space-y-6">
               <div className="bg-green-50 border-2 border-green-200 rounded-lg p-6">
                 <div className="flex items-center justify-between mb-4">
