@@ -253,7 +253,7 @@ class PricingService {
   /**
    * الحصول على سعر لوحة معينة حسب فئة الزبون
    */
-  getBillboardPrice(size: BillboardSize, zone: string, customerType: CustomerType = 'individuals'): number {
+  getBillboardPrice(size: BillboardSize, zone: string, customerType: CustomerType = 'individuals', municipality?: string): number {
     const pricing = this.getPricing()
     const zoneData = pricing.zones[zone]
 
@@ -261,7 +261,15 @@ class PricingService {
       return 0
     }
 
-    return zoneData.prices[customerType][size]
+    const basePrice = zoneData.prices[customerType][size]
+
+    // تطبيق معامل البلدية إذا تم توفيره (افتراضي: 1)
+    if (municipality) {
+      const multiplier = this.getMunicipalityMultiplier(municipality)
+      return Math.round(basePrice * multiplier)
+    }
+
+    return basePrice
   }
 
   /**
