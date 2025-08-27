@@ -296,7 +296,7 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
                   <div className="bg-blue-50 p-4 rounded-lg">
                     <h3 className="font-bold text-blue-900 mb-2">اللوحات المختارة</h3>
                     <div className="grid gap-2 max-h-60 overflow-y-auto">
-                      {quoteDetails.items.map(({ billboard, zone, price, total }, index) => (
+                      {quoteDetails.items.map(({ billboard, zone, basePrice, finalPrice, discount, total }, index) => (
                         <div key={billboard.id} className="bg-white p-3 rounded border">
                           <div className="flex justify-between items-start mb-2">
                             <div className="flex-1">
@@ -305,13 +305,29 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
                               <div className="flex gap-2 mt-1">
                                 <Badge variant="outline" className="text-xs">{billboard.size}</Badge>
                                 <Badge variant="outline" className="text-xs">{zone}</Badge>
+                                {discount > 0 && (
+                                  <Badge className="bg-green-100 text-green-800 text-xs">
+                                    خصم {discount}%
+                                  </Badge>
+                                )}
                               </div>
                             </div>
                             <div className="text-right">
-                              <p className="text-sm font-bold text-green-700">
-                                {price.toLocaleString()} {pricing.currency}
-                              </p>
-                              <p className="text-xs text-gray-500">{pricing.unit}</p>
+                              {discount > 0 ? (
+                                <>
+                                  <p className="text-xs text-gray-500 line-through">
+                                    {basePrice.toLocaleString()} {pricing.currency}
+                                  </p>
+                                  <p className="text-sm font-bold text-green-700">
+                                    {finalPrice.toLocaleString()} {pricing.currency}
+                                  </p>
+                                </>
+                              ) : (
+                                <p className="text-sm font-bold text-green-700">
+                                  {basePrice.toLocaleString()} {pricing.currency}
+                                </p>
+                              )}
+                              <p className="text-xs text-gray-500">شهرياً</p>
                               <p className="text-sm font-bold text-blue-700">
                                 الإجمالي: {total.toLocaleString()} {pricing.currency}
                               </p>
@@ -362,7 +378,7 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
               </Card>
             </div>
           ) : (
-            /* ع��ض الفاتورة المُنشأة */
+            /* عرض الفاتورة المُنشأة */
             <div className="space-y-6">
               <div className="bg-green-50 border-2 border-green-200 rounded-lg p-6">
                 <div className="flex items-center justify-between mb-4">
