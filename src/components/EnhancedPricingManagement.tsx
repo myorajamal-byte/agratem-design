@@ -83,7 +83,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
     municipalities: [
       { id: '1', name: 'مصراتة', multiplier: 1.0 },
       { id: '2', name: 'زليتن', multiplier: 0.8 },
-      { id: '3', name: 'بنغازي', multiplier: 1.2 },
+      { id: '3', name: 'بنغاز��', multiplier: 1.2 },
       { id: '4', name: 'طرابلس', multiplier: 1.0 }
     ],
     categories: [
@@ -316,7 +316,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
 
     setNewLevel({ name: '', description: '', discount: 0 })
     setShowLevelModal(false)
-    showNotification('success', `تم إضافة مستوى "${newLevel.name}" بنجاح`)
+    showNotification('success', `تم إضافة م��توى "${newLevel.name}" بنجاح`)
   }
 
   // Add new size
@@ -442,7 +442,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
 
   // Reset all changes
   const resetAllChanges = () => {
-    if (window.confirm('هل أنت متأكد من إلغاء جميع التغييرات غير المحفوظة؟')) {
+    if (window.confirm('هل أنت متأكد من إلغاء جميع التغيي��ات غير المحفوظة؟')) {
       initializePricingData()
       setUnsavedChanges({ hasChanges: false, changedCells: new Set() })
       showNotification('success', 'تم إلغاء جميع التغييرات')
@@ -761,39 +761,49 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                 )}
               </div>
             </div>
-            <div className="overflow-x-auto bg-white">
+            <div className="overflow-x-auto bg-gradient-to-br from-gray-50 to-white">
               <table className="w-full border-collapse pricing-table">
-                <thead className="sticky top-0 bg-white shadow-sm">
-                  <tr>
-                    <th className="border border-gray-200 p-2 text-right font-bold bg-yellow-50 text-gray-800 text-sm min-w-[80px]">
-                      الحجم
+                <thead className="sticky top-0 z-20">
+                  <tr className="shadow-lg">
+                    <th className="border-0 p-4 text-right font-bold bg-gradient-to-br from-yellow-400 to-yellow-500 text-gray-900 text-sm min-w-[100px] shadow-lg">
+                      <div className="flex items-center gap-2">
+                        <Building2 className="w-4 h-4" />
+                        الحجم
+                      </div>
                     </th>
                     {pricingData.categories.map(category => (
                       <th
                         key={category.id}
-                        className={`border border-gray-200 p-2 text-center font-bold text-white text-sm min-w-[100px] bg-${category.color}-500`}
+                        className="border-0 p-4 text-center font-bold text-white text-sm min-w-[130px] shadow-lg"
                         style={{
-                          backgroundColor: category.color === 'blue' ? '#3B82F6' :
-                                         category.color === 'green' ? '#10B981' :
-                                         category.color === 'purple' ? '#8B5CF6' :
-                                         category.color === 'red' ? '#EF4444' :
-                                         category.color === 'yellow' ? '#F59E0B' :
-                                         category.color === 'pink' ? '#EC4899' :
-                                         category.color === 'indigo' ? '#6366F1' :
-                                         category.color === 'gray' ? '#6B7280' :
-                                         category.color === 'orange' ? '#F97316' :
-                                         category.color === 'teal' ? '#14B8A6' :
-                                         category.color === 'gold' ? '#D4AF37' : '#3B82F6'
+                          background: `linear-gradient(135deg, ${
+                            category.color === 'blue' ? '#3B82F6, #1E40AF' :
+                            category.color === 'green' ? '#10B981, #047857' :
+                            category.color === 'purple' ? '#8B5CF6, #7C3AED' :
+                            category.color === 'red' ? '#EF4444, #DC2626' :
+                            category.color === 'yellow' ? '#F59E0B, #D97706' :
+                            category.color === 'pink' ? '#EC4899, #DB2777' :
+                            category.color === 'indigo' ? '#6366F1, #4F46E5' :
+                            category.color === 'gray' ? '#6B7280, #4B5563' :
+                            category.color === 'orange' ? '#F97316, #EA580C' :
+                            category.color === 'teal' ? '#14B8A6, #0D9488' :
+                            category.color === 'gold' ? '#D4AF37, #B8860B' : '#3B82F6, #1E40AF'
+                          })`
                         }}
                       >
                         <div className="leading-tight">
-                          {category.name}
-                          <div className="text-xs opacity-80 mt-1">يومي</div>
+                          <div className="font-bold text-base">{category.name}</div>
+                          <div className="text-xs opacity-90 mt-1 bg-white/20 px-2 py-1 rounded-full inline-block">
+                            سعر يومي
+                          </div>
                         </div>
                       </th>
                     ))}
-                    <th className="border border-gray-200 p-2 text-center font-bold bg-red-500 text-white text-sm min-w-[80px]">
-                      الإجراءات
+                    <th className="border-0 p-4 text-center font-bold bg-gradient-to-br from-red-500 to-red-600 text-white text-sm min-w-[100px] shadow-lg">
+                      <div className="flex items-center justify-center gap-2">
+                        <Settings className="w-4 h-4" />
+                        الإجراءات
+                      </div>
                     </th>
                   </tr>
                 </thead>
@@ -989,13 +999,13 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-1">الل��ن</label>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">اللون</label>
                   <select
                     value={newCategory.color}
                     onChange={(e) => setNewCategory(prev => ({ ...prev, color: e.target.value }))}
                     className="w-full p-2 border border-gray-300 rounded-lg"
                   >
-                    <option value="blue">أزرق</option>
+                    <option value="blue">أ��رق</option>
                     <option value="green">أخضر</option>
                     <option value="purple">بنفسجي</option>
                     <option value="red">أحمر</option>
@@ -1028,7 +1038,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
         {showLevelModal && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-60">
             <Card className="w-full max-w-md p-6">
-              <h3 className="text-xl font-bold mb-4">إضافة مستوى جديد</h3>
+              <h3 className="text-xl font-bold mb-4">إضافة مستوى جدي��</h3>
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">اسم المستوى</label>
