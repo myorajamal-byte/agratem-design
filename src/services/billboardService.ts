@@ -130,7 +130,7 @@ async function readExcelFromUrl(url: string, timeoutMs = 10000, retries = 2) {
 
       if (!isExcel && !isOldExcel) {
         console.log(
-          `[Service] تحذير: الم��ف المحمل قد لا يكون ملف إكسل صحيح. البايتات الأولى: ${Array.from(uint8Array.slice(0, 10))
+          `[Service] تحذير: الملف المحمل قد لا يكون ملف إكسل صحيح. البايتات الأولى: ${Array.from(uint8Array.slice(0, 10))
             .map((b) => b.toString(16))
             .join(" ")}`,
         )
@@ -204,7 +204,7 @@ function parseExcelDate(dateValue: any): Date | null {
     const dateStr = dateValue.trim()
     if (!dateStr) return null
     
-    // محاولة تحويل النص إلى تاريخ
+    // محاو��ة تحويل النص إلى تاريخ
     const formats = [
       // صيغ التاريخ المختلفة
       /^\d{4}-\d{2}-\d{2}$/, // 2024-12-31
@@ -257,7 +257,7 @@ function processBillboardData(billboard: any, index: number): Billboard {
   const size = billboard['حجم'] || billboard['الحجم'] || billboard['المقاس مع الدغاية'] || '12X4'
   const coordinates = billboard['احداثي - GPS'] || billboard['الإحداثيات GPS'] || '32.8872,13.1913'
 
-  // بيانات العميل - استخد��م أسماء الأعمدة الصحيحة
+  // بيانات العميل - استخدام أسماء الأعمدة الصحيحة
   const contractNumber = (billboard['رقم العقد'] || '').toString()
   const clientName = (billboard['اسم الزبون'] || billboard['اسم العميل'] || billboard['العميل'] || '').toString()
   const advertisementType = (billboard['نوع الاعلان'] || '').toString()
@@ -313,7 +313,7 @@ function processBillboardData(billboard: any, index: number): Billboard {
     : 'https://www.google.com/maps?q=32.8872,13.1913'
   
   // تحديد فئة السعر من مستوى اللوحة
-  const levelValue = billboard['��ستوى'] || billboard['المستوى'] || billboard['تصنيف'] || 'A'
+  const levelValue = billboard['مستوى'] || billboard['المستوى'] || billboard['تصنيف'] || 'A'
   const priceCategory = (levelValue === 'A' || levelValue === 'B') ? levelValue : 'A'
 
   return {
@@ -353,7 +353,7 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
     try {
       console.log("[Service] محاولة قراءة البيانات بصيغة CSV...")
       workbook = await readCsvFromUrl(CSV_URL, 15000)
-      console.log("[Service] تم تحميل البيا��ات بصيغة CSV بنجاح ✅ - سيتم المحاولة مع Excel")
+      console.log("[Service] تم تحميل البيانات بصيغة CSV بنجاح ✅ - سيتم المحاولة مع Excel")
     } catch (csvError: any) {
       console.warn("[Service] فشل تحميل CSV:", csvError.message)
 
@@ -377,7 +377,7 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
           console.log("[Service] تم تحميل ملف الإكسل من الرابط بنجاح ✅")
           break
         } catch (err: any) {
-          console.warn(`[Service] فشل قراءة الملف من الرابط ${url}:`, err.message)
+          console.warn(`[Service] فشل قراءة الملف من ا��رابط ${url}:`, err.message)
           lastError = err
           continue
         }
@@ -443,7 +443,7 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
       const response = await fetch('/billboards.xlsx')
       
       if (!response.ok) {
-        throw new Error('فشل في تحميل ملف Excel المحلي')
+        throw new Error('فشل في ��حميل ملف Excel المحلي')
       }
       
       const buffer = await response.arrayBuffer()
@@ -534,7 +534,7 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
           imageUrl: "https://lh3.googleusercontent.com/d/1J1D2ZEhnQZbRuSKxNVE4XTifkhvHabYs",
           gpsLink: "https://www.google.com/maps?q=32.566533,14.344944",
           contractNumber: "CT-2024-003",
-          clientName: "بنك الجمهورية",
+          clientName: "بنك الجم��ورية",
           advertisementType: "مصرفي",
           priceCategory: "B",
         },
@@ -612,6 +612,7 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
           contractNumber: "",
           clientName: "",
           advertisementType: "",
+          priceCategory: "A",
         },
       ]
     }
