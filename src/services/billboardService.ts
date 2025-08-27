@@ -166,7 +166,7 @@ function safeReadExcel(fileBuffer: ArrayBuffer) {
     try {
       console.log("[Service] محاولة قراءة الملف بخيارات:", JSON.stringify(options))
       const workbook = XLSX.read(fileBuffer, options)
-      console.log("[Service] نجحت قراءة الملف بالخيارات:", JSON.stringify(options))
+      console.log("[Service] ن��حت قراءة الملف بالخيارات:", JSON.stringify(options))
       return workbook
     } catch (error: any) {
       console.warn("[Service] فشل بالخيارات:", JSON.stringify(options), "الخطأ:", error.message)
@@ -237,7 +237,7 @@ function parseExcelDate(dateValue: any): Date | null {
 function processBillboardData(billboard: any, index: number): Billboard {
   const id = billboard['ر.م'] || billboard['رقم اللوحة'] || `BILLBOARD-${index + 1}`
   const name = billboard['اسم لوحة'] || billboard['اسم اللوحة'] || `لوحة-${index + 1}`
-  const location = billboard['اقرب نقطة دالة'] || billboard['أقرب نقطة دالة'] || 'موقع غير محدد'
+  const location = billboard['اقرب نقطة دالة'] || billboard['أقرب نقطة دالة'] || '��وقع غير محدد'
   const municipality = billboard['البلدية'] || 'غير محدد'
   const city = billboard['مدينة'] || billboard['المدينة'] || 'غير محدد'
 
@@ -574,6 +574,7 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
           contractNumber: "",
           clientName: "",
           advertisementType: "",
+          priceCategory: "B",
         },
         {
           id: "140",
@@ -597,7 +598,7 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
           id: "150",
           name: "MS-MS0150",
           location: "مدخل مصراتة الشرقي بجوار المطار",
-          municipality: "مصراتة",
+          municipality: "مص��اتة",
           city: "مصراتة",
           area: "مصراتة",
           size: "18X6",
