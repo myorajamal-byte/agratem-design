@@ -10,6 +10,8 @@ import InteractiveMap from "@/components/InteractiveMap"
 import EmailDialog from "@/components/EmailDialog"
 import Footer from "@/components/Footer"
 import SystemSettings from "@/components/SystemSettings"
+import PricingManagement from "@/components/PricingManagement"
+import QuoteDialog from "@/components/QuoteDialog"
 import { loadBillboardsFromExcel } from "@/services/billboardService"
 import { clientService } from "@/services/clientService"
 import { Billboard } from "@/types"
@@ -377,7 +379,7 @@ ${selectedBillboardsData
             <div class="company-info">
               <div class="company-name-ar">الفــــارس الذهبــــي</div>
               <div class="company-name-en">AL FARES AL DAHABI</div>
-              <div class="company-name-ar" style="font-size: 10px;">ل��دعــــــاية والإعـــلان</div>
+              <div class="company-name-ar" style="font-size: 10px;">للدعــــــاية والإعـــلان</div>
             </div>
           </div>
           <div class="title-section">
@@ -390,7 +392,7 @@ ${selectedBillboardsData
             <tr>
               <th style="width: 16%;">صورة اللوحة</th>
               <th style="width: 12%;">رقم اللوحة</th>
-              <th style="width: 22%;">موقع اللوحة</th>
+              <th style="width: 22%;">موقع اللوح��</th>
               <th style="width: 14%;">البلدية</th>
               <th style="width: 14%;">المنطقة</th>
               <th style="width: 12%;">المقاس</th>
@@ -545,7 +547,7 @@ ${selectedBillboardsData
                   🎯 عرض مخصص: تظهر لك فقط العقود الخاصة بالزبون "{user.assignedClient}"
                 </p>
                 <p className="text-xs text-blue-600 mt-1">
-                  إجمالي اللوح��ت المعروضة: {filteredBillboards.length} لوحة
+                  إجمالي اللوحات المعروضة: {filteredBillboards.length} لوحة
                 </p>
               </div>
             </div>
