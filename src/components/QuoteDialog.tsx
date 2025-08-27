@@ -45,14 +45,14 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
   const [error, setError] = useState('')
   const [generatedQuote, setGeneratedQuote] = useState<Quote | null>(null)
 
-  const packages = pricingService.getPackages()
-  const customerTypes = pricingService.getCustomerTypes()
+  const packages = newPricingService.getPackages()
+  const customerTypes = newPricingService.getCustomerTypes()
 
   if (!isOpen) return null
 
   const selectedBillboardsData = billboards.filter(b => selectedBillboards.has(b.id))
 
-  // تهيئة الباقة الافتراضي��
+  // تهيئة الباقة الافتراضية
   React.useEffect(() => {
     if (packages.length > 0 && !selectedPackage) {
       setSelectedPackage(packages[0])
@@ -64,9 +64,10 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
     if (!selectedPackage) return { items: [], subtotal: 0, totalDiscount: 0, tax: 0, total: 0 }
 
     const items = selectedBillboardsData.map(billboard => {
-      const zone = pricingService.determinePricingZone(billboard.municipality, billboard.area)
-      const basePrice = pricingService.getBillboardPrice(billboard.size as BillboardSize, zone, customerInfo.type)
-      const priceCalc = pricingService.calculatePriceWithDiscount(basePrice, selectedPackage)
+      const zone = newPricingService.determinePricingZone(billboard.municipality, billboard.area)
+      const priceList = newPricingService.determinePriceListFromBillboard(billboard)
+      const basePrice = newPricingService.getBillboardPriceABWithDuration(billboard.size as BillboardSize, zone, priceList, selectedPackage.value)
+      const priceCalc = newPricingService.calculatePriceWithDiscount(basePrice, selectedPackage)
 
       return {
         billboard,
@@ -87,7 +88,7 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
   }
 
   const quoteDetails = calculateQuoteDetails()
-  const pricing = pricingService.getPricing()
+  const pricing = newPricingService.getPricing()
 
   const generateQuote = () => {
     if (!customerInfo.name || !customerInfo.email || !customerInfo.phone || !selectedPackage) {
@@ -98,7 +99,7 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
     setLoading(true)
 
     try {
-      const quote = pricingService.generateQuote(
+      const quote = newPricingService.generateQuote(
         customerInfo,
         selectedBillboardsData.map(billboard => ({
           id: billboard.id,
@@ -108,7 +109,9 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
           area: billboard.area,
           size: billboard.size as BillboardSize,
           status: billboard.status,
-          imageUrl: billboard.imageUrl
+          imageUrl: billboard.imageUrl,
+          level: billboard.level,
+          priceCategory: billboard.priceCategory
         })),
         selectedPackage
       )
@@ -117,7 +120,7 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
       setError('')
     } catch (error) {
       setError('حدث خطأ في إنشاء الفاتورة')
-      console.error('خطأ في إنشاء الفاتورة:', error)
+      console.error('خطأ في إ��شاء الفاتورة:', error)
     } finally {
       setLoading(false)
     }
@@ -125,7 +128,8 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
 
   const printQuote = () => {
     if (generatedQuote) {
-      pricingService.printQuote(generatedQuote)
+      // TODO: تحديث دالة الطباعة في newPricingService
+      console.log('سيتم طباعة الفاتورة:', generatedQuote)
     }
   }
 
@@ -226,7 +230,7 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
 
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">
-                      اسم ��لشركة (اختياري)
+                      اسم الشركة (اختياري)
                     </label>
                     <Input
                       value={customerInfo.company}
@@ -351,7 +355,7 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
                         <span className="font-bold">{selectedBillboards.size} لوحة</span>
                       </div>
                       <div className="flex justify-between">
-                        <span>مد�� الإعلان:</span>
+                        <span>مدة الإعلان:</span>
                         <span className="font-bold">{duration} {duration === 1 ? 'شهر' : 'أشهر'}</span>
                       </div>
                       <div className="flex justify-between">
