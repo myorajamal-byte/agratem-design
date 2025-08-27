@@ -18,6 +18,7 @@ import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { categoryService, Category } from '@/services/categoryService'
+import { formatGregorianDate } from '@/lib/dateUtils'
 
 interface CategoryManagementModalProps {
   isOpen: boolean
@@ -383,7 +384,7 @@ const CategoryManagementModal: React.FC<CategoryManagementModalProps> = ({
                     max="10"
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    1.0 = السعر الأساسي، أقل من 1.0 = خصم، أكبر من 1.0 = زيادة
+                    1.0 = السعر الأساسي، أقل من 1.0 = خصم، أكبر من 1.0 = زي��دة
                   </p>
                 </div>
               </div>
@@ -558,7 +559,7 @@ const CategoryManagementModal: React.FC<CategoryManagementModalProps> = ({
                         )}
                       </div>
                       <div className="text-xs text-gray-500 mt-2">
-                        آخر تحديث: {new Date(category.updatedAt).toLocaleDateString('ar-SA')}
+                        آخر تحديث: {formatGregorianDate(category.updatedAt)}
                       </div>
                     </>
                   )}

@@ -24,6 +24,7 @@ import { authService } from '@/services/authService'
 import { clientService } from '@/services/clientService'
 import { loadBillboardsFromExcel } from '@/services/billboardService'
 import { User as UserType, Permission, Client, Billboard } from '@/types'
+import { formatGregorianDate } from '@/lib/dateUtils'
 
 interface SystemSettingsProps {
   onClose: () => void
@@ -300,7 +301,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
                         )}
                         {user.lastLogin && (
                           <p className="text-xs text-gray-400">
-                            آخر دخول: {new Date(user.lastLogin).toLocaleDateString('ar-SA')}
+                            آخر دخول: {formatGregorianDate(user.lastLogin)}
                           </p>
                         )}
                       </div>
@@ -567,7 +568,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
                             ))}
                           </select>
                           <p className="text-xs text-gray-500 mt-1">
-                            هذا المستخدم سيرى العقود الخاصة بالزبون المحدد + جميع اللوحات المتاحة
+                            هذا المستخدم ��يرى العقود الخاصة بالزبون المحدد + جميع اللوحات المتاحة
                           </p>
                         </div>
                       )}

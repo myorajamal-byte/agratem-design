@@ -1,4 +1,5 @@
 import { PriceList, BillboardSize, QuoteItem, Quote, CustomerType, PackageDuration, PriceListType, SizeManagement, DurationPricing } from '@/types'
+import { formatGregorianDate } from '@/lib/dateUtils'
 
 // المقاسات الافتراضية
 const DEFAULT_SIZES: BillboardSize[] = ['5x13', '4x12', '4x10', '3x8', '3x6', '3x4']
@@ -152,7 +153,7 @@ class NewPricingService implements SizeManagement {
    * التحقق من صحة المقاس
    */
   validateSize(size: string): boolean {
-    // تحقق من أن المقاس بصيغة مثل "5x13" أو "4x12"
+    // ت��قق من أن المقاس بصيغة مثل "5x13" أو "4x12"
     const sizePattern = /^\d+x\d+$/
     return sizePattern.test(size) && size.length <= 10
   }
@@ -186,10 +187,11 @@ class NewPricingService implements SizeManagement {
    * الحصول على سعر لو��ة حسب القائمة والمدة
    */
   getBillboardPriceABWithDuration(
-    size: BillboardSize, 
-    zone: string, 
-    priceList: PriceListType = 'A', 
-    duration: number = 1
+    size: BillboardSize,
+    zone: string,
+    priceList: PriceListType = 'A',
+    duration: number = 1,
+    municipality?: string
   ): number {
     const pricing = this.getPricing()
     const zoneData = pricing.zones[zone]
@@ -205,13 +207,21 @@ class NewPricingService implements SizeManagement {
       return 0
     }
 
-    return durationPrices[size]
+    const basePrice = durationPrices[size]
+
+    // تطبيق معامل البلدية إذا تم توفيره (افتراضي: 1)
+    if (municipality) {
+      const multiplier = this.getMunicipalityMultiplier(municipality)
+      return Math.round(basePrice * multiplier)
+    }
+
+    return basePrice
   }
 
   /**
    * الحصول على سعر لوحة حسب فئة الزبون (للنظام القديم)
    */
-  getBillboardPrice(size: BillboardSize, zone: string, customerType: CustomerType = 'individuals'): number {
+  getBillboardPrice(size: BillboardSize, zone: string, customerType: CustomerType = 'individuals', municipality?: string): number {
     const pricing = this.getPricing()
     const zoneData = pricing.zones[zone]
 
@@ -219,7 +229,15 @@ class NewPricingService implements SizeManagement {
       return 0
     }
 
-    return zoneData.prices[customerType][size]
+    const basePrice = zoneData.prices[customerType][size]
+
+    // تطبيق معامل البلدية إذا تم توفيره (افتراضي: 1)
+    if (municipality) {
+      const multiplier = this.getMunicipalityMultiplier(municipality)
+      return Math.round(basePrice * multiplier)
+    }
+
+    return basePrice
   }
 
   /**
@@ -302,12 +320,13 @@ class NewPricingService implements SizeManagement {
     const items: QuoteItem[] = billboards.map(billboard => {
       const zone = this.determinePricingZone(billboard.municipality, billboard.area)
       const priceList = this.determinePriceListFromBillboard(billboard)
-      // Get the duration-adjusted price (already includes duration discount)
+      // Get the duration-adjusted price (already includes duration discount) with municipality multiplier
       const finalPrice = this.getBillboardPriceABWithDuration(
         billboard.size,
         zone,
         priceList,
-        packageDuration.value
+        packageDuration.value,
+        billboard.municipality
       )
 
       // Calculate what the base price would have been without duration discount
@@ -357,17 +376,79 @@ class NewPricingService implements SizeManagement {
   }
 
   /**
-   * تحديد المنطقة السعرية بناءً على البلدية أو المنطقة
+   * تحديد المنطقة السعرية بناءً على البلدية مباشرة
+   * المنطقة السعرية هي نفس اسم البلدية
    */
-  determinePricingZone(municipality: string, area: string): string {
+  determinePricingZone(municipality: string, area?: string): string {
+    // استخدام اسم البلدية مباشرة كمنطقة سعرية
+    const zoneName = municipality.trim()
+
+    // التأكد من وجود أسعار لهذه المنطقة
+    const pricing = this.getPricing()
+    if (pricing.zones[zoneName]) {
+      return zoneName
+    }
+
+    // إذا لم توجد أسعار لهذه البلدية، البحث عن أقرب تطابق
+    const availableZones = Object.keys(pricing.zones)
     const municipalityLower = municipality.toLowerCase().trim()
-    const areaLower = area.toLowerCase().trim()
-    
-    if (municipalityLower.includes('مصراتة')) return 'مصراتة'
-    if (municipalityLower.includes('أبو سليم') || areaLower.includes('أبو سليم')) return 'أبو سليم'
-    if (municipalityLower.includes('طرابلس') && areaLower.includes('الشط')) return 'شركات'
-    
-    return 'مصراتة'
+
+    for (const zone of availableZones) {
+      if (zone.toLowerCase().includes(municipalityLower) || municipalityLower.includes(zone.toLowerCase())) {
+        return zone
+      }
+    }
+
+    // إعادة المنطقة الافتراضية إذا لم يوجد تطابق
+    return availableZones[0] || 'مصراتة'
+  }
+
+  /**
+   * إضافة منطقة سعرية جديدة بناءً على البلدية
+   */
+  addPricingZoneForMunicipality(municipality: string, baseZone: string = 'مصراتة'): boolean {
+    const pricing = this.getPricing()
+    const zoneName = municipality.trim()
+
+    // إذا كانت المنطقة موجودة، لا تفعل شيء
+    if (pricing.zones[zoneName]) {
+      return true
+    }
+
+    // نسخ أسعار المنطقة الأساسية
+    const baseZoneData = pricing.zones[baseZone]
+    if (!baseZoneData) {
+      return false
+    }
+
+    // إنشاء منطقة جديدة بنفس أسعار المنطقة الأساسية
+    pricing.zones[zoneName] = {
+      ...baseZoneData,
+      name: zoneName
+    }
+
+    return this.updatePricing(pricing).success
+  }
+
+  /**
+   * الحصول على معامل البلدية مع الافتراضي 1
+   */
+  getMunicipalityMultiplier(municipality: string): number {
+    // محاولة الحصول على معامل البلدية من خدمة البلديات
+    try {
+      // تجربة استيراد خدمة البلديات بشكل ديناميكي
+      if (typeof window !== 'undefined' && (window as any).municipalityService) {
+        const municipalityData = (window as any).municipalityService.getMunicipalityByName(municipality)
+        if (municipalityData && typeof municipalityData.multiplier === 'number') {
+          return municipalityData.multiplier
+        }
+      }
+    } catch (error) {
+      console.warn('خطأ في الحصول على معامل البلدية:', error)
+    }
+
+    // الافتراضي هو 1 إذا لم يجد المعامل
+    return 1.0
   }
 
   /**
@@ -446,7 +527,7 @@ class NewPricingService implements SizeManagement {
     const pricing = this.getPricing()
     const updatedPricing = { ...pricing }
 
-    // حذف المقاس من جميع المناطق
+    // حذف المقاس من ج��يع المناطق
     Object.keys(updatedPricing.zones).forEach(zoneName => {
       const zone = updatedPricing.zones[zoneName]
       
@@ -658,7 +739,7 @@ class NewPricingService implements SizeManagement {
           <div class="logo-section">
             <img src="${window.location.origin}/logo-symbol.svg" alt="شعار الشركة" class="logo" />
             <div class="company-info">
-              <div class="company-name-ar">الفــــارس الذهبــــي</div>
+              <div class="company-name-ar">الفــــارس ��لذهبــــي</div>
               <div class="company-name-en">AL FARES AL DAHABI</div>
               <div class="company-name-ar" style="font-size: 12px;">للدعــــــاية والإعـــلان</div>
             </div>
@@ -668,8 +749,8 @@ class NewPricingService implements SizeManagement {
         <div class="quote-header">
           <div class="quote-title">عرض سعر إعلاني محدث</div>
           <div style="color: #666; font-size: 14px;">رقم العرض: ${quote.id}</div>
-          <div style="color: #666; font-size: 12px;">تاريخ العرض: ${new Date(quote.createdAt).toLocaleDateString('ar-SA')}</div>
-          <div style="color: #666; font-size: 12px;">صالح حتى: ${new Date(quote.validUntil).toLocaleDateString('ar-SA')}</div>
+          <div style="color: #666; font-size: 12px;">تاريخ العرض: ${formatGregorianDate(quote.createdAt)}</div>
+          <div style="color: #666; font-size: 12px;">صالح حتى: ${formatGregorianDate(quote.validUntil)}</div>
         </div>
 
         <div class="customer-section">
@@ -697,7 +778,7 @@ class NewPricingService implements SizeManagement {
           <div class="info-group">
             <h3>تفاصيل العرض</h3>
             <div class="info-item">
-              <span class="info-label">ع��د اللوحات:</span>
+              <span class="info-label">ع��د الل��حات:</span>
               ${quote.items.length} لوحة
             </div>
             <div class="info-item">

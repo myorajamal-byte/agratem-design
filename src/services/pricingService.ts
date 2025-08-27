@@ -1,4 +1,5 @@
 import { PriceList, PricingZone, BillboardSize, QuoteItem, Quote, CustomerType, PackageDuration, PriceListType } from '@/types'
+import { formatGregorianDate } from '@/lib/dateUtils'
 
 // الباقات الزمنية المتاحة
 const DEFAULT_PACKAGES: PackageDuration[] = [
@@ -252,7 +253,7 @@ class PricingService {
   /**
    * الحصول على سعر لوحة معينة حسب فئة الزبون
    */
-  getBillboardPrice(size: BillboardSize, zone: string, customerType: CustomerType = 'individuals'): number {
+  getBillboardPrice(size: BillboardSize, zone: string, customerType: CustomerType = 'individuals', municipality?: string): number {
     const pricing = this.getPricing()
     const zoneData = pricing.zones[zone]
 
@@ -260,13 +261,21 @@ class PricingService {
       return 0
     }
 
-    return zoneData.prices[customerType][size]
+    const basePrice = zoneData.prices[customerType][size]
+
+    // تطبيق معامل البلدية إذا تم توفيره (افتراضي: 1)
+    if (municipality) {
+      const multiplier = this.getMunicipalityMultiplier(municipality)
+      return Math.round(basePrice * multiplier)
+    }
+
+    return basePrice
   }
 
   /**
    * ا��حصول على سعر لوحة معينة حسب قائمة الأسعار A أو B
    */
-  getBillboardPriceAB(size: BillboardSize, zone: string, priceList: PriceListType = 'A'): number {
+  getBillboardPriceAB(size: BillboardSize, zone: string, priceList: PriceListType = 'A', municipality?: string): number {
     const pricing = this.getPricing()
     const zoneData = pricing.zones[zone]
 
@@ -274,7 +283,36 @@ class PricingService {
       return 0
     }
 
-    return zoneData.abPrices[priceList][size]
+    const basePrice = zoneData.abPrices[priceList][size]
+
+    // تطبيق معامل البلدية إذا تم توفيره (افتراضي: 1)
+    if (municipality) {
+      const multiplier = this.getMunicipalityMultiplier(municipality)
+      return Math.round(basePrice * multiplier)
+    }
+
+    return basePrice
+  }
+
+  /**
+   * الحصول على معامل البلدية مع الافتراضي 1
+   */
+  getMunicipalityMultiplier(municipality: string): number {
+    // محاولة الحصول على معامل البلدية من خدمة البلديات
+    try {
+      const municipalityService = (window as any)?.municipalityService
+      if (municipalityService) {
+        const municipalityData = municipalityService.getMunicipalityByName(municipality)
+        if (municipalityData && municipalityData.multiplier) {
+          return municipalityData.multiplier
+        }
+      }
+    } catch (error) {
+      console.warn('خطأ في الحصول على معامل البلدية:', error)
+    }
+
+    // الافتراضي هو 1 إذا لم يجد المعامل
+    return 1.0
   }
 
   /**
@@ -304,19 +342,58 @@ class PricingService {
   }
 
   /**
-   * تحديد المنطقة السعرية بناءً على البلدية أو المنطقة
+   * تحديد المنطقة السعرية بناءً على البلدية مباشرة
+   * المنطقة السعرية هي نفس اسم البلدية
    */
-  determinePricingZone(municipality: string, area: string): string {
+  determinePricingZone(municipality: string, area?: string): string {
+    // استخدام اسم البلدية مباشرة كمنطقة سعرية
+    const zoneName = municipality.trim()
+
+    // التأكد من وجود أسعار لهذه المنطقة
+    const pricing = this.getPricing()
+    if (pricing.zones[zoneName]) {
+      return zoneName
+    }
+
+    // إذا لم توجد أسعار لهذه البلدية، البحث عن أقرب تطابق
+    const availableZones = Object.keys(pricing.zones)
     const municipalityLower = municipality.toLowerCase().trim()
-    const areaLower = area.toLowerCase().trim()
 
-    // تحديد المنطقة بناءً على البلدية
-    if (municipalityLower.includes('مصراتة')) return 'مصراتة'
-    if (municipalityLower.includes('أبو سليم') || areaLower.includes('أبو سليم')) return 'أبو سليم'
-    if (municipalityLower.includes('طرابلس') && areaLower.includes('الشط')) return 'شركات'
+    for (const zone of availableZones) {
+      if (zone.toLowerCase().includes(municipalityLower) || municipalityLower.includes(zone.toLowerCase())) {
+        return zone
+      }
+    }
 
-    // إعادة المنطقة الافتراضية
-    return 'مصراتة'
+    // إعادة المنطقة الافتراضية إذا لم يوجد تطابق
+    return availableZones[0] || 'مصراتة'
+  }
+
+  /**
+   * إضافة منطقة سعرية جديدة بناءً على البلدية
+   */
+  addPricingZoneForMunicipality(municipality: string, baseZone: string = 'مصراتة'): boolean {
+    const pricing = this.getPricing()
+    const zoneName = municipality.trim()
+
+    // إذا كانت المنطقة موجودة، لا تفعل شيء
+    if (pricing.zones[zoneName]) {
+      return true
+    }
+
+    // نسخ أسعار المنطقة الأساسية
+    const baseZoneData = pricing.zones[baseZone]
+    if (!baseZoneData) {
+      return false
+    }
+
+    // إنشاء منطقة جديدة بنفس أسعار المنطقة الأساسية
+    pricing.zones[zoneName] = {
+      ...baseZoneData,
+      name: zoneName
+    }
+
+    return this.updatePricing(pricing).success
   }
 
   /**
@@ -425,7 +502,7 @@ class PricingService {
   }
 
   /**
-   * الحصول على قائمة فئات الزبائن المتاحة
+   * الحصول على قائ��ة فئات الزبائن المتاحة
    */
   getCustomerTypes(): Array<{value: CustomerType, label: string}> {
     return [
@@ -440,7 +517,7 @@ class PricingService {
    */
   getPriceListTypes(): Array<{value: PriceListType, label: string}> {
     return [
-      { value: 'A', label: 'قائمة أسعار A' },
+      { value: 'A', label: 'قائمة أسع��ر A' },
       { value: 'B', label: '��ائمة أسعار B' }
     ]
   }
@@ -691,8 +768,8 @@ class PricingService {
         <div class="quote-header">
           <div class="quote-title">عرض سعر إعلاني</div>
           <div style="color: #666; font-size: 14px;">رقم العرض: ${quote.id}</div>
-          <div style="color: #666; font-size: 12px;">تاريخ العرض: ${new Date(quote.createdAt).toLocaleDateString('ar-SA')}</div>
-          <div style="color: #666; font-size: 12px;">صالح حتى: ${new Date(quote.validUntil).toLocaleDateString('ar-SA')}</div>
+          <div style="color: #666; font-size: 12px;">تاريخ العرض: ${formatGregorianDate(quote.createdAt)}</div>
+          <div style="color: #666; font-size: 12px;">صالح حتى: ${formatGregorianDate(quote.validUntil)}</div>
         </div>
 
         <div class="customer-section">
@@ -834,7 +911,7 @@ class PricingService {
             <li>الأسعار المذكورة شاملة جميع الخدمات</li>
             <li>يتم الدفع مقدماً قبل بدء الحملة الإعلانية</li>
             <li>في حالة إلغاء الحجز، يتم استرداد 50% من المبلغ المدفوع</li>
-            <li>الشركة غير مسؤولة عن أي أضرار طبيعية قد تلحق باللوحة</li>
+            <li>الشركة غ��ر مسؤولة عن أي أضرار طبيعية قد تلحق باللوحة</li>
             <li>يحق للشركة تغيير موقع اللوحة في حالات الضرورة القصوى</li>
           </ul>
         </div>
