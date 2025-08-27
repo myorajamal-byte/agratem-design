@@ -264,6 +264,20 @@ class PricingService {
   }
 
   /**
+   * ا��حصول على سعر لوحة معينة حسب قائمة الأسعار A أو B
+   */
+  getBillboardPriceAB(size: BillboardSize, zone: string, priceList: PriceListType = 'A'): number {
+    const pricing = this.getPricing()
+    const zoneData = pricing.zones[zone]
+
+    if (!zoneData || !zoneData.abPrices || !zoneData.abPrices[priceList] || !zoneData.abPrices[priceList][size]) {
+      return 0
+    }
+
+    return zoneData.abPrices[priceList][size]
+  }
+
+  /**
    * الحصول على الباقات الزمنية المتاحة
    */
   getPackages(): PackageDuration[] {
@@ -417,7 +431,7 @@ class PricingService {
     return [
       { value: 'marketers', label: 'المسوقين' },
       { value: 'individuals', label: 'العاديين' },
-      { value: 'companies', label: 'الشركات' }
+      { value: 'companies', label: 'الشر��ات' }
     ]
   }
 
@@ -634,7 +648,7 @@ class PricingService {
           <div class="info-group">
             <h3>بيانات العميل</h3>
             <div class="info-item">
-              <span class="info-label">الاسم:</span>
+              <span class="info-label">الاس��:</span>
               ${quote.customerInfo.name}
             </div>
             <div class="info-item">
