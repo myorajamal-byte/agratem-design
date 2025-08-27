@@ -157,7 +157,7 @@ const PricingManagement: React.FC<PricingManagementProps> = ({ onClose }) => {
     return (
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
         <div className="bg-white rounded-xl p-8">
-          <div className="text-center">جاري تحميل البيانات...</div>
+          <div className="text-center">جا��ي تحميل البيانات...</div>
         </div>
       </div>
     )
@@ -288,7 +288,7 @@ const PricingManagement: React.FC<PricingManagementProps> = ({ onClose }) => {
                       </th>
                     ))}
                     <th className="border border-yellow-600 p-4 text-center font-black text-black">
-                      الإجراءات
+                      الإجر��ءات
                     </th>
                   </tr>
                 </thead>
@@ -378,7 +378,7 @@ const PricingManagement: React.FC<PricingManagementProps> = ({ onClose }) => {
               <div className="text-center">
                 <DollarSign className="w-8 h-8 mx-auto mb-2 text-green-600" />
                 <div className="text-2xl font-black text-green-900">
-                  {Math.min(...Object.values(pricing.zones).flatMap(zone => Object.values(zone.prices)))}
+                  {Math.min(...Object.values(pricing.zones).flatMap(zone => Object.values(zone.prices[activeCustomerType])))}
                 </div>
                 <div className="text-sm text-green-700 font-semibold">أقل سعر</div>
               </div>
@@ -387,7 +387,7 @@ const PricingManagement: React.FC<PricingManagementProps> = ({ onClose }) => {
               <div className="text-center">
                 <DollarSign className="w-8 h-8 mx-auto mb-2 text-orange-600" />
                 <div className="text-2xl font-black text-orange-900">
-                  {Math.max(...Object.values(pricing.zones).flatMap(zone => Object.values(zone.prices)))}
+                  {Math.max(...Object.values(pricing.zones).flatMap(zone => Object.values(zone.prices[activeCustomerType])))}
                 </div>
                 <div className="text-sm text-orange-700 font-semibold">أعلى سعر</div>
               </div>
@@ -396,11 +396,19 @@ const PricingManagement: React.FC<PricingManagementProps> = ({ onClose }) => {
               <div className="text-center">
                 <Calculator className="w-8 h-8 mx-auto mb-2 text-purple-600" />
                 <div className="text-2xl font-black text-purple-900">
-                  {Math.round(Object.values(pricing.zones).flatMap(zone => Object.values(zone.prices)).reduce((a, b) => a + b, 0) / Object.values(pricing.zones).flatMap(zone => Object.values(zone.prices)).length)}
+                  {Math.round(Object.values(pricing.zones).flatMap(zone => Object.values(zone.prices[activeCustomerType])).reduce((a, b) => a + b, 0) / Object.values(pricing.zones).flatMap(zone => Object.values(zone.prices[activeCustomerType])).length)}
                 </div>
                 <div className="text-sm text-purple-700 font-semibold">متوسط السعر</div>
               </div>
             </Card>
+          </div>
+
+          {/* عرض نوع الزبون المختار */}
+          <div className="mt-4 text-center">
+            <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-800 px-4 py-2 rounded-full">
+              <span className="font-bold">الأسعار المعروضة حالياً:</span>
+              <span className="font-black">{customerTypes.find(t => t.value === activeCustomerType)?.label}</span>
+            </div>
           </div>
         </div>
 
