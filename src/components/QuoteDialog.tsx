@@ -37,12 +37,16 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
     name: '',
     email: '',
     phone: '',
-    company: ''
+    company: '',
+    type: 'individuals' as CustomerType
   })
-  const [duration, setDuration] = useState(1)
+  const [selectedPackage, setSelectedPackage] = useState<PackageDuration | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [generatedQuote, setGeneratedQuote] = useState<Quote | null>(null)
+
+  const packages = pricingService.getPackages()
+  const customerTypes = pricingService.getCustomerTypes()
 
   if (!isOpen) return null
 
@@ -137,7 +141,7 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
               <div>
                 <h1 className="text-2xl font-black">إنشاء فاتورة عرض سعر</h1>
                 <p className="text-sm opacity-80">
-                  {selectedBillboards.size} لوحة ��علانية مختارة
+                  {selectedBillboards.size} لوحة إعلانية مختارة
                 </p>
               </div>
             </div>
@@ -183,7 +187,7 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
 
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">
-                      البريد الإلكتروني *
+                      البريد ال��لكتروني *
                     </label>
                     <Input
                       type="email"
@@ -244,7 +248,7 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
                 <div className="space-y-4">
                   {/* ملخص اللوحات */}
                   <div className="bg-blue-50 p-4 rounded-lg">
-                    <h3 className="font-bold text-blue-900 mb-2">اللوحات المختارة</h3>
+                    <h3 className="font-bold text-blue-900 mb-2">��للوحات المختارة</h3>
                     <div className="grid gap-2 max-h-60 overflow-y-auto">
                       {quoteDetails.items.map(({ billboard, zone, price, total }, index) => (
                         <div key={billboard.id} className="bg-white p-3 rounded border">
