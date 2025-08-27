@@ -71,7 +71,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
     levels: [
       { id: 'A', name: 'مستوى A', description: 'مواقع مميزة' },
       { id: 'B', name: 'مستوى B', description: 'مواقع عادية' },
-      { id: 'C', name: 'مستوى C', description: 'مواقع اقتصادية' }
+      { id: 'C', name: 'مستوى C', description: 'مواقع اقتصادي��' }
     ],
     municipalities: [
       { id: '1', name: 'مصراتة', multiplier: 1.0 },
@@ -736,9 +736,9 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredSizes.map((size) => (
-                    <tr key={size} className="hover:bg-gray-50">
-                      <td className="border border-gray-300 p-3 font-bold text-gray-900 bg-yellow-50">
+                  {filteredSizes.map((size, index) => (
+                    <tr key={size} className={`hover:bg-blue-25 transition-colors ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`}>
+                      <td className="border border-gray-200 p-4 font-bold text-gray-900 bg-yellow-50 text-lg text-center">
                         {size}
                       </td>
                       {pricingData.categories.map(category => {
@@ -751,17 +751,17 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                         return (
                           <td
                             key={category.id}
-                            className={`border border-gray-300 p-2 text-center ${
-                              hasChanges ? 'bg-yellow-100' : ''
+                            className={`border border-gray-200 p-3 text-center relative ${
+                              hasChanges ? 'bg-yellow-100 changed-cell' : ''
                             }`}
                           >
                             {isEditing ? (
-                              <div className="flex items-center gap-1">
+                              <div className="flex items-center gap-2 justify-center editing-cell p-2 rounded">
                                 <Input
                                   type="number"
                                   value={editingValue}
                                   onChange={(e) => setEditingValue(e.target.value)}
-                                  className="w-20 text-center"
+                                  className="w-24 text-center font-bold text-lg"
                                   min="0"
                                   autoFocus
                                 />
@@ -770,7 +770,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                                   size="sm"
                                   className="bg-green-600 hover:bg-green-700 text-white p-1"
                                 >
-                                  <Check className="w-3 h-3" />
+                                  <Check className="w-4 h-4" />
                                 </Button>
                                 <Button
                                   onClick={cancelEdit}
@@ -778,40 +778,39 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                                   variant="outline"
                                   className="text-red-600 border-red-300 p-1"
                                 >
-                                  <X className="w-3 h-3" />
+                                  <X className="w-4 h-4" />
                                 </Button>
                               </div>
                             ) : (
                               <div
-                                className="cursor-pointer hover:bg-gray-100 p-2 rounded transition-colors"
+                                className="cursor-pointer hover:bg-blue-50 p-3 rounded-lg transition-all duration-200 price-cell"
                                 onClick={() => startEdit(size, category.id)}
                                 title={calculation}
                               >
-                                <div className="flex items-center justify-center gap-1">
-                                  <span className="font-bold text-blue-700">
-                                    {formatPrice(basePrice)}
-                                  </span>
-                                  <Edit3 className="w-3 h-3 text-gray-400" />
-                                </div>
-                                {finalPrice !== basePrice && (
-                                  <div className="text-xs text-green-600 font-semibold mt-1">
-                                    بعد التطبيق: {formatPrice(finalPrice)}
+                                <div className="flex flex-col items-center justify-center gap-1">
+                                  <div className="flex items-center gap-1">
+                                    <span className="font-bold text-gray-800 text-lg">
+                                      {formatPrice(basePrice)}
+                                    </span>
+                                    <Edit3 className="w-3 h-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
                                   </div>
-                                )}
-                                {hasChanges && (
-                                  <div className="w-2 h-2 bg-yellow-500 rounded-full mx-auto mt-1"></div>
-                                )}
+                                  {finalPrice !== basePrice && (
+                                    <div className="text-sm text-green-600 font-semibold mt-1 px-2 py-1 bg-green-100 rounded">
+                                      النهائي: {formatPrice(finalPrice)}
+                                    </div>
+                                  )}
+                                </div>
                               </div>
                             )}
                           </td>
                         )
                       })}
-                      <td className="border border-gray-300 p-2 text-center">
+                      <td className="border border-gray-200 p-3 text-center">
                         <Button
                           onClick={() => deleteSize(size)}
                           variant="outline"
                           size="sm"
-                          className="text-red-600 border-red-300 hover:bg-red-50"
+                          className="text-red-600 border-red-300 hover:bg-red-50 transition-colors"
                           disabled={pricingData.sizes.length <= 1}
                         >
                           <Trash2 className="w-4 h-4" />
