@@ -17,7 +17,7 @@ import { loadBillboardsFromExcel } from "@/services/billboardService"
 import { clientService } from "@/services/clientService"
 import { Billboard } from "@/types"
 import { useAuth } from "@/contexts/AuthContext"
-import { systemTest } from "@/utils/systemTest"
+import { hybridSystemTest } from "@/utils/hybridSystemTest"
 
 export default function MainApp() {
   const { user } = useAuth()
@@ -53,7 +53,7 @@ export default function MainApp() {
         setLoading(true)
         const data = await loadBillboardsFromExcel()
 
-        // تطبيق فلترة الزبون المخصص إذا ك��ن المستخدم ��ديه هذه الصلاحية
+        // تطبيق فلترة الزبون المخصص إذا ك��ن المستخدم لديه هذه الصلاحية
         let filteredData = data
         if (user?.permissions.some(p => p.name === 'view_specific_client') && user.assignedClient) {
           filteredData = clientService.filterBillboardsByClient(data, user.assignedClient)
@@ -152,7 +152,7 @@ export default function MainApp() {
     try {
       const subject = `طلب حجز لوحات إعلانية - ${customerName}`
       const body = `
-السلام عليكم ورحمة الله وبركاته
+السلام ��ليكم ورحمة الله وبركاته
 
 تفاصيل العميل:
 الاسم: ${customerName}
