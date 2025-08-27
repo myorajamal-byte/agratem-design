@@ -46,7 +46,7 @@ export default function MainApp() {
         setLoading(true)
         const data = await loadBillboardsFromExcel()
 
-        // تطبيق فلترة ��لزبون المخصص إذا كان المستخدم لديه هذه الصلاحية
+        // تطبيق فلترة الزبون المخصص إذا كان المستخدم لديه هذه الصلاحية
         let filteredData = data
         if (user?.permissions.some(p => p.name === 'view_specific_client') && user.assignedClient) {
           filteredData = clientService.filterBillboardsByClient(data, user.assignedClient)
@@ -68,7 +68,7 @@ export default function MainApp() {
     let filtered = billboards
 
     // Check if any filters are active
-    const hasActiveFilters = searchTerm || selectedMunicipalities.length > 0 || selectedSizes.length > 0 || selectedAvailabilities.length > 0
+    const hasActiveFilters = searchTerm || contractFilter || selectedMunicipalities.length > 0 || selectedSizes.length > 0 || selectedAvailabilities.length > 0
 
     if (searchTerm) {
       filtered = filtered.filter(
@@ -81,6 +81,11 @@ export default function MainApp() {
           (billboard.contractNumber && billboard.contractNumber.toLowerCase().includes(searchTerm.toLowerCase())) ||
           (billboard.advertisementType && billboard.advertisementType.toLowerCase().includes(searchTerm.toLowerCase())),
       )
+    }
+
+    // فلترة برقم العقد
+    if (contractFilter) {
+      filtered = clientService.filterBillboardsByContract(filtered, contractFilter)
     }
 
     if (selectedMunicipalities.length > 0) {
@@ -389,7 +394,7 @@ ${selectedBillboardsData
               <th style="width: 14%;">المنطقة</th>
               <th style="width: 12%;">المقاس</th>
               <th style="width: 10%;">الحالة</th>
-              <th style="width: 16%;">عرض على الخريطة</th>
+              <th style="width: 16%;">عرض على الخريط��</th>
             </tr>
           </thead>
           <tbody>
