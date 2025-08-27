@@ -650,7 +650,7 @@ ${selectedBillboardsData
                     onClick={() => setShowQuoteDialog(true)}
                     className="bg-blue-600 hover:bg-blue-700 text-white px-6"
                   >
-                    <MessageCircle className="w-4 h-4 ml-2" />
+                    <FileText className="w-4 h-4 ml-2" />
                     إنشاء فاتورة عرض
                   </Button>
                 )}
