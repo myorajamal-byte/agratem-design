@@ -505,6 +505,7 @@ ${selectedBillboardsData
       <Header
         onOpenSettings={() => setShowSettings(true)}
         onOpenPricing={() => setShowPricingManagement(true)}
+        onOpenInstallationPricing={() => setShowInstallationPricing(true)}
       />
 
 
@@ -787,6 +788,11 @@ ${selectedBillboardsData
       {/* نافذة إدارة الأسعار */}
       {showPricingManagement && user?.permissions.some(p => p.name === 'admin_access') && (
         <EnhancedPricingManagement onClose={() => setShowPricingManagement(false)} />
+      )}
+
+      {/* نافذة إدارة أسعار التركيب */}
+      {showInstallationPricing && user?.permissions.some(p => p.name === 'admin_access') && (
+        <InstallationPricingManagement onClose={() => setShowInstallationPricing(false)} />
       )}
 
       {/* نافذة فاتورة العرض */}
