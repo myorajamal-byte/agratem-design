@@ -13,7 +13,7 @@ import SystemSettings from "@/components/SystemSettings"
 import EnhancedPricingManagement from "@/components/EnhancedPricingManagement"
 import InstallationPricingManagement from "@/components/InstallationPricingManagement"
 import QuoteDialog from "@/components/QuoteDialog"
-import { loadBillboardsFromExcel } from "@/services/billboardService"
+import { loadBillboardsFromLocal } from "@/services/localBillboardService"
 import { clientService } from "@/services/clientService"
 import { Billboard } from "@/types"
 import { useAuth } from "@/contexts/AuthContext"
@@ -688,7 +688,7 @@ ${selectedBillboardsData
                   className="bg-green-600 hover:bg-green-700 text-white px-6"
                 >
                   <Mail className="w-4 h-4 ml-2" />
-                  إرسال ال��ائمة
+                  إرسال ال����ائمة
                 </Button>
               </div>
             </div>
@@ -821,7 +821,7 @@ ${selectedBillboardsData
         <InstallationPricingManagement onClose={() => setShowInstallationPricing(false)} />
       )}
 
-      {/* نافذة فاتورة العرض */}
+      {/* نافذة فاتور�� العرض */}
       {showQuoteDialog && user?.permissions.some(p => p.name === 'admin_access') && (
         <QuoteDialog
           isOpen={showQuoteDialog}
