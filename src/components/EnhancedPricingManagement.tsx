@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
+import '../styles/pricing-management.css'
 import {
   Settings,
   Save,
