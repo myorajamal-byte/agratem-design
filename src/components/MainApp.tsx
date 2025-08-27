@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { Search, MapPin, Star, Award, Users, MessageCircle, Mail } from "lucide-react"
+import { Search, MapPin, Star, Award, Users, MessageCircle, Mail, FileText } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 
@@ -510,7 +510,7 @@ ${selectedBillboardsData
         <section className="bg-gradient-to-r from-yellow-500 via-yellow-400 to-yellow-500 text-black py-16 relative z-10">
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-5xl md:text-6xl font-black mb-6 tracking-tight leading-tight">
-              الرائدون في عالم الدعاية والإعلا��
+              الرائدون في عالم الدعاية والإعلان
             </h2>
             <p className="text-xl md:text-2xl mb-8 max-w-4xl mx-auto leading-relaxed font-bold">
               نحن نقدم حلول إعلانية متكاملة ومبتكرة تضمن وصول رسالتك إلى الجمهور المناسب في الوقت المناسب
