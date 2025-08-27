@@ -163,7 +163,10 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
 
   // Format price with currency using English numbers
   const formatPrice = (price: number): string => {
-    return price.toLocaleString('en-US') + ' د.ل'
+    return new Intl.NumberFormat('en-US', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(price) + ' د.ل'
   }
 
   // Calculate final price with municipality multiplier and duration discount
@@ -385,7 +388,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
           showNotification('success', `تم استيراد ${municipalities.length} بلدية بنجاح`)
         }
       } catch (error) {
-        showNotification('error', 'خ��أ في قراءة ملف Excel')
+        showNotification('error', 'خطأ في قراءة ملف Excel')
       }
     }
     reader.readAsArrayBuffer(file)
