@@ -130,7 +130,7 @@ async function readExcelFromUrl(url: string, timeoutMs = 10000, retries = 2) {
 
       if (!isExcel && !isOldExcel) {
         console.log(
-          `[Service] تحذير: الملف المحمل قد لا يكون ملف إكسل صحيح. البايتات الأولى: ${Array.from(uint8Array.slice(0, 10))
+          `[Service] تحذير: الم��ف المحمل قد لا يكون ملف إكسل صحيح. البايتات الأولى: ${Array.from(uint8Array.slice(0, 10))
             .map((b) => b.toString(16))
             .join(" ")}`,
         )
@@ -166,7 +166,7 @@ function safeReadExcel(fileBuffer: ArrayBuffer) {
     try {
       console.log("[Service] محاولة قراءة الملف بخيارات:", JSON.stringify(options))
       const workbook = XLSX.read(fileBuffer, options)
-      console.log("[Service] ن��حت قراءة الملف بالخيارات:", JSON.stringify(options))
+      console.log("[Service] نجحت قراءة الملف بالخيارات:", JSON.stringify(options))
       return workbook
     } catch (error: any) {
       console.warn("[Service] فشل بالخيارات:", JSON.stringify(options), "الخطأ:", error.message)
@@ -237,7 +237,7 @@ function parseExcelDate(dateValue: any): Date | null {
 function processBillboardData(billboard: any, index: number): Billboard {
   const id = billboard['ر.م'] || billboard['رقم اللوحة'] || `BILLBOARD-${index + 1}`
   const name = billboard['اسم لوحة'] || billboard['اسم اللوحة'] || `لوحة-${index + 1}`
-  const location = billboard['اقرب نقطة دالة'] || billboard['أقرب نقطة دالة'] || '��وقع غير محدد'
+  const location = billboard['اقرب نقطة دالة'] || billboard['أقرب نقطة دالة'] || 'موقع غير محدد'
   const municipality = billboard['البلدية'] || 'غير محدد'
   const city = billboard['مدينة'] || billboard['المدينة'] || 'غير محدد'
 
@@ -257,7 +257,7 @@ function processBillboardData(billboard: any, index: number): Billboard {
   const size = billboard['حجم'] || billboard['الحجم'] || billboard['المقاس مع الدغاية'] || '12X4'
   const coordinates = billboard['احداثي - GPS'] || billboard['الإحداثيات GPS'] || '32.8872,13.1913'
 
-  // بيانات العميل - استخدام أسماء الأعمدة الصحيحة
+  // بيانات العميل - استخد��م أسماء الأعمدة الصحيحة
   const contractNumber = (billboard['رقم العقد'] || '').toString()
   const clientName = (billboard['اسم الزبون'] || billboard['اسم العميل'] || billboard['العميل'] || '').toString()
   const advertisementType = (billboard['نوع الاعلان'] || '').toString()
@@ -313,7 +313,7 @@ function processBillboardData(billboard: any, index: number): Billboard {
     : 'https://www.google.com/maps?q=32.8872,13.1913'
   
   // تحديد فئة السعر من مستوى اللوحة
-  const levelValue = billboard['مستوى'] || billboard['المستوى'] || billboard['تصنيف'] || 'A'
+  const levelValue = billboard['��ستوى'] || billboard['المستوى'] || billboard['تصنيف'] || 'A'
   const priceCategory = (levelValue === 'A' || levelValue === 'B') ? levelValue : 'A'
 
   return {
@@ -353,7 +353,7 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
     try {
       console.log("[Service] محاولة قراءة البيانات بصيغة CSV...")
       workbook = await readCsvFromUrl(CSV_URL, 15000)
-      console.log("[Service] تم تحميل البيانات بصيغة CSV بنجاح ✅ - سيتم المحاولة مع Excel")
+      console.log("[Service] تم تحميل البيا��ات بصيغة CSV بنجاح ✅ - سيتم المحاولة مع Excel")
     } catch (csvError: any) {
       console.warn("[Service] فشل تحميل CSV:", csvError.message)
 
@@ -593,12 +593,13 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
           contractNumber: "CT-2024-006",
           clientName: "شركة المدار الجديد",
           advertisementType: "اتصالات",
+          priceCategory: "B",
         },
         {
           id: "150",
           name: "MS-MS0150",
           location: "مدخل مصراتة الشرقي بجوار المطار",
-          municipality: "مص��اتة",
+          municipality: "مصراتة",
           city: "مصراتة",
           area: "مصراتة",
           size: "18X6",
