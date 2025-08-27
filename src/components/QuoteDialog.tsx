@@ -90,13 +90,13 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
   const pricing = pricingService.getPricing()
 
   const generateQuote = () => {
-    if (!customerInfo.name || !customerInfo.email || !customerInfo.phone) {
-      setError('يرجى ملء جميع الحقول المطلوبة')
+    if (!customerInfo.name || !customerInfo.email || !customerInfo.phone || !selectedPackage) {
+      setError('يرجى ملء جميع الحقول المطلوبة واختيار باقة')
       return
     }
 
     setLoading(true)
-    
+
     try {
       const quote = pricingService.generateQuote(
         customerInfo,
@@ -110,13 +110,13 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
           status: billboard.status,
           imageUrl: billboard.imageUrl
         })),
-        duration
+        selectedPackage
       )
 
       setGeneratedQuote(quote)
       setError('')
     } catch (error) {
-      setError('حدث خطأ في إنشاء الفاتورة')
+      setError('حدث خطأ في إنشاء الف��تورة')
       console.error('خطأ في إنشاء الفاتورة:', error)
     } finally {
       setLoading(false)
