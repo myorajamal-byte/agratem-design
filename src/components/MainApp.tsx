@@ -87,7 +87,7 @@ export default function MainApp() {
       )
     }
 
-    // فلترة برقم العقد
+    // ف��ترة برقم العقد
     if (contractFilter) {
       filtered = clientService.filterBillboardsByContract(filtered, contractFilter)
     }
@@ -199,7 +199,7 @@ ${selectedBillboardsData
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>المساحات الإعلانية المتاحة - الفارس الذهبي</title>
+        <title>المساحات الإعلانية المتاحة - الفارس ��لذهبي</title>
         <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
         <style>
           @page {
@@ -784,7 +784,7 @@ ${selectedBillboardsData
 
       {/* نافذة إدارة الأسعار */}
       {showPricingManagement && user?.permissions.some(p => p.name === 'admin_access') && (
-        <PricingManagement onClose={() => setShowPricingManagement(false)} />
+        <ABPricingManagement onClose={() => setShowPricingManagement(false)} />
       )}
 
       {/* نافذة فاتورة العرض */}
