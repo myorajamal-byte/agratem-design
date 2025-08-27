@@ -54,7 +54,7 @@ export class SystemTest {
         throw new Error('بيانات الأسعار غير صحيحة')
       }
       
-      // اختبار حساب سعر لوحة
+      // اختبار حس��ب سعر لوحة
       const price = pricingService.getBillboardPrice('5x13', 'مصراتة', 'companies')
       
       if (price === 0) {
@@ -91,7 +91,7 @@ export class SystemTest {
       const packages = newPricingService.getPackages()
       
       if (packages.length === 0) {
-        throw new Error('لا توجد باقات زمنية')
+        throw new Error('لا توجد باقات زمن��ة')
       }
       
       console.log(`✅ عدد الباقات المتاحة: ${packages.length}`)
@@ -280,10 +280,18 @@ export class SystemTest {
 // إنشاء نسخة مفردة من أداة الاختبار
 export const systemTest = new SystemTest()
 
-// تشغيل اختبار سر��ع عند التحميل (في وضع التطوير فقط)
+// تشغيل اختبار سريع عند التحميل (في وضع التطوير فقط)
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
   // تشغيل الاختبار بعد ثانية واحدة لضمان تحميل النظام
   setTimeout(() => {
     systemTest.quickTest()
   }, 1000)
+
+  // إضافة دوال مساعدة لوحدة التحكم
+  ;(window as any).runSystemTest = () => systemTest.runFullSystemTest()
+  ;(window as any).quickSystemTest = () => systemTest.quickTest()
+
+  console.log('🛠️ أدوات المطور متاحة:')
+  console.log('- runSystemTest() - تشغيل اختبار شامل')
+  console.log('- quickSystemTest() - تشغيل اختبار سريع')
 }
