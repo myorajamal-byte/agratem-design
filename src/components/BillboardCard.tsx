@@ -13,7 +13,7 @@ interface BillboardCardProps {
   showPricing?: boolean // عرض الأسعار للأدمن
 }
 
-export default function BillboardCard({ billboard, isSelected, onToggleSelection, onViewImage }: BillboardCardProps) {
+export default function BillboardCard({ billboard, isSelected, onToggleSelection, onViewImage, showPricing = false }: BillboardCardProps) {
   // حساب الأيام المتبقية للانتهاء
   const getDaysRemaining = () => {
     if (!billboard.expiryDate) return null
@@ -29,7 +29,24 @@ export default function BillboardCard({ billboard, isSelected, onToggleSelection
     return diffDays > 0 ? diffDays : 0
   }
 
+  // حساب السعر والمنطقة السعرية
+  const getPricingInfo = () => {
+    if (!showPricing) return null
+
+    const zone = pricingService.determinePricingZone(billboard.municipality, billboard.area)
+    const price = pricingService.getBillboardPrice(billboard.size as BillboardSize, zone)
+    const pricing = pricingService.getPricing()
+
+    return {
+      zone,
+      price,
+      currency: pricing.currency,
+      unit: pricing.unit
+    }
+  }
+
   const daysRemaining = getDaysRemaining()
+  const pricingInfo = getPricingInfo()
 
   return (
     <Card
