@@ -311,7 +311,7 @@ class PricingService {
     const areaLower = area.toLowerCase()
     
     // تحديد المنطقة بناءً على البلدية
-    if (municipalityLower.includes('مصراتة')) return 'مصراتة'
+    if (municipalityLower.includes('مصراتة')) return 'مصرا��ة'
     if (municipalityLower.includes('أبو سليم') || areaLower.includes('أبو س��يم')) return 'أبو سليم'
     if (municipalityLower.includes('طرابلس') && areaLower.includes('الشط')) return 'شركات'
     
@@ -433,6 +433,57 @@ class PricingService {
       { value: 'individuals', label: 'العاديين' },
       { value: 'companies', label: 'الشر��ات' }
     ]
+  }
+
+  /**
+   * الحصول على قوائم الأسعار المتاحة (A و B)
+   */
+  getPriceListTypes(): Array<{value: PriceListType, label: string}> {
+    return [
+      { value: 'A', label: 'قائمة أسعار A' },
+      { value: 'B', label: '��ائمة أسعار B' }
+    ]
+  }
+
+  /**
+   * مقارنة الأسعار بين قائمتي A و B لمنطقة معينة
+   */
+  comparePriceListsForZone(zone: string): {
+    zone: string,
+    sizes: Array<{
+      size: BillboardSize,
+      priceA: number,
+      priceB: number,
+      difference: number,
+      percentDifference: number
+    }>
+  } | null {
+    const pricing = this.getPricing()
+    const zoneData = pricing.zones[zone]
+
+    if (!zoneData || !zoneData.abPrices) {
+      return null
+    }
+
+    const sizes: BillboardSize[] = ['5x13', '4x12', '4x10', '3x8', '3x6', '3x4']
+
+    return {
+      zone,
+      sizes: sizes.map(size => {
+        const priceA = zoneData.abPrices.A[size]
+        const priceB = zoneData.abPrices.B[size]
+        const difference = priceB - priceA
+        const percentDifference = ((difference / priceA) * 100)
+
+        return {
+          size,
+          priceA,
+          priceB,
+          difference,
+          percentDifference: Math.round(percentDifference * 100) / 100
+        }
+      })
+    }
   }
 
   /**
