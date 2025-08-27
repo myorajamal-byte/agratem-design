@@ -360,7 +360,7 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
                       </div>
                       <div className="flex justify-between">
                         <span>مدة الإعلان:</span>
-                        <span className="font-bold">{duration} {duration === 1 ? 'شهر' : 'أشهر'}</span>
+                        <span className="font-bold">{selectedPackage?.value} {selectedPackage?.value === 1 ? 'شهر' : 'أشهر'}</span>
                       </div>
                       <div className="flex justify-between">
                         <span>المجموع الفرعي:</span>
