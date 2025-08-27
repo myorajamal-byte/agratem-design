@@ -83,7 +83,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
     municipalities: [
       { id: '1', name: 'مصراتة', multiplier: 1.0 },
       { id: '2', name: 'زليتن', multiplier: 0.8 },
-      { id: '3', name: 'بنغاز��', multiplier: 1.2 },
+      { id: '3', name: 'بنغ��زي', multiplier: 1.2 },
       { id: '4', name: 'طرابلس', multiplier: 1.0 }
     ],
     categories: [
@@ -316,7 +316,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
 
     setNewLevel({ name: '', description: '', discount: 0 })
     setShowLevelModal(false)
-    showNotification('success', `تم إضافة م��توى "${newLevel.name}" بنجاح`)
+    showNotification('success', `تم إضافة مستوى "${newLevel.name}" بنجاح`)
   }
 
   // Add new size
@@ -357,7 +357,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
   // Delete size
   const deleteSize = (size: string) => {
     if (pricingData.sizes.length <= 1) {
-      showNotification('error', 'لا يمكن حذف آخر مقاس')
+      showNotification('error', '��ا يمكن حذف آخر مقاس')
       return
     }
 
@@ -442,7 +442,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
 
   // Reset all changes
   const resetAllChanges = () => {
-    if (window.confirm('هل أنت متأكد من إلغاء جميع التغيي��ات غير المحفوظة؟')) {
+    if (window.confirm('هل أنت متأكد من إلغاء جميع التغييرات غير المحفوظة؟')) {
       initializePricingData()
       setUnsavedChanges({ hasChanges: false, changedCells: new Set() })
       showNotification('success', 'تم إلغاء جميع التغييرات')
@@ -809,9 +809,11 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                 </thead>
                 <tbody>
                   {filteredSizes.map((size, index) => (
-                    <tr key={size} className={`hover:bg-blue-25 transition-colors ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`}>
-                      <td className="border border-gray-200 p-2 font-bold text-gray-900 bg-yellow-50 text-sm text-center">
-                        {size}
+                    <tr key={size} className={`hover:bg-blue-50 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] transform ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}>
+                      <td className="border-0 p-4 font-bold text-gray-900 bg-gradient-to-r from-yellow-100 to-yellow-50 text-base text-center shadow-sm">
+                        <div className="bg-white px-3 py-2 rounded-lg font-black text-lg text-yellow-800 shadow-inner">
+                          {size}
+                        </div>
                       </td>
                       {pricingData.categories.map(category => {
                         const cellKey = `${size}-${category.id}`
@@ -1005,7 +1007,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                     onChange={(e) => setNewCategory(prev => ({ ...prev, color: e.target.value }))}
                     className="w-full p-2 border border-gray-300 rounded-lg"
                   >
-                    <option value="blue">أ��رق</option>
+                    <option value="blue">أزرق</option>
                     <option value="green">أخضر</option>
                     <option value="purple">بنفسجي</option>
                     <option value="red">أحمر</option>
@@ -1038,7 +1040,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
         {showLevelModal && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-60">
             <Card className="w-full max-w-md p-6">
-              <h3 className="text-xl font-bold mb-4">إضافة مستوى جدي��</h3>
+              <h3 className="text-xl font-bold mb-4">إضافة مستوى جديد</h3>
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">اسم المستوى</label>
