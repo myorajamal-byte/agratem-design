@@ -195,6 +195,9 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
     setSelectedPackage(packages[0] || null)
     setGeneratedQuote(null)
     setError('')
+    setStartDate(new Date().toISOString().split('T')[0])
+    setDuration(1)
+    setIncludeInstallation(false)
   }
 
   return (
@@ -355,7 +358,7 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-1">تاريخ البداية</label>
+                        <label className="block text-sm font-bold text-gray-700 mb-1">تا��يخ البداية</label>
                         <Input
                           type="date"
                           value={startDate}
@@ -539,7 +542,7 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
 
                         <div className="border-t border-green-300 pt-2">
                           <div className="flex justify-between text-lg">
-                            <span className="font-bold">الإجمالي النهائي:</span>
+                            <span className="font-bold">��لإجمالي النهائي:</span>
                             <span className="font-black text-green-700 text-xl">
                               {quoteDetails.total.toLocaleString()} {pricing.currency}
                             </span>
