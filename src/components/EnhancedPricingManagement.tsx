@@ -731,7 +731,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                     )}
                   </h3>
                   <p className="text-blue-100 mt-2 text-sm">
-                    جدول الأسعار التفاعلي مع إمكانية التعديل المباشر
+                    جدول ��لأسعار التفاعلي مع إمكانية التعديل المباشر
                   </p>
                 </div>
                 <div className="text-right">
@@ -873,7 +873,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                                   </div>
                                   {finalPrice !== basePrice && (
                                     <div className="text-xs text-green-600 font-semibold px-2 py-1 bg-green-100 rounded-full shadow-sm">
-                                      النهائي: {formatPrice(finalPrice)}
+                                      النهائ��: {formatPrice(finalPrice)}
                                     </div>
                                   )}
                                 </div>
@@ -882,15 +882,15 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                           </td>
                         )
                       })}
-                      <td className="border border-gray-200 p-1 text-center">
+                      <td className="border-0 p-4 text-center bg-gradient-to-r from-gray-50 to-white">
                         <Button
                           onClick={() => deleteSize(size)}
                           variant="outline"
                           size="sm"
-                          className="text-red-600 border-red-300 hover:bg-red-50 transition-colors p-1"
+                          className="text-red-600 border-red-300 hover:bg-red-50 hover:border-red-500 transition-all duration-200 p-2 rounded-lg shadow-sm hover:shadow-md transform hover:scale-105"
                           disabled={pricingData.sizes.length <= 1}
                         >
-                          <Trash2 className="w-3 h-3" />
+                          <Trash2 className="w-4 h-4" />
                         </Button>
                       </td>
                     </tr>
@@ -1055,7 +1055,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                   <Input
                     value={newLevel.description}
                     onChange={(e) => setNewLevel(prev => ({ ...prev, description: e.target.value }))}
-                    placeholder="وصف ال��ستوى"
+                    placeholder="وصف المستوى"
                   />
                 </div>
                 <div>
