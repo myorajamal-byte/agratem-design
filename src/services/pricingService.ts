@@ -342,19 +342,58 @@ class PricingService {
   }
 
   /**
-   * تحديد المنطقة السعرية بناءً على البلدية أو المنطقة
+   * تحديد المنطقة السعرية بناءً على البلدية مباشرة
+   * المنطقة السعرية هي نفس اسم البلدية
    */
-  determinePricingZone(municipality: string, area: string): string {
+  determinePricingZone(municipality: string, area?: string): string {
+    // استخدام اسم البلدية مباشرة كمنطقة سعرية
+    const zoneName = municipality.trim()
+
+    // التأكد من وجود أسعار لهذه المنطقة
+    const pricing = this.getPricing()
+    if (pricing.zones[zoneName]) {
+      return zoneName
+    }
+
+    // إذا لم توجد أسعار لهذه البلدية، البحث عن أقرب تطابق
+    const availableZones = Object.keys(pricing.zones)
     const municipalityLower = municipality.toLowerCase().trim()
-    const areaLower = area.toLowerCase().trim()
 
-    // تحديد المنطقة بناءً على البلدية
-    if (municipalityLower.includes('مصراتة')) return 'مصراتة'
-    if (municipalityLower.includes('أبو سليم') || areaLower.includes('أبو سليم')) return 'أبو سليم'
-    if (municipalityLower.includes('طرابلس') && areaLower.includes('الشط')) return 'شركات'
+    for (const zone of availableZones) {
+      if (zone.toLowerCase().includes(municipalityLower) || municipalityLower.includes(zone.toLowerCase())) {
+        return zone
+      }
+    }
 
-    // إعادة المنطقة الافتراضية
-    return 'مصراتة'
+    // إعادة المنطقة الافتراضية إذا لم يوجد تطابق
+    return availableZones[0] || 'مصراتة'
+  }
+
+  /**
+   * إضافة منطقة سعرية جديدة بناءً على البلدية
+   */
+  addPricingZoneForMunicipality(municipality: string, baseZone: string = 'مصراتة'): boolean {
+    const pricing = this.getPricing()
+    const zoneName = municipality.trim()
+
+    // إذا كانت المنطقة موجودة، لا تفعل شيء
+    if (pricing.zones[zoneName]) {
+      return true
+    }
+
+    // نسخ أسعار المنطقة الأساسية
+    const baseZoneData = pricing.zones[baseZone]
+    if (!baseZoneData) {
+      return false
+    }
+
+    // إنشاء منطقة جديدة بنفس أسعار المنطقة الأساسية
+    pricing.zones[zoneName] = {
+      ...baseZoneData,
+      name: zoneName
+    }
+
+    return this.updatePricing(pricing).success
   }
 
   /**
@@ -463,7 +502,7 @@ class PricingService {
   }
 
   /**
-   * الحصول على قائمة فئات الزبائن المتاحة
+   * الحصول على قائ��ة فئات الزبائن المتاحة
    */
   getCustomerTypes(): Array<{value: CustomerType, label: string}> {
     return [
