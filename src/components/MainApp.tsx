@@ -10,7 +10,7 @@ import InteractiveMap from "@/components/InteractiveMap"
 import EmailDialog from "@/components/EmailDialog"
 import Footer from "@/components/Footer"
 import SystemSettings from "@/components/SystemSettings"
-import ModernPricingManagement from "@/components/ModernPricingManagement"
+import EnhancedPricingManagement from "@/components/EnhancedPricingManagement"
 import QuoteDialog from "@/components/QuoteDialog"
 import { loadBillboardsFromExcel } from "@/services/billboardService"
 import { clientService } from "@/services/clientService"
@@ -737,7 +737,7 @@ ${selectedBillboardsData
             <div className="w-24 h-24 mx-auto mb-6 bg-yellow-100 rounded-full flex items-center justify-center">
               <Search className="w-12 h-12 text-yellow-500" />
             </div>
-            <p className="text-gray-600 text-xl mb-4 font-bold">لا توجد لوحات تطابق معايير البحث</p>
+            <p className="text-gray-600 text-xl mb-4 font-bold">ل�� توجد لوحات تطابق معايير البحث</p>
             <p className="text-gray-500 font-semibold">جرب تغيير معايير البحث أو الفلاتر</p>
           </div>
         )}
