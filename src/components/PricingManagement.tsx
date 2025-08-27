@@ -231,7 +231,7 @@ const PricingManagement: React.FC<PricingManagementProps> = ({ onClose }) => {
             </Button>
           </div>
 
-          {/* معلومات العملة والوحدة */}
+          {/* معلومات العملة */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-2">
@@ -245,13 +245,31 @@ const PricingManagement: React.FC<PricingManagementProps> = ({ onClose }) => {
             </div>
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-2">
-                وحدة الزمن
+                الباقات المتوفرة
               </label>
-              <Input
-                value={pricing.unit}
-                onChange={(e) => setPricing({ ...pricing, unit: e.target.value })}
-                placeholder="شهرياً"
-              />
+              <div className="text-sm text-gray-600">
+                {pricing.packages?.map(pkg => pkg.label).join(' • ') || 'لا توجد باقات'}
+              </div>
+            </div>
+          </div>
+
+          {/* تبويبات فئ��ت الزبائن */}
+          <div className="mb-6">
+            <h3 className="text-lg font-bold text-gray-900 mb-3">اختر فئة الزبون</h3>
+            <div className="flex flex-wrap gap-2">
+              {customerTypes.map((type) => (
+                <Button
+                  key={type.value}
+                  onClick={() => setActiveCustomerType(type.value)}
+                  className={`px-6 py-2 rounded-full font-bold transition-all ${
+                    activeCustomerType === type.value
+                      ? 'bg-blue-600 text-white shadow-lg'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {type.label}
+                </Button>
+              ))}
             </div>
           </div>
 
