@@ -1,7 +1,7 @@
 import { PriceList, BillboardSize, QuoteItem, Quote, CustomerType, PackageDuration, PriceListType, SizeManagement, DurationPricing } from '@/types'
 import { formatGregorianDate } from '@/lib/dateUtils'
 
-// المقاسات الافت��اضية
+// المقاسات الافتراضية
 const DEFAULT_SIZES: BillboardSize[] = ['5x13', '4x12', '4x10', '3x8', '3x6', '3x4']
 
 // الباقات الزمنية المتاحة
@@ -81,7 +81,7 @@ const DEFAULT_PRICING_NEW: PriceList = {
 
 /**
  * خدمة إدارة الأسعار المحدثة
- * تدعم المدد المختلفة والمقاسات الدينام��كية
+ * تدعم المدد المختلفة والمقاسات الديناميكية
  */
 class NewPricingService implements SizeManagement {
   private readonly PRICING_STORAGE_KEY = 'al-fares-pricing-v2'
@@ -153,7 +153,7 @@ class NewPricingService implements SizeManagement {
    * التحقق من صحة المقاس
    */
   validateSize(size: string): boolean {
-    // تحقق من أن المقاس بصيغة مثل "5x13" أو "4x12"
+    // ت��قق من أن المقاس بصيغة مثل "5x13" أو "4x12"
     const sizePattern = /^\d+x\d+$/
     return sizePattern.test(size) && size.length <= 10
   }
@@ -221,7 +221,7 @@ class NewPricingService implements SizeManagement {
   /**
    * الحصول على سعر لوحة حسب فئة الزبون (للنظام القديم)
    */
-  getBillboardPrice(size: BillboardSize, zone: string, customerType: CustomerType = 'individuals'): number {
+  getBillboardPrice(size: BillboardSize, zone: string, customerType: CustomerType = 'individuals', municipality?: string): number {
     const pricing = this.getPricing()
     const zoneData = pricing.zones[zone]
 
@@ -229,7 +229,15 @@ class NewPricingService implements SizeManagement {
       return 0
     }
 
-    return zoneData.prices[customerType][size]
+    const basePrice = zoneData.prices[customerType][size]
+
+    // تطبيق معامل البلدية إذا تم توفيره (افتراضي: 1)
+    if (municipality) {
+      const multiplier = this.getMunicipalityMultiplier(municipality)
+      return Math.round(basePrice * multiplier)
+    }
+
+    return basePrice
   }
 
   /**
@@ -755,7 +763,7 @@ class NewPricingService implements SizeManagement {
             <tr>
               <th>م</th>
               <th>صورة اللوحة</th>
-              <th>��سم اللوحة</th>
+              <th>اسم اللوحة</th>
               <th>الموقع</th>
               <th>المقاس</th>
               <th>قائمة السعر</th>
@@ -848,7 +856,7 @@ class NewPricingService implements SizeManagement {
         </div>
 
         <div class="footer">
-          <p>الفارس الذهبي للدع��ية والإعلان | هاتف: 218913228908+ | البريد: g.faris.business@gmail.com</p>
+          <p>الفارس الذهبي للدعاية والإعلان | هاتف: 218913228908+ | البريد: g.faris.business@gmail.com</p>
           <p>نشكركم لثقتكم بخدماتنا ونتطلع للعمل معكم</p>
         </div>
 
