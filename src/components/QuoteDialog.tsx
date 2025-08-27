@@ -66,16 +66,21 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
     const items = selectedBillboardsData.map(billboard => {
       const zone = newPricingService.determinePricingZone(billboard.municipality, billboard.area)
       const priceList = newPricingService.determinePriceListFromBillboard(billboard)
-      const basePrice = newPricingService.getBillboardPriceABWithDuration(billboard.size as BillboardSize, zone, priceList, selectedPackage.value)
-      const priceCalc = newPricingService.calculatePriceWithDiscount(basePrice, selectedPackage)
+      // Get the duration-adjusted price (already includes duration discount)
+      const finalPrice = newPricingService.getBillboardPriceABWithDuration(billboard.size as BillboardSize, zone, priceList, selectedPackage.value)
+
+      // Calculate what the base price would have been without duration discount
+      const basePrice = selectedPackage.discount > 0
+        ? Math.round(finalPrice / (1 - selectedPackage.discount / 100))
+        : finalPrice
 
       return {
         billboard,
         zone,
         basePrice,
-        finalPrice: priceCalc.finalPrice,
-        discount: priceCalc.discount,
-        total: priceCalc.finalPrice * selectedPackage.value
+        finalPrice,
+        discount: selectedPackage.discount,
+        total: finalPrice * selectedPackage.value
       }
     })
 
@@ -443,7 +448,7 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
                   className="border-gray-300 text-gray-700 hover:bg-gray-50"
                 >
                   <X className="w-5 h-5 mr-2" />
-                  إعادة تعيين
+                  إع��دة تعيين
                 </Button>
               </>
             ) : (
