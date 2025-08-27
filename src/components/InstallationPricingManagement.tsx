@@ -559,10 +559,18 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
                         <Input
                           type="number"
                           value={zone.multiplier}
-                          onChange={(e) => updateZoneMultiplier(zone.name, parseFloat(e.target.value) || 1.0)}
-                          className="w-20 text-center font-bold text-sm"
+                          onChange={(e) => {
+                            const newMultiplier = parseFloat(e.target.value) || 1.0
+                            updateZoneMultiplier(zone.name, newMultiplier)
+                          }}
+                          onBlur={() => {
+                            // Force save when user finishes editing
+                            savePricingData()
+                          }}
+                          className="w-20 text-center font-bold text-sm border-2 border-purple-200 focus:border-purple-500 bg-white"
                           step="0.1"
                           min="0"
+                          placeholder="1.0"
                         />
                       </td>
                       {filteredSizes.map(size => {
@@ -692,7 +700,7 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
               <h3 className="text-xl font-bold mb-4">إضافة منطقة جديدة</h3>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-1">اسم المنطقة</label>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">اسم ��لمنطقة</label>
                   <Input
                     value={newZone.name}
                     onChange={(e) => setNewZone(prev => ({ ...prev, name: e.target.value }))}
