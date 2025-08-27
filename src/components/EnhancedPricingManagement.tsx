@@ -83,7 +83,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
     municipalities: [
       { id: '1', name: 'مصراتة', multiplier: 1.0 },
       { id: '2', name: 'زليتن', multiplier: 0.8 },
-      { id: '3', name: 'بنغ��زي', multiplier: 1.2 },
+      { id: '3', name: 'بنغازي', multiplier: 1.2 },
       { id: '4', name: 'طرابلس', multiplier: 1.0 }
     ],
     categories: [
@@ -357,7 +357,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
   // Delete size
   const deleteSize = (size: string) => {
     if (pricingData.sizes.length <= 1) {
-      showNotification('error', '��ا يمكن حذف آخر مقاس')
+      showNotification('error', 'لا يمكن حذف آخر مقاس')
       return
     }
 
@@ -825,54 +825,54 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                         return (
                           <td
                             key={category.id}
-                            className={`border border-gray-200 p-1 text-center relative ${
-                              hasChanges ? 'bg-yellow-100 changed-cell' : ''
+                            className={`border-0 p-2 text-center relative transition-all duration-300 ${
+                              hasChanges ? 'bg-yellow-200 shadow-inner animate-pulse' : 'bg-white'
                             }`}
                           >
                             {isEditing ? (
-                              <div className="flex items-center gap-1 justify-center editing-cell p-1 rounded text-xs">
+                              <div className="flex items-center gap-2 justify-center bg-white p-3 rounded-lg shadow-lg border-2 border-blue-500">
                                 <Input
                                   type="number"
                                   value={editingValue}
                                   onChange={(e) => setEditingValue(e.target.value)}
-                                  className="w-16 text-center font-bold text-sm"
+                                  className="w-20 text-center font-bold text-sm border-2 border-blue-300 focus:border-blue-500"
                                   min="0"
                                   autoFocus
                                 />
                                 <Button
                                   onClick={saveEdit}
                                   size="sm"
-                                  className="bg-green-600 hover:bg-green-700 text-white p-0.5"
+                                  className="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all"
                                 >
-                                  <Check className="w-3 h-3" />
+                                  <Check className="w-4 h-4" />
                                 </Button>
                                 <Button
                                   onClick={cancelEdit}
                                   size="sm"
                                   variant="outline"
-                                  className="text-red-600 border-red-300 p-0.5"
+                                  className="text-red-600 border-red-300 hover:bg-red-50 px-2 py-1 rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all"
                                 >
-                                  <X className="w-3 h-3" />
+                                  <X className="w-4 h-4" />
                                 </Button>
                               </div>
                             ) : (
                               <div
-                                className="cursor-pointer price-cell group py-1 px-2"
+                                className="cursor-pointer price-cell group py-3 px-2 rounded-lg hover:bg-blue-50 hover:shadow-md transform hover:scale-105 transition-all duration-200 border border-transparent hover:border-blue-200"
                                 onClick={() => startEdit(size, category.id)}
                                 title={calculation}
                               >
-                                <div className="flex flex-col items-center justify-center gap-1">
-                                  <div className="flex items-center gap-1">
-                                    <span className="font-bold text-gray-800 text-sm leading-tight">
+                                <div className="flex flex-col items-center justify-center gap-2">
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-bold text-gray-800 text-base leading-tight bg-gray-100 px-2 py-1 rounded-lg group-hover:bg-blue-100 transition-colors">
                                       {formatPrice(basePrice)}
                                     </span>
-                                    <Edit3 className="w-3 h-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-all duration-200" />
+                                    <Edit3 className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 group-hover:text-blue-600 transition-all duration-200" />
                                   </div>
-                                  <div className="text-xs text-blue-600 font-semibold">
+                                  <div className="text-xs text-blue-600 font-semibold bg-blue-50 px-2 py-1 rounded-full">
                                     يومي: {formatPrice(dailyRate)}
                                   </div>
                                   {finalPrice !== basePrice && (
-                                    <div className="text-xs text-green-600 font-semibold px-1 py-0.5 bg-green-100 rounded">
+                                    <div className="text-xs text-green-600 font-semibold px-2 py-1 bg-green-100 rounded-full shadow-sm">
                                       النهائي: {formatPrice(finalPrice)}
                                     </div>
                                   )}
@@ -1055,7 +1055,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                   <Input
                     value={newLevel.description}
                     onChange={(e) => setNewLevel(prev => ({ ...prev, description: e.target.value }))}
-                    placeholder="وصف المستوى"
+                    placeholder="وصف ال��ستوى"
                   />
                 </div>
                 <div>
