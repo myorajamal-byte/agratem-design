@@ -179,19 +179,19 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
   }
 
   // Calculate final price with municipality multiplier and duration discount
-  const calculateFinalPrice = (basePrice: number): { price: number, calculation: string } => {
+  const calculateFinalPrice = (basePrice: number): { price: number, calculation: string, dailyRate: number } => {
     const municipality = pricingData.municipalities.find(m => m.id === pricingData.currentMunicipality)
     const duration = durationOptions.find(d => d.value === pricingData.currentDuration)
-    
+
     let finalPrice = basePrice
     let calculationSteps = [`السعر الأساسي: ${formatPrice(basePrice)}`]
-    
+
     // Apply municipality multiplier
     if (municipality && municipality.multiplier !== 1.0) {
       finalPrice *= municipality.multiplier
       calculationSteps.push(`معامل ${municipality.name}: ×${municipality.multiplier} = ${formatPrice(finalPrice)}`)
     }
-    
+
     // Apply duration discount
     if (duration && duration.discount > 0) {
       const discountAmount = finalPrice * (duration.discount / 100)
@@ -199,9 +199,23 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       calculationSteps.push(`خصم ${duration.label}: -${duration.discount}% = ${formatPrice(finalPrice)}`)
     }
 
+    // Calculate daily rate
+    let dailyRate = finalPrice
+    if (duration) {
+      if (duration.unit === 'month') {
+        dailyRate = finalPrice / 30
+      } else if (duration.unit === 'months') {
+        dailyRate = finalPrice / duration.value
+      } else if (duration.unit === 'year') {
+        dailyRate = finalPrice / 365
+      }
+      // For 'day' unit, dailyRate remains the same as finalPrice
+    }
+
     return {
       price: Math.round(finalPrice),
-      calculation: calculationSteps.join('\n')
+      calculation: calculationSteps.join('\n'),
+      dailyRate: Math.round(dailyRate)
     }
   }
 
