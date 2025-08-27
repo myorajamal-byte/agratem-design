@@ -18,7 +18,7 @@ import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Billboard, BillboardSize, Quote, CustomerType, PackageDuration } from '@/types'
-import { pricingService } from '@/services/pricingService'
+import { newPricingService } from '@/services/newPricingService'
 
 interface QuoteDialogProps {
   isOpen: boolean
@@ -52,7 +52,7 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
 
   const selectedBillboardsData = billboards.filter(b => selectedBillboards.has(b.id))
 
-  // تهيئة الباقة الافتراضية
+  // تهيئة الباقة الافتراضي��
   React.useEffect(() => {
     if (packages.length > 0 && !selectedPackage) {
       setSelectedPackage(packages[0])
@@ -226,7 +226,7 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
 
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">
-                      اسم الشركة (اختياري)
+                      اسم ��لشركة (اختياري)
                     </label>
                     <Input
                       value={customerInfo.company}
@@ -351,7 +351,7 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
                         <span className="font-bold">{selectedBillboards.size} لوحة</span>
                       </div>
                       <div className="flex justify-between">
-                        <span>مدة الإعلان:</span>
+                        <span>مد�� الإعلان:</span>
                         <span className="font-bold">{duration} {duration === 1 ? 'شهر' : 'أشهر'}</span>
                       </div>
                       <div className="flex justify-between">
