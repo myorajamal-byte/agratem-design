@@ -623,6 +623,7 @@ ${selectedBillboardsData
               isSelected={selectedBillboards.has(billboard.id)}
               onToggleSelection={toggleBillboardSelection}
               onViewImage={setSelectedImage}
+              showPricing={user?.permissions.some(p => p.name === 'admin_access')}
             />
           ))}
         </div>
