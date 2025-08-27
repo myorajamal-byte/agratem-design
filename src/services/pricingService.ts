@@ -1,6 +1,6 @@
 import { PriceList, PricingZone, BillboardSize, QuoteItem, Quote, CustomerType, PackageDuration, PriceListType } from '@/types'
 
-// البا��ات الزمنية المتاحة
+// الباقات الزمنية المتاحة
 const DEFAULT_PACKAGES: PackageDuration[] = [
   { value: 1, unit: 'month', label: 'شهر واحد', discount: 0 },
   { value: 3, unit: 'months', label: '3 أشهر', discount: 5 }, // خصم 5%
@@ -37,6 +37,24 @@ const DEFAULT_PRICING: PriceList = {
           '3x8': 1700,
           '3x6': 1200,
           '3x4': 900
+        }
+      },
+      abPrices: { // قوائم الأسعار الجديدة A و B
+        A: {
+          '5x13': 3500,
+          '4x12': 2800,
+          '4x10': 2200,
+          '3x8': 1500,
+          '3x6': 1000,
+          '3x4': 800
+        },
+        B: {
+          '5x13': 4500,
+          '4x12': 3800,
+          '4x10': 3200,
+          '3x8': 2500,
+          '3x6': 2000,
+          '3x4': 1500
         }
       }
     },
