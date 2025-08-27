@@ -19,7 +19,8 @@ import {
   MapPin,
   Clock,
   Building2,
-  DollarSign
+  DollarSign,
+  TrendingUp
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
