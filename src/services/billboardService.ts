@@ -437,7 +437,7 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
   } catch (error) {
     console.error('[Service] خطأ في تحميل ملف Excel من Google Sheets:', error)
     
-    // محاولة تحميل المل�� المحل�� كبديل
+    // محاولة تحميل ال��ل�� المحل�� كبديل
     try {
       console.log('[Service] محاولة تحميل الملف المحلي كبديل...')
       const response = await fetch('/billboards.xlsx')
@@ -497,7 +497,8 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
           gpsLink: "https://www.google.com/maps?q=32.639466,14.265113",
           contractNumber: "CT-2024-001",
           clientName: "شركة الفارس الذهبي",
-          advertisementType: "تجاري",
+          advertisementType: "تجار��",
+          priceCategory: "B",
         },
         {
           id: "943",
