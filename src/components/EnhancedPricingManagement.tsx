@@ -161,9 +161,9 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
     return multipliers[categoryId] || 1.0
   }
 
-  // Format price with currency
+  // Format price with currency using English numbers
   const formatPrice = (price: number): string => {
-    return price.toLocaleString('ar-SA') + ' د.ل'
+    return price.toLocaleString('en-US') + ' د.ل'
   }
 
   // Calculate final price with municipality multiplier and duration discount
@@ -482,7 +482,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-yellow-800">
                   <AlertTriangle className="w-5 h-5" />
-                  <span className="font-semibold">لديك تغييرات غير محفوظة</span>
+                  <span className="font-semibold">لديك تغييرات غير محف��ظة</span>
                   <Badge variant="outline" className="bg-yellow-100 text-yellow-800">
                     {unsavedChanges.changedCells.size} تغيير
                   </Badge>
