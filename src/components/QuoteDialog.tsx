@@ -11,7 +11,10 @@ import {
   Printer,
   X,
   Save,
-  Send
+  Send,
+  MapPin,
+  Wrench,
+  Clock
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -19,6 +22,7 @@ import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Billboard, BillboardSize, Quote, CustomerType, PackageDuration } from '@/types'
 import { newPricingService } from '@/services/newPricingService'
+import { installationPricingService } from '@/services/installationPricingService'
 
 interface QuoteDialogProps {
   isOpen: boolean
@@ -45,12 +49,38 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
   const [error, setError] = useState('')
   const [generatedQuote, setGeneratedQuote] = useState<Quote | null>(null)
 
+  // متغيرات التواريخ الجديدة
+  const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0])
+  const [duration, setDuration] = useState(1) // بالأشهر
+  const [includeInstallation, setIncludeInstallation] = useState(false)
+
   const packages = newPricingService.getPackages()
   const customerTypes = newPricingService.getCustomerTypes()
+  const installationPricing = installationPricingService.getInstallationPricing()
 
   if (!isOpen) return null
 
   const selectedBillboardsData = billboards.filter(b => selectedBillboards.has(b.id))
+
+  // حساب تاريخ النهاية
+  const calculateEndDate = (startDateStr: string, durationMonths: number) => {
+    const start = new Date(startDateStr)
+    const end = new Date(start)
+    end.setMonth(end.getMonth() + durationMonths)
+    return end.toISOString().split('T')[0]
+  }
+
+  const endDate = calculateEndDate(startDate, duration)
+
+  // الحصول على سعر التركيب للوحة
+  const getInstallationPrice = (billboard: Billboard) => {
+    if (!includeInstallation) return 0
+
+    const zone = newPricingService.determinePricingZone(billboard.municipality, billboard.area)
+    const installationZone = installationPricing.zones[zone] || installationPricing.zones['مصراتة']
+    const basePrice = installationZone.prices[billboard.size as BillboardSize] || 0
+    return Math.round(basePrice * installationZone.multiplier)
+  }
 
   // تهيئة الباقة الافتراضية
   React.useEffect(() => {
@@ -59,37 +89,46 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
     }
   }, [packages, selectedPackage])
 
-  // حساب التفاصيل المالية
+  // حساب التفاص��ل المالية المحسنة
   const calculateQuoteDetails = () => {
-    if (!selectedPackage) return { items: [], subtotal: 0, totalDiscount: 0, tax: 0, total: 0 }
+    if (!selectedPackage) return { items: [], subtotal: 0, totalDiscount: 0, installationTotal: 0, tax: 0, total: 0 }
 
     const items = selectedBillboardsData.map(billboard => {
       const zone = newPricingService.determinePricingZone(billboard.municipality, billboard.area)
       const priceList = newPricingService.determinePriceListFromBillboard(billboard)
-      // Get the duration-adjusted price (already includes duration discount)
-      const finalPrice = newPricingService.getBillboardPriceABWithDuration(billboard.size as BillboardSize, zone, priceList, selectedPackage.value)
+
+      // Get the duration-adjusted price using custom duration
+      const finalPrice = newPricingService.getBillboardPriceABWithDuration(billboard.size as BillboardSize, zone, priceList, duration)
 
       // Calculate what the base price would have been without duration discount
       const basePrice = selectedPackage.discount > 0
         ? Math.round(finalPrice / (1 - selectedPackage.discount / 100))
         : finalPrice
 
+      // حساب سعر التركيب
+      const installationPrice = getInstallationPrice(billboard)
+
       return {
         billboard,
         zone,
+        priceList,
         basePrice,
         finalPrice,
+        installationPrice,
         discount: selectedPackage.discount,
-        total: finalPrice * selectedPackage.value
+        monthlyTotal: finalPrice,
+        installationTotal: installationPrice,
+        total: (finalPrice * duration) + installationPrice
       }
     })
 
-    const subtotal = items.reduce((sum, item) => sum + (item.basePrice * selectedPackage.value), 0)
-    const totalDiscount = items.reduce((sum, item) => sum + ((item.basePrice - item.finalPrice) * selectedPackage.value), 0)
-    const tax = 0 // يمكن إضافة نسبة ضريبة هنا
-    const total = subtotal - totalDiscount + tax
+    const subtotal = items.reduce((sum, item) => sum + (item.basePrice * duration), 0)
+    const totalDiscount = items.reduce((sum, item) => sum + ((item.basePrice - item.finalPrice) * duration), 0)
+    const installationTotal = items.reduce((sum, item) => sum + item.installationPrice, 0)
+    const tax = 0 // ي��كن إضافة نسبة ضريبة هنا
+    const total = subtotal - totalDiscount + installationTotal + tax
 
-    return { items, subtotal, totalDiscount, tax, total }
+    return { items, subtotal, totalDiscount, installationTotal, tax, total }
   }
 
   const quoteDetails = calculateQuoteDetails()
@@ -104,6 +143,14 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
     setLoading(true)
 
     try {
+      // إنشاء باقة مخصصة بالمدة المحددة
+      const customPackage: PackageDuration = {
+        value: duration,
+        unit: duration === 1 ? 'month' : 'months',
+        label: `${duration} ${duration === 1 ? 'شهر' : 'أشهر'}`,
+        discount: selectedPackage.discount
+      }
+
       const quote = newPricingService.generateQuote(
         customerInfo,
         selectedBillboardsData.map(billboard => ({
@@ -118,14 +165,14 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
           level: billboard.level,
           priceCategory: billboard.priceCategory
         })),
-        selectedPackage
+        customPackage
       )
 
       setGeneratedQuote(quote)
       setError('')
     } catch (error) {
       setError('حدث خطأ في إنشاء الفاتورة')
-      console.error('خطأ في إنشاء الفاتورة:', error)
+      console.error('خطأ في ��نشاء الفاتورة:', error)
     } finally {
       setLoading(false)
     }
@@ -148,6 +195,9 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
     setSelectedPackage(packages[0] || null)
     setGeneratedQuote(null)
     setError('')
+    setStartDate(new Date().toISOString().split('T')[0])
+    setDuration(1)
+    setIncludeInstallation(false)
   }
 
   return (
@@ -300,45 +350,128 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
                 </h2>
 
                 <div className="space-y-4">
-                  {/* ملخص اللوحات */}
+                  {/* خيارات الفترة والتركيب */}
+                  <div className="bg-amber-50 p-4 rounded-lg border-2 border-amber-200 mb-4">
+                    <h3 className="font-bold text-amber-900 mb-3 flex items-center gap-2">
+                      <Calendar className="w-5 h-5" />
+                      تفاصيل المدة والتركيب
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-sm font-bold text-gray-700 mb-1">تا��يخ البداية</label>
+                        <Input
+                          type="date"
+                          value={startDate}
+                          onChange={(e) => setStartDate(e.target.value)}
+                          className="w-full"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-bold text-gray-700 mb-1">المدة (شهر)</label>
+                        <Input
+                          type="number"
+                          min="1"
+                          max="24"
+                          value={duration}
+                          onChange={(e) => setDuration(parseInt(e.target.value) || 1)}
+                          className="w-full"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-bold text-gray-700 mb-1">تاريخ النهاية</label>
+                        <Input
+                          type="date"
+                          value={endDate}
+                          readOnly
+                          className="w-full bg-gray-100"
+                        />
+                      </div>
+                    </div>
+                    <div className="mt-3">
+                      <label className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={includeInstallation}
+                          onChange={(e) => setIncludeInstallation(e.target.checked)}
+                          className="w-4 h-4 text-blue-600"
+                        />
+                        <span className="text-sm font-semibold">تضمين أسعار التركيب</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* ملخص اللوحات المحسن */}
                   <div className="bg-blue-50 p-4 rounded-lg">
-                    <h3 className="font-bold text-blue-900 mb-2">اللوحات المختارة</h3>
-                    <div className="grid gap-2 max-h-60 overflow-y-auto">
-                      {quoteDetails.items.map(({ billboard, zone, basePrice, finalPrice, discount, total }, index) => (
-                        <div key={billboard.id} className="bg-white p-3 rounded border">
-                          <div className="flex justify-between items-start mb-2">
+                    <h3 className="font-bold text-blue-900 mb-2">اللوحات المختارة ({selectedBillboards.size})</h3>
+                    <div className="grid gap-3 max-h-60 overflow-y-auto">
+                      {quoteDetails.items.map(({ billboard, zone, priceList, basePrice, finalPrice, installationPrice, discount, monthlyTotal, total }, index) => (
+                        <div key={billboard.id} className="bg-white p-4 rounded-lg border shadow-sm">
+                          <div className="flex justify-between items-start mb-3">
                             <div className="flex-1">
-                              <h4 className="font-bold text-sm">{billboard.name}</h4>
-                              <p className="text-xs text-gray-600">{billboard.location}</p>
-                              <div className="flex gap-2 mt-1">
-                                <Badge variant="outline" className="text-xs">{billboard.size}</Badge>
-                                <Badge variant="outline" className="text-xs">{zone}</Badge>
-                                {discount > 0 && (
-                                  <Badge className="bg-green-100 text-green-800 text-xs">
-                                    خصم {discount}%
+                              <h4 className="font-bold text-sm mb-1">{billboard.name}</h4>
+                              <p className="text-xs text-gray-600 mb-2">{billboard.location}</p>
+
+                              {/* معلومات اللوحة التفصيلية */}
+                              <div className="grid grid-cols-2 gap-2 text-xs">
+                                <div className="flex items-center gap-1">
+                                  <span className="font-semibold">المقاس:</span>
+                                  <Badge variant="outline" className="text-xs">{billboard.size}</Badge>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <MapPin className="w-3 h-3" />
+                                  <span className="font-semibold">المنطقة:</span>
+                                  <Badge variant="outline" className="text-xs">{zone}</Badge>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <span className="font-semibold">التصنيف:</span>
+                                  <Badge className={`text-xs ${priceList === 'A' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}`}>
+                                    قائمة {priceList}
                                   </Badge>
-                                )}
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <span className="font-semibold">البلدية:</span>
+                                  <span className="text-gray-700">{billboard.municipality}</span>
+                                </div>
                               </div>
                             </div>
-                            <div className="text-right">
-                              {discount > 0 ? (
-                                <>
-                                  <p className="text-xs text-gray-500 line-through">
-                                    {basePrice.toLocaleString()} {pricing.currency}
-                                  </p>
+
+                            <div className="text-right min-w-[120px]">
+                              {/* الأسعار */}
+                              <div className="space-y-1">
+                                {discount > 0 ? (
+                                  <>
+                                    <p className="text-xs text-gray-500 line-through">
+                                      {basePrice.toLocaleString()} {pricing.currency}/شهر
+                                    </p>
+                                    <p className="text-sm font-bold text-green-700">
+                                      {finalPrice.toLocaleString()} {pricing.currency}/شهر
+                                    </p>
+                                    <Badge className="bg-green-100 text-green-800 text-xs">
+                                      خصم {discount}%
+                                    </Badge>
+                                  </>
+                                ) : (
                                   <p className="text-sm font-bold text-green-700">
-                                    {finalPrice.toLocaleString()} {pricing.currency}
+                                    {finalPrice.toLocaleString()} {pricing.currency}/شهر
                                   </p>
-                                </>
-                              ) : (
-                                <p className="text-sm font-bold text-green-700">
-                                  {basePrice.toLocaleString()} {pricing.currency}
-                                </p>
-                              )}
-                              <p className="text-xs text-gray-500">شهرياً</p>
-                              <p className="text-sm font-bold text-blue-700">
-                                الإجمالي: {total.toLocaleString()} {pricing.currency}
-                              </p>
+                                )}
+
+                                {includeInstallation && installationPrice > 0 && (
+                                  <div className="flex items-center gap-1 text-xs text-orange-600">
+                                    <Wrench className="w-3 h-3" />
+                                    <span>تركيب: {installationPrice.toLocaleString()} {pricing.currency}</span>
+                                  </div>
+                                )}
+
+                                <div className="border-t pt-1 mt-2">
+                                  <p className="text-sm font-bold text-blue-700">
+                                    الإجمالي: {total.toLocaleString()} {pricing.currency}
+                                  </p>
+                                  <p className="text-xs text-gray-500">
+                                    لمدة {duration} {duration === 1 ? 'شهر' : 'أشهر'}
+                                  </p>
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -346,38 +479,74 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
                     </div>
                   </div>
 
-                  {/* الملخص المالي */}
+                  {/* الملخص المالي المحسن */}
                   <div className="bg-green-50 p-4 rounded-lg border-2 border-green-200">
                     <h3 className="font-bold text-green-900 mb-3 flex items-center gap-2">
                       <DollarSign className="w-5 h-5" />
                       الملخص المالي
                     </h3>
-                    
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span>عدد اللوحات:</span>
-                        <span className="font-bold">{selectedBillboards.size} لوحة</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>مدة الإعلان:</span>
-                        <span className="font-bold">{selectedPackage?.value} {selectedPackage?.value === 1 ? 'شهر' : 'أشهر'}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>المجموع الفرعي:</span>
-                        <span className="font-bold">{quoteDetails.subtotal.toLocaleString()} {pricing.currency}</span>
-                      </div>
-                      {quoteDetails.tax > 0 && (
-                        <div className="flex justify-between">
-                          <span>الضريبة:</span>
-                          <span className="font-bold">{quoteDetails.tax.toLocaleString()} {pricing.currency}</span>
+
+                    <div className="space-y-3">
+                      {/* معلومات أساسية */}
+                      <div className="bg-white p-3 rounded-lg">
+                        <div className="grid grid-cols-2 gap-3 text-sm">
+                          <div className="flex justify-between">
+                            <span>عدد اللوحات:</span>
+                            <span className="font-bold">{selectedBillboards.size} لوحة</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>مدة الإعلان:</span>
+                            <span className="font-bold">{duration} {duration === 1 ? 'شهر' : 'أشهر'}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>تاريخ البداية:</span>
+                            <span className="font-bold">{new Date(startDate).toLocaleDateString('ar-SA')}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>تاريخ النهاية:</span>
+                            <span className="font-bold">{new Date(endDate).toLocaleDateString('ar-SA')}</span>
+                          </div>
                         </div>
-                      )}
-                      <div className="border-t border-green-300 pt-2">
-                        <div className="flex justify-between text-lg">
-                          <span className="font-bold">الإجمالي النهائي:</span>
-                          <span className="font-black text-green-700">
-                            {quoteDetails.total.toLocaleString()} {pricing.currency}
-                          </span>
+                      </div>
+
+                      {/* التفاصيل المالية */}
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span>إجمالي الإعلانات:</span>
+                          <span className="font-bold">{(quoteDetails.subtotal - quoteDetails.totalDiscount).toLocaleString()} {pricing.currency}</span>
+                        </div>
+
+                        {quoteDetails.totalDiscount > 0 && (
+                          <div className="flex justify-between text-green-600">
+                            <span>إجمالي الخصومات:</span>
+                            <span className="font-bold">- {quoteDetails.totalDiscount.toLocaleString()} {pricing.currency}</span>
+                          </div>
+                        )}
+
+                        {includeInstallation && quoteDetails.installationTotal > 0 && (
+                          <div className="flex justify-between text-orange-600">
+                            <div className="flex items-center gap-1">
+                              <Wrench className="w-4 h-4" />
+                              <span>إجمالي التركيب:</span>
+                            </div>
+                            <span className="font-bold">{quoteDetails.installationTotal.toLocaleString()} {pricing.currency}</span>
+                          </div>
+                        )}
+
+                        {quoteDetails.tax > 0 && (
+                          <div className="flex justify-between">
+                            <span>الضريبة:</span>
+                            <span className="font-bold">{quoteDetails.tax.toLocaleString()} {pricing.currency}</span>
+                          </div>
+                        )}
+
+                        <div className="border-t border-green-300 pt-2">
+                          <div className="flex justify-between text-lg">
+                            <span className="font-bold">��لإجمالي النهائي:</span>
+                            <span className="font-black text-green-700 text-xl">
+                              {quoteDetails.total.toLocaleString()} {pricing.currency}
+                            </span>
+                          </div>
                         </div>
                       </div>
                     </div>

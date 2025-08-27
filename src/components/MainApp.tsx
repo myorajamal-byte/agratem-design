@@ -17,6 +17,7 @@ import { loadBillboardsFromExcel } from "@/services/billboardService"
 import { clientService } from "@/services/clientService"
 import { Billboard } from "@/types"
 import { useAuth } from "@/contexts/AuthContext"
+import { hybridSystemTest } from "@/utils/hybridSystemTest"
 
 export default function MainApp() {
   const { user } = useAuth()
@@ -151,14 +152,14 @@ export default function MainApp() {
     try {
       const subject = `طلب حجز لوحات إعلانية - ${customerName}`
       const body = `
-السلام عليكم ورحمة الله وبركاته
+السلام ��ليكم ورحمة الله وبركاته
 
 تفاصيل العميل:
 الاسم: ${customerName}
 البريد الإلكتروني: ${customerEmail}
 رقم الهاتف: ${customerPhone || "غير محدد"}
 
-رسالة العميل:
+رس��لة العميل:
 ${emailMessage || "لا توجد رسالة إضافية"}
 
 اللوحات المختارة (${selectedBillboards.size} لوحة):
@@ -688,7 +689,7 @@ ${selectedBillboardsData
                   className="bg-green-600 hover:bg-green-700 text-white px-6"
                 >
                   <Mail className="w-4 h-4 ml-2" />
-                  إرسال ال��ائمة
+                  إرسال ال����ائمة
                 </Button>
               </div>
             </div>
@@ -821,7 +822,7 @@ ${selectedBillboardsData
         <InstallationPricingManagement onClose={() => setShowInstallationPricing(false)} />
       )}
 
-      {/* نافذة فاتورة العرض */}
+      {/* نافذة فاتور�� العرض */}
       {showQuoteDialog && user?.permissions.some(p => p.name === 'admin_access') && (
         <QuoteDialog
           isOpen={showQuoteDialog}
