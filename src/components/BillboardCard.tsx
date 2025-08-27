@@ -1,14 +1,16 @@
-import { MapPin, Eye } from "lucide-react"
+import { MapPin, Eye, DollarSign } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Billboard } from "@/types"
+import { Billboard, BillboardSize } from "@/types"
+import { pricingService } from "@/services/pricingService"
 
 interface BillboardCardProps {
   billboard: Billboard
   isSelected: boolean
   onToggleSelection: (billboardId: string) => void
   onViewImage: (imageUrl: string) => void
+  showPricing?: boolean // عرض الأسعار للأدمن
 }
 
 export default function BillboardCard({ billboard, isSelected, onToggleSelection, onViewImage }: BillboardCardProps) {
