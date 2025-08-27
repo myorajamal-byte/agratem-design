@@ -717,28 +717,47 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
           </Card>
 
           {/* Pricing Table */}
-          <Card className="mb-6 shadow-lg rounded-lg overflow-hidden">
-            <div className="p-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
-              <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                <Calculator className="w-6 h-6 text-blue-600" />
-                أسعار حسب فئة العميل — {selectedDuration?.label}
-                {selectedDuration?.unit === 'day' && (
-                  <Badge className="bg-blue-500 text-white text-xs">حساب يومي</Badge>
-                )}
-              </h3>
-              <div className="text-sm text-gray-700 mt-2 font-medium flex flex-wrap gap-4">
-                <span>
-                  المستوى: <span className="text-blue-600 font-bold">{pricingData.levels.find(l => l.id === pricingData.currentLevel)?.name}</span>
-                </span>
+          <Card className="mb-6 shadow-xl rounded-xl overflow-hidden border-0">
+            <div className="p-6 bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 text-white">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-2xl font-bold flex items-center gap-3">
+                    <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                      <Calculator className="w-6 h-6" />
+                    </div>
+                    أسعار حسب فئة العميل
+                    {selectedDuration?.unit === 'day' && (
+                      <Badge className="bg-yellow-500 text-black text-sm font-bold px-3 py-1">حساب يومي</Badge>
+                    )}
+                  </h3>
+                  <p className="text-blue-100 mt-2 text-sm">
+                    جدول الأسعار التفاعلي مع إمكانية التعديل المباشر
+                  </p>
+                </div>
+                <div className="text-right">
+                  <Badge className="bg-white/20 text-white text-lg px-4 py-2 font-bold">
+                    {selectedDuration?.label}
+                  </Badge>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-4 mt-4 text-sm">
+                <div className="bg-white/10 backdrop-blur-sm px-3 py-2 rounded-full">
+                  <span className="text-blue-100">المستوى:</span>
+                  <span className="text-white font-bold mr-2">{pricingData.levels.find(l => l.id === pricingData.currentLevel)?.name}</span>
+                </div>
                 {selectedMunicipality && (
-                  <span className="text-green-600">
-                    البلدية: <span className="font-bold">{selectedMunicipality.name}</span> (معامل: <span className="font-bold">{selectedMunicipality.multiplier}</span>)
-                  </span>
+                  <div className="bg-white/10 backdrop-blur-sm px-3 py-2 rounded-full">
+                    <span className="text-blue-100">البلدية:</span>
+                    <span className="text-white font-bold mr-2">{selectedMunicipality.name}</span>
+                    <span className="text-blue-200">(معامل: {selectedMunicipality.multiplier})</span>
+                  </div>
                 )}
                 {selectedDuration && selectedDuration.discount > 0 && (
-                  <span className="text-red-600">
-                    خصم: <span className="font-bold">{selectedDuration.discount}%</span>
-                  </span>
+                  <div className="bg-red-500/80 backdrop-blur-sm px-3 py-2 rounded-full">
+                    <span className="text-red-100">خصم:</span>
+                    <span className="text-white font-bold mr-2">{selectedDuration.discount}%</span>
+                  </div>
                 )}
               </div>
             </div>
@@ -970,7 +989,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-1">اللون</label>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">الل��ن</label>
                   <select
                     value={newCategory.color}
                     onChange={(e) => setNewCategory(prev => ({ ...prev, color: e.target.value }))}
