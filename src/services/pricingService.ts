@@ -249,6 +249,7 @@ class PricingService {
       email: string
       phone: string
       company?: string
+      type: CustomerType
     },
     billboards: Array<{
       id: string
@@ -260,42 +261,51 @@ class PricingService {
       status: string
       imageUrl?: string
     }>,
-    duration: number = 1 // المدة بالأشهر
+    packageDuration: PackageDuration
   ): Quote {
     const pricing = this.getPricing()
-    
+
     const items: QuoteItem[] = billboards.map(billboard => {
       const zone = this.determinePricingZone(billboard.municipality, billboard.area)
-      const price = this.getBillboardPrice(billboard.size, zone)
-      
+      const basePrice = this.getBillboardPrice(billboard.size, zone, customerInfo.type)
+      const priceCalc = this.calculatePriceWithDiscount(basePrice, packageDuration)
+
       return {
         billboardId: billboard.id,
         name: billboard.name,
         location: billboard.location,
         size: billboard.size,
         zone,
-        price,
-        duration,
-        total: price * duration
+        basePrice,
+        finalPrice: priceCalc.finalPrice,
+        duration: packageDuration.value,
+        discount: priceCalc.discount,
+        total: priceCalc.finalPrice * packageDuration.value,
+        imageUrl: billboard.imageUrl
       }
     })
 
-    const subtotal = this.calculateQuoteTotal(items)
+    const subtotal = items.reduce((sum, item) => sum + (item.basePrice * item.duration), 0)
+    const totalDiscount = items.reduce((sum, item) => sum + ((item.basePrice - item.finalPrice) * item.duration), 0)
     const taxRate = 0.0 // يمكن تعديلها حسب الحاجة
-    const tax = subtotal * taxRate
-    const total = subtotal + tax
+    const tax = (subtotal - totalDiscount) * taxRate
+    const total = subtotal - totalDiscount + tax
 
     return {
       id: `Q-${Date.now()}`,
       customerInfo,
+      packageInfo: {
+        duration: packageDuration.value,
+        label: packageDuration.label,
+        discount: packageDuration.discount
+      },
       items,
       subtotal,
+      totalDiscount,
       tax,
       taxRate,
       total,
       currency: pricing.currency,
-      unit: pricing.unit,
-      duration,
       createdAt: new Date().toISOString(),
       validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // صالح لـ 30 يوم
     }
@@ -548,7 +558,7 @@ class PricingService {
             ` : ''}
           </div>
           <div class="info-group">
-            <h3>تفاصيل العرض</h3>
+            <h3>تف��صيل العرض</h3>
             <div class="info-item">
               <span class="info-label">عدد اللوحات:</span>
               ${quote.items.length} لوحة
@@ -614,8 +624,8 @@ class PricingService {
           <h3>الشروط والأحكام</h3>
           <ul>
             <li>هذا العرض صالح لمدة 30 يوماً من تاريخ الإصدار</li>
-            <li>الأسعار المذكورة شاملة جميع الخدمات</li>
-            <li>يتم الدفع مقدماً قبل بدء الح��لة الإعلانية</li>
+            <li>الأسعار المذكورة شاملة جم��ع الخدمات</li>
+            <li>يتم الدفع مقدماً قبل بدء الحملة الإعلانية</li>
             <li>في حالة إلغاء الحجز، يتم استرداد 50% من المبلغ المدفوع</li>
             <li>الشركة غير مسؤولة عن أي أضرار طبيعية قد تلحق باللوحة</li>
             <li>يحق للشركة تغيير موقع اللوحة في حالات الضرورة القصوى</li>
@@ -652,7 +662,7 @@ class PricingService {
     const printWindow = window.open('', '_blank')
     
     if (!printWindow) {
-      alert('يرجى السماح بف��ح النوافذ المنبثقة لطباعة الفاتورة')
+      alert('يرجى السماح بفتح النوافذ المنبثقة لطباعة الفاتورة')
       return
     }
 
