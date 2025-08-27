@@ -66,7 +66,15 @@ export interface ContractFilter {
 }
 
 // أنواع البي��نات الخاصة بالأسعار والفواتير
-export type BillboardSize = '5x13' | '4x12' | '4x10' | '3x8' | '3x6' | '3x4'
+export type BillboardSize = string // جعلها مرنة لإضافة مقاسات جديدة
+
+// إدارة المقاسات
+export interface SizeManagement {
+  sizes: BillboardSize[]
+  addSize: (size: BillboardSize) => boolean
+  removeSize: (size: BillboardSize) => boolean
+  validateSize: (size: string) => boolean
+}
 
 export type CustomerType = 'marketers' | 'individuals' | 'companies'
 
