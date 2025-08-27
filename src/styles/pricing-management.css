@@ -104,25 +104,39 @@
 
 /* Cell Editing Styles */
 .editing-cell {
-  background-color: #f0f9ff !important;
-  border: 2px solid #3b82f6 !important;
-  border-radius: 4px;
+  background: linear-gradient(135deg, #f0f9ff, #e0f2fe) !important;
+  border: 3px solid #3b82f6 !important;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  animation: editingPulse 2s infinite;
+}
+
+@keyframes editingPulse {
+  0%, 100% { box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
+  50% { box-shadow: 0 6px 16px rgba(59, 130, 246, 0.5); }
 }
 
 .changed-cell {
-  background-color: #fef3c7 !important;
+  background: linear-gradient(135deg, #fef3c7, #fde68a) !important;
   position: relative;
+  border: 2px solid #f59e0b !important;
 }
 
 .changed-cell::after {
   content: '';
   position: absolute;
-  top: 2px;
-  right: 2px;
-  width: 6px;
-  height: 6px;
-  background-color: #f59e0b;
+  top: 4px;
+  right: 4px;
+  width: 8px;
+  height: 8px;
+  background: radial-gradient(circle, #f59e0b, #d97706);
   border-radius: 50%;
+  animation: changePulse 1.5s infinite;
+}
+
+@keyframes changePulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.2); opacity: 0.8; }
 }
 
 /* Hover Effects */
