@@ -7,13 +7,15 @@ import {
   Trash2,
   Edit3,
   X,
-  Calculator
+  Calculator,
+  Settings
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
 import { pricingService } from '@/services/pricingService'
 import { PriceList, BillboardSize, CustomerType } from '@/types'
+import DynamicPricingManagement from './DynamicPricingManagement'
 
 interface PricingManagementProps {
   onClose: () => void
@@ -28,6 +30,7 @@ const PricingManagement: React.FC<PricingManagementProps> = ({ onClose }) => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [showDynamicPricing, setShowDynamicPricing] = useState(false)
 
   const sizes: BillboardSize[] = ['5x13', '4x12', '4x10', '3x8', '3x6', '3x4']
   const customerTypes = pricingService.getCustomerTypes()
@@ -228,6 +231,14 @@ const PricingManagement: React.FC<PricingManagementProps> = ({ onClose }) => {
             >
               <Plus className="w-5 h-5 mr-2" />
               إضافة منطقة جديدة
+            </Button>
+            <Button
+              onClick={() => setShowDynamicPricing(true)}
+              variant="outline"
+              className="border-purple-500 text-purple-600 hover:bg-purple-50"
+            >
+              <Settings className="w-5 h-5 mr-2" />
+              النظام الديناميكي
             </Button>
           </div>
 
@@ -458,6 +469,16 @@ const PricingManagement: React.FC<PricingManagementProps> = ({ onClose }) => {
               </div>
             </Card>
           </div>
+        )}
+
+        {/* نافذة النظام الديناميكي */}
+        {showDynamicPricing && (
+          <DynamicPricingManagement
+            onClose={() => {
+              setShowDynamicPricing(false)
+              loadPricing() // إعادة تحميل الأسعار في حالة تغيير النظام
+            }}
+          />
         )}
       </div>
     </div>

@@ -13,4 +13,9 @@ export default defineConfig({
     },
   },
   assetsInclude: ['**/*.xlsx'],
+  server: {
+    host: '0.0.0.0',
+    port: 12001,
+    strictPort: true,
+  },
 });
