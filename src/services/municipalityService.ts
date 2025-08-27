@@ -268,7 +268,7 @@ class MunicipalityService {
       ['البلدية', 'المعامل', 'المنطقة', 'المدينة'],
       ...municipalities.map(m => [
         m.name,
-        m.multiplier,
+        m.multiplier.toString(),
         m.region || '',
         m.city || ''
       ])
