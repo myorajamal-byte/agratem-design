@@ -5,7 +5,6 @@ import {
   RotateCcw,
   Plus,
   Trash2,
-  Edit3,
   X,
   Settings
 } from 'lucide-react'
@@ -14,7 +13,7 @@ import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { newPricingService } from '@/services/newPricingService'
-import { PriceList, BillboardSize, PriceListType, PackageDuration } from '@/types'
+import { PriceList, BillboardSize, PriceListType } from '@/types'
 
 interface ModernPricingManagementProps {
   onClose: () => void
@@ -33,7 +32,6 @@ const ModernPricingManagement: React.FC<ModernPricingManagementProps> = ({ onClo
 
   const packages = newPricingService.getPackages()
   const priceListTypes = newPricingService.getPriceListTypes()
-  const customerTypes = newPricingService.getCustomerTypes()
 
   useEffect(() => {
     loadPricing()
@@ -47,25 +45,22 @@ const ModernPricingManagement: React.FC<ModernPricingManagementProps> = ({ onClo
   const updateABPrice = (zone: string, priceList: PriceListType, duration: number, size: BillboardSize, newPrice: number) => {
     if (!pricing) return
 
-    const updatedPricing = {
-      ...pricing,
-      zones: {
-        ...pricing.zones,
-        [zone]: {
-          ...pricing.zones[zone],
-          abPrices: {
-            ...pricing.zones[zone].abPrices,
-            [priceList]: {
-              ...pricing.zones[zone].abPrices[priceList],
-              [duration.toString()]: {
-                ...pricing.zones[zone].abPrices[priceList][duration.toString() as keyof typeof pricing.zones[zone].abPrices[priceList]],
-                [size]: newPrice
-              }
-            }
-          }
-        }
-      }
+    // نسخ الكائن بطريقة مبسطة
+    const updatedPricing = JSON.parse(JSON.stringify(pricing))
+    
+    if (!updatedPricing.zones[zone].abPrices) {
+      updatedPricing.zones[zone].abPrices = { A: {}, B: {} }
     }
+    
+    if (!updatedPricing.zones[zone].abPrices[priceList]) {
+      updatedPricing.zones[zone].abPrices[priceList] = {}
+    }
+    
+    if (!updatedPricing.zones[zone].abPrices[priceList][duration.toString()]) {
+      updatedPricing.zones[zone].abPrices[priceList][duration.toString()] = {}
+    }
+    
+    updatedPricing.zones[zone].abPrices[priceList][duration.toString()][size] = newPrice
 
     setPricing(updatedPricing)
   }
@@ -73,22 +68,18 @@ const ModernPricingManagement: React.FC<ModernPricingManagementProps> = ({ onClo
   const updateCustomerPrice = (zone: string, customerType: string, size: BillboardSize, newPrice: number) => {
     if (!pricing) return
 
-    const updatedPricing = {
-      ...pricing,
-      zones: {
-        ...pricing.zones,
-        [zone]: {
-          ...pricing.zones[zone],
-          prices: {
-            ...pricing.zones[zone].prices,
-            [customerType]: {
-              ...pricing.zones[zone].prices[customerType as keyof typeof pricing.zones[zone].prices],
-              [size]: newPrice
-            }
-          }
-        }
-      }
+    // نسخ الكائن بطريقة مبسطة
+    const updatedPricing = JSON.parse(JSON.stringify(pricing))
+    
+    if (!updatedPricing.zones[zone].prices) {
+      updatedPricing.zones[zone].prices = { marketers: {}, individuals: {}, companies: {} }
     }
+    
+    if (!updatedPricing.zones[zone].prices[customerType]) {
+      updatedPricing.zones[zone].prices[customerType] = {}
+    }
+    
+    updatedPricing.zones[zone].prices[customerType][size] = newPrice
 
     setPricing(updatedPricing)
   }
@@ -156,6 +147,18 @@ const ModernPricingManagement: React.FC<ModernPricingManagementProps> = ({ onClo
         setTimeout(() => setError(''), 5000)
       }
     }
+  }
+
+  const getPrice = (obj: any, path: string[], defaultValue: number = 0): number => {
+    let current = obj
+    for (const key of path) {
+      if (current && typeof current === 'object' && key in current) {
+        current = current[key]
+      } else {
+        return defaultValue
+      }
+    }
+    return typeof current === 'number' ? current : defaultValue
   }
 
   if (!pricing) {
@@ -232,7 +235,7 @@ const ModernPricingManagement: React.FC<ModernPricingManagementProps> = ({ onClo
               className="border-yellow-500 text-yellow-600 hover:bg-yellow-50 px-4"
             >
               <Plus className="w-4 h-4 mr-2" />
-              إضافة مقاس جديد
+              إض��فة مقاس جديد
             </Button>
           </div>
 
@@ -304,56 +307,51 @@ const ModernPricingManagement: React.FC<ModernPricingManagementProps> = ({ onClo
                     </tr>
                   </thead>
                   <tbody>
-                    {newPricingService.sizes.map((size, index) => {
-                      const durationKey = activeDuration.toString() as keyof typeof zone.abPrices.A
-                      const abPrices = zone.abPrices?.[activePriceList]?.[durationKey]
-                      
-                      return (
-                        <tr key={size} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                          <td className="p-4 font-bold text-gray-900 bg-yellow-50">
-                            {size}
-                          </td>
-                          <td className="p-2 text-center">
-                            <Input
-                              type="number"
-                              value={zone.prices?.marketers?.[size] || 0}
-                              onChange={(e) => updateCustomerPrice(zoneName, 'marketers', size, parseInt(e.target.value) || 0)}
-                              className="text-center font-bold text-green-700 border-green-300 w-24 mx-auto"
-                              min="0"
-                            />
-                          </td>
-                          <td className="p-2 text-center">
-                            <Input
-                              type="number"
-                              value={zone.prices?.individuals?.[size] || 0}
-                              onChange={(e) => updateCustomerPrice(zoneName, 'individuals', size, parseInt(e.target.value) || 0)}
-                              className="text-center font-bold text-blue-700 border-blue-300 w-24 mx-auto"
-                              min="0"
-                            />
-                          </td>
-                          <td className="p-2 text-center">
-                            <Input
-                              type="number"
-                              value={zone.prices?.companies?.[size] || 0}
-                              onChange={(e) => updateCustomerPrice(zoneName, 'companies', size, parseInt(e.target.value) || 0)}
-                              className="text-center font-bold text-purple-700 border-purple-300 w-24 mx-auto"
-                              min="0"
-                            />
-                          </td>
-                          <td className="p-4 text-center">
-                            <Button
-                              onClick={() => removeSize(size)}
-                              variant="outline"
-                              size="sm"
-                              className="text-red-600 border-red-300 hover:bg-red-50"
-                              disabled={newPricingService.sizes.length <= 1}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </td>
-                        </tr>
-                      )
-                    })}
+                    {newPricingService.sizes.map((size, index) => (
+                      <tr key={size} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                        <td className="p-4 font-bold text-gray-900 bg-yellow-50">
+                          {size}
+                        </td>
+                        <td className="p-2 text-center">
+                          <Input
+                            type="number"
+                            value={getPrice(zone, ['prices', 'marketers', size])}
+                            onChange={(e) => updateCustomerPrice(zoneName, 'marketers', size, parseInt(e.target.value) || 0)}
+                            className="text-center font-bold text-green-700 border-green-300 w-24 mx-auto"
+                            min="0"
+                          />
+                        </td>
+                        <td className="p-2 text-center">
+                          <Input
+                            type="number"
+                            value={getPrice(zone, ['prices', 'individuals', size])}
+                            onChange={(e) => updateCustomerPrice(zoneName, 'individuals', size, parseInt(e.target.value) || 0)}
+                            className="text-center font-bold text-blue-700 border-blue-300 w-24 mx-auto"
+                            min="0"
+                          />
+                        </td>
+                        <td className="p-2 text-center">
+                          <Input
+                            type="number"
+                            value={getPrice(zone, ['prices', 'companies', size])}
+                            onChange={(e) => updateCustomerPrice(zoneName, 'companies', size, parseInt(e.target.value) || 0)}
+                            className="text-center font-bold text-purple-700 border-purple-300 w-24 mx-auto"
+                            min="0"
+                          />
+                        </td>
+                        <td className="p-4 text-center">
+                          <Button
+                            onClick={() => removeSize(size)}
+                            variant="outline"
+                            size="sm"
+                            className="text-red-600 border-red-300 hover:bg-red-50"
+                            disabled={newPricingService.sizes.length <= 1}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
@@ -365,8 +363,7 @@ const ModernPricingManagement: React.FC<ModernPricingManagementProps> = ({ onClo
                 </h4>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                   {newPricingService.sizes.map((size) => {
-                    const durationKey = activeDuration.toString() as keyof typeof zone.abPrices.A
-                    const price = zone.abPrices?.[activePriceList]?.[durationKey]?.[size] || 0
+                    const price = getPrice(zone, ['abPrices', activePriceList, activeDuration.toString(), size])
                     
                     return (
                       <div key={size} className="text-center">
