@@ -10,7 +10,7 @@ import InteractiveMap from "@/components/InteractiveMap"
 import EmailDialog from "@/components/EmailDialog"
 import Footer from "@/components/Footer"
 import SystemSettings from "@/components/SystemSettings"
-import ABPricingManagement from "@/components/ABPricingManagement"
+import ModernPricingManagement from "@/components/ModernPricingManagement"
 import QuoteDialog from "@/components/QuoteDialog"
 import { loadBillboardsFromExcel } from "@/services/billboardService"
 import { clientService } from "@/services/clientService"
@@ -50,7 +50,7 @@ export default function MainApp() {
         setLoading(true)
         const data = await loadBillboardsFromExcel()
 
-        // تطبيق فلترة الزبون المخصص إذا كان المستخدم لديه هذه الصلاحية
+        // تطبيق فلترة الزبون المخصص إذا ك��ن المستخدم لديه هذه الصلاحية
         let filteredData = data
         if (user?.permissions.some(p => p.name === 'view_specific_client') && user.assignedClient) {
           filteredData = clientService.filterBillboardsByClient(data, user.assignedClient)
@@ -87,7 +87,7 @@ export default function MainApp() {
       )
     }
 
-    // ف��ترة برقم العقد
+    // فلترة برقم العقد
     if (contractFilter) {
       filtered = clientService.filterBillboardsByContract(filtered, contractFilter)
     }
@@ -199,7 +199,7 @@ ${selectedBillboardsData
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>المساحات الإعلانية المتاحة - الفارس ��لذهبي</title>
+        <title>المساحات الإعلانية المتاحة - الفارس الذهبي</title>
         <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
         <style>
           @page {
