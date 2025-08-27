@@ -385,7 +385,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
           showNotification('success', `تم استيراد ${municipalities.length} بلدية بنجاح`)
         }
       } catch (error) {
-        showNotification('error', 'خطأ في قراءة ملف Excel')
+        showNotification('error', 'خ��أ في قراءة ملف Excel')
       }
     }
     reader.readAsArrayBuffer(file)
@@ -416,7 +416,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
 
   // Reset all changes
   const resetAllChanges = () => {
-    if (window.confirm('هل أنت متأكد من إلغاء جميع ��لتغييرات غير المحفوظة؟')) {
+    if (window.confirm('هل أنت متأكد من إلغاء جميع التغييرات غير المحفوظة؟')) {
       initializePricingData()
       setUnsavedChanges({ hasChanges: false, changedCells: new Set() })
       showNotification('success', 'تم إلغاء جميع التغييرات')
@@ -691,7 +691,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
             <div className="p-6 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
               <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
                 <Calculator className="w-7 h-7 text-blue-600" />
-                أسعار الإجم��لي حسب فئة العميل — {selectedDuration?.label}
+                أسعار الإجمالي حسب فئة العميل — {selectedDuration?.label}
               </h3>
               <p className="text-base text-gray-700 mt-2 font-medium">
                 المستوى الحالي: <span className="text-blue-600 font-bold">{pricingData.levels.find(l => l.id === pricingData.currentLevel)?.name}</span>
@@ -783,22 +783,24 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                               </div>
                             ) : (
                               <div
-                                className="cursor-pointer hover:bg-blue-50 p-3 rounded-lg transition-all duration-200 price-cell"
+                                className="cursor-pointer price-cell group"
                                 onClick={() => startEdit(size, category.id)}
                                 title={calculation}
                               >
-                                <div className="flex flex-col items-center justify-center gap-1">
-                                  <div className="flex items-center gap-1">
-                                    <span className="font-bold text-gray-800 text-lg">
-                                      {formatPrice(basePrice)}
-                                    </span>
-                                    <Edit3 className="w-3 h-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                  </div>
-                                  {finalPrice !== basePrice && (
-                                    <div className="text-sm text-green-600 font-semibold mt-1 px-2 py-1 bg-green-100 rounded">
-                                      النهائي: {formatPrice(finalPrice)}
+                                <div className="price-display">
+                                  <div className="flex flex-col items-center justify-center gap-2">
+                                    <div className="flex items-center gap-2">
+                                      <span className="font-bold text-gray-800 text-xl tracking-wide">
+                                        {formatPrice(basePrice)}
+                                      </span>
+                                      <Edit3 className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-all duration-300" />
                                     </div>
-                                  )}
+                                    {finalPrice !== basePrice && (
+                                      <div className="text-sm text-green-700 font-bold mt-1 px-3 py-1 bg-gradient-to-r from-green-100 to-green-200 rounded-full border border-green-300">
+                                        النهائي: {formatPrice(finalPrice)}
+                                      </div>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
                             )}
