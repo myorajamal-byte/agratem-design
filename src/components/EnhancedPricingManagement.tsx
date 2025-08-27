@@ -767,84 +767,85 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                 <tbody>
                   {filteredSizes.map((size, index) => (
                     <tr key={size} className={`hover:bg-blue-25 transition-colors ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`}>
-                      <td className="border border-gray-200 p-4 font-bold text-gray-900 bg-yellow-50 text-lg text-center">
+                      <td className="border border-gray-200 p-2 font-bold text-gray-900 bg-yellow-50 text-sm text-center">
                         {size}
                       </td>
                       {pricingData.categories.map(category => {
                         const cellKey = `${size}-${category.id}`
                         const basePrice = pricingData.prices[size]?.[category.id] || 0
-                        const { price: finalPrice, calculation } = calculateFinalPrice(basePrice)
+                        const { price: finalPrice, calculation, dailyRate } = calculateFinalPrice(basePrice)
                         const isEditing = editingCell === cellKey
                         const hasChanges = unsavedChanges.changedCells.has(cellKey)
 
                         return (
                           <td
                             key={category.id}
-                            className={`border border-gray-200 p-3 text-center relative ${
+                            className={`border border-gray-200 p-1 text-center relative ${
                               hasChanges ? 'bg-yellow-100 changed-cell' : ''
                             }`}
                           >
                             {isEditing ? (
-                              <div className="flex items-center gap-2 justify-center editing-cell p-2 rounded">
+                              <div className="flex items-center gap-1 justify-center editing-cell p-1 rounded text-xs">
                                 <Input
                                   type="number"
                                   value={editingValue}
                                   onChange={(e) => setEditingValue(e.target.value)}
-                                  className="w-24 text-center font-bold text-lg"
+                                  className="w-16 text-center font-bold text-sm"
                                   min="0"
                                   autoFocus
                                 />
                                 <Button
                                   onClick={saveEdit}
                                   size="sm"
-                                  className="bg-green-600 hover:bg-green-700 text-white p-1"
+                                  className="bg-green-600 hover:bg-green-700 text-white p-0.5"
                                 >
-                                  <Check className="w-4 h-4" />
+                                  <Check className="w-3 h-3" />
                                 </Button>
                                 <Button
                                   onClick={cancelEdit}
                                   size="sm"
                                   variant="outline"
-                                  className="text-red-600 border-red-300 p-1"
+                                  className="text-red-600 border-red-300 p-0.5"
                                 >
-                                  <X className="w-4 h-4" />
+                                  <X className="w-3 h-3" />
                                 </Button>
                               </div>
                             ) : (
                               <div
-                                className="cursor-pointer price-cell group"
+                                className="cursor-pointer price-cell group py-1 px-2"
                                 onClick={() => startEdit(size, category.id)}
                                 title={calculation}
                               >
-                                <div className="price-display">
-                                  <div className="flex flex-col items-center justify-center gap-2">
-                                    <div className="flex items-center gap-2">
-                                      <span className="font-bold text-gray-800 text-xl tracking-wide">
-                                        {formatPrice(basePrice)}
-                                      </span>
-                                      <Edit3 className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-all duration-300" />
-                                    </div>
-                                    {finalPrice !== basePrice && (
-                                      <div className="text-sm text-green-700 font-bold mt-1 px-3 py-1 bg-gradient-to-r from-green-100 to-green-200 rounded-full border border-green-300">
-                                        النهائي: {formatPrice(finalPrice)}
-                                      </div>
-                                    )}
+                                <div className="flex flex-col items-center justify-center gap-1">
+                                  <div className="flex items-center gap-1">
+                                    <span className="font-bold text-gray-800 text-sm leading-tight">
+                                      {formatPrice(basePrice)}
+                                    </span>
+                                    <Edit3 className="w-3 h-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-all duration-200" />
                                   </div>
+                                  <div className="text-xs text-blue-600 font-semibold">
+                                    يومي: {formatPrice(dailyRate)}
+                                  </div>
+                                  {finalPrice !== basePrice && (
+                                    <div className="text-xs text-green-600 font-semibold px-1 py-0.5 bg-green-100 rounded">
+                                      النهائي: {formatPrice(finalPrice)}
+                                    </div>
+                                  )}
                                 </div>
                               </div>
                             )}
                           </td>
                         )
                       })}
-                      <td className="border border-gray-200 p-3 text-center">
+                      <td className="border border-gray-200 p-1 text-center">
                         <Button
                           onClick={() => deleteSize(size)}
                           variant="outline"
                           size="sm"
-                          className="text-red-600 border-red-300 hover:bg-red-50 transition-colors"
+                          className="text-red-600 border-red-300 hover:bg-red-50 transition-colors p-1"
                           disabled={pricingData.sizes.length <= 1}
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-3 h-3" />
                         </Button>
                       </td>
                     </tr>
