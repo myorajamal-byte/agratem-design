@@ -307,14 +307,14 @@ class PricingService {
    * تحديد المنطقة السعرية بناءً على البلدية أو المنطقة
    */
   determinePricingZone(municipality: string, area: string): string {
-    const municipalityLower = municipality.toLowerCase()
-    const areaLower = area.toLowerCase()
-    
+    const municipalityLower = municipality.toLowerCase().trim()
+    const areaLower = area.toLowerCase().trim()
+
     // تحديد المنطقة بناءً على البلدية
-    if (municipalityLower.includes('مصراتة')) return 'مصرا��ة'
-    if (municipalityLower.includes('أبو سليم') || areaLower.includes('أبو س��يم')) return 'أبو سليم'
+    if (municipalityLower.includes('مصراتة')) return 'مصراتة'
+    if (municipalityLower.includes('أبو سليم') || areaLower.includes('أبو سليم')) return 'أبو سليم'
     if (municipalityLower.includes('طرابلس') && areaLower.includes('الشط')) return 'شركات'
-    
+
     // إعادة المنطقة الافتراضية
     return 'مصراتة'
   }
