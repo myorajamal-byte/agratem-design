@@ -23,6 +23,7 @@ import { Badge } from '@/components/ui/badge'
 import { Billboard, BillboardSize, Quote, CustomerType, PackageDuration } from '@/types'
 import { newPricingService } from '@/services/newPricingService'
 import { installationPricingService } from '@/services/installationPricingService'
+import { formatGregorianDate } from '@/lib/dateUtils'
 
 interface QuoteDialogProps {
   isOpen: boolean
@@ -136,7 +137,7 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
 
   const generateQuote = () => {
     if (!customerInfo.name || !customerInfo.email || !customerInfo.phone || !selectedPackage) {
-      setError('يرجى ملء جميع الحقول المطلوبة واختيار باقة')
+      setError('يرجى ملء ��ميع الحقول المطلوبة واختيار باقة')
       return
     }
 
@@ -429,7 +430,7 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
                                   </Badge>
                                 </div>
                                 <div className="flex items-center gap-1">
-                                  <span className="font-semibold">البلدية:</span>
+                                  <span className="font-semibold">ا��بلدية:</span>
                                   <span className="text-gray-700">{billboard.municipality}</span>
                                 </div>
                               </div>
@@ -499,12 +500,12 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
                             <span className="font-bold">{duration} {duration === 1 ? 'شهر' : 'أشهر'}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span>تاريخ البداية:</span>
-                            <span className="font-bold">{new Date(startDate).toLocaleDateString('ar-SA')}</span>
+                            <span>تاريخ ��لبداية:</span>
+                            <span className="font-bold">{formatGregorianDate(startDate)}</span>
                           </div>
                           <div className="flex justify-between">
                             <span>تاريخ النهاية:</span>
-                            <span className="font-bold">{new Date(endDate).toLocaleDateString('ar-SA')}</span>
+                            <span className="font-bold">{formatGregorianDate(endDate)}</span>
                           </div>
                         </div>
                       </div>
@@ -584,8 +585,8 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
                   <div>
                     <h3 className="font-bold text-green-800 mb-2">تفاصيل العرض</h3>
                     <div className="space-y-1 text-sm">
-                      <p><strong>تاريخ الإنشاء:</strong> {new Date(generatedQuote.createdAt).toLocaleDateString('ar-SA')}</p>
-                      <p><strong>صالح حتى:</strong> {new Date(generatedQuote.validUntil).toLocaleDateString('ar-SA')}</p>
+                      <p><strong>تاريخ الإنشاء:</strong> {formatGregorianDate(generatedQuote.createdAt)}</p>
+                      <p><strong>صالح حتى:</strong> {formatGregorianDate(generatedQuote.validUntil)}</p>
                       <p><strong>عدد اللوحات:</strong> {generatedQuote.items.length} لوحة</p>
                       <p><strong>الإجمالي:</strong> 
                         <span className="text-lg font-bold text-green-700 mr-2">
