@@ -116,7 +116,7 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
       setGeneratedQuote(quote)
       setError('')
     } catch (error) {
-      setError('حدث خطأ في إنشاء الف��تورة')
+      setError('حدث خطأ في إنشاء الفاتورة')
       console.error('خطأ في إنشاء الفاتورة:', error)
     } finally {
       setLoading(false)
@@ -134,9 +134,10 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
       name: '',
       email: '',
       phone: '',
-      company: ''
+      company: '',
+      type: 'individuals'
     })
-    setDuration(1)
+    setSelectedPackage(packages[0] || null)
     setGeneratedQuote(null)
     setError('')
   }
