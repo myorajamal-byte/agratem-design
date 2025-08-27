@@ -70,7 +70,7 @@ const DEFAULT_PRICING: PriceList = {
       }
     },
     'شركات': {
-      name: 'ش��كات',
+      name: 'شركات',
       prices: {
         marketers: {
           '5x13': 3800,
@@ -133,7 +133,7 @@ const DEFAULT_PRICING: PriceList = {
 }
 
 /**
- * خدمة إدارة الأسعار وا��فواتير
+ * خدمة إدارة الأسعار والفواتير
  * تشمل إدارة أسعار اللوحات وإنشاء فواتير العروض
  */
 class PricingService {
@@ -144,7 +144,7 @@ class PricingService {
   }
 
   /**
-   * تهيئة الأسعار الافتراضية
+   * تهيئة الأسعار ��لافتراضية
    */
   private initializeDefaultPricing() {
     if (!localStorage.getItem(this.PRICING_STORAGE_KEY)) {
@@ -226,7 +226,7 @@ class PricingService {
     
     // تحديد المنطقة بناءً على البلدية
     if (municipalityLower.includes('مصراتة')) return 'مصراتة'
-    if (municipalityLower.includes('أبو سليم') || areaLower.includes('أبو سليم')) return 'أبو سليم'
+    if (municipalityLower.includes('أبو سليم') || areaLower.includes('أبو س��يم')) return 'أبو سليم'
     if (municipalityLower.includes('طرابلس') && areaLower.includes('الشط')) return 'شركات'
     
     // إعادة المنطقة الافتراضية
@@ -336,6 +336,17 @@ class PricingService {
    */
   getAvailableSizes(): BillboardSize[] {
     return ['5x13', '4x12', '4x10', '3x8', '3x6', '3x4']
+  }
+
+  /**
+   * الحصول على قائمة فئات الزبائن المتاحة
+   */
+  getCustomerTypes(): Array<{value: CustomerType, label: string}> {
+    return [
+      { value: 'marketers', label: 'المسوقين' },
+      { value: 'individuals', label: 'العاديين' },
+      { value: 'companies', label: 'الشركات' }
+    ]
   }
 
   /**
@@ -687,7 +698,7 @@ class PricingService {
             <li>يتم الدفع مقدماً قبل بدء الحملة الإعلانية</li>
             <li>في حالة إلغاء الحجز، يتم استرداد 50% من المبلغ المدفوع</li>
             <li>الشركة غير مسؤولة عن أي أضرار طبيعية قد تلحق باللوحة</li>
-            <li>يحق للشركة تغيير موقع اللوحة في ح��لات الضرورة القصوى</li>
+            <li>يحق للشركة تغيير موقع اللوحة في حالات الضرورة القصوى</li>
           </ul>
         </div>
 
