@@ -159,7 +159,7 @@ export default function MainApp() {
 رسالة العميل:
 ${emailMessage || "لا توجد رسالة إضافية"}
 
-اللوحات المختارة (${selectedBillboards.size} لوحة):
+اللوحات المخ��ارة (${selectedBillboards.size} لوحة):
 ${selectedBillboardsData
   .map(
     (billboard, index) =>
@@ -500,7 +500,10 @@ ${selectedBillboardsData
         <img src="/logo-symbol.svg" alt="رمز الشركة" className="w-[600px] h-[600px] object-contain" />
       </div>
 
-      <Header onOpenSettings={() => setShowSettings(true)} />
+      <Header
+        onOpenSettings={() => setShowSettings(true)}
+        onOpenPricing={() => setShowPricingManagement(true)}
+      />
 
 
       {!showAllBillboards && (
@@ -732,7 +735,7 @@ ${selectedBillboardsData
 
       <div className="fixed bottom-6 right-6 z-50">
         <a
-          href="https://wa.me/218913228908?text=مرحباً، أريد الاستفسار عن اللوحات الإعلانية المتاحة"
+          href="https://wa.me/218913228908?text=مرحباً، أريد الاستفسار عن اللوحات الإعلانية الم��احة"
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center justify-center w-16 h-16 bg-green-500 hover:bg-green-600 text-white rounded-full shadow-2xl hover:shadow-3xl transform hover:scale-110 transition-all duration-300 animate-pulse hover:animate-none"
