@@ -116,6 +116,7 @@ export default function MainApp() {
 
   const municipalities = Array.from(new Set(billboards.map((b) => b.municipality)))
   const sizes = Array.from(new Set(billboards.map((b) => b.size)))
+  const contracts = clientService.getUniqueContracts(billboards)
 
   const totalPages = Math.ceil(filteredBillboards.length / itemsPerPage)
   const paginatedBillboards = showAllBillboards
@@ -638,7 +639,7 @@ ${selectedBillboardsData
                   className="bg-green-600 hover:bg-green-700 text-white px-6"
                 >
                   <Mail className="w-4 h-4 ml-2" />
-                  إ��سال القائمة
+                  إرسال القائمة
                 </Button>
               </div>
             </div>
@@ -706,7 +707,7 @@ ${selectedBillboardsData
               disabled={currentPage === totalPages}
               className="border-yellow-400 text-yellow-600 hover:bg-yellow-50"
             >
-              التال��
+              التالي
             </Button>
           </div>
         )}
