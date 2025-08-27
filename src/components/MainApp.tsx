@@ -41,6 +41,7 @@ export default function MainApp() {
   const [emailMessage, setEmailMessage] = useState("")
   const [showSettings, setShowSettings] = useState(false)
   const [showPricingManagement, setShowPricingManagement] = useState(false)
+  const [showInstallationPricing, setShowInstallationPricing] = useState(false)
   const [showQuoteDialog, setShowQuoteDialog] = useState(false)
 
   const itemsPerPage = 12
@@ -51,7 +52,7 @@ export default function MainApp() {
         setLoading(true)
         const data = await loadBillboardsFromExcel()
 
-        // ��طبيق فلترة الزبون المخصص إذا ك��ن المستخدم لديه هذه الصلاحية
+        // تطبيق فلترة الزبون المخصص إذا ك��ن المستخدم لديه هذه الصلاحية
         let filteredData = data
         if (user?.permissions.some(p => p.name === 'view_specific_client') && user.assignedClient) {
           filteredData = clientService.filterBillboardsByClient(data, user.assignedClient)
@@ -154,7 +155,7 @@ export default function MainApp() {
 
 تفاصيل العميل:
 الاسم: ${customerName}
-البريد ا��إلكتروني: ${customerEmail}
+البريد الإلكتروني: ${customerEmail}
 رقم الهاتف: ${customerPhone || "غير محدد"}
 
 رسالة العميل:
@@ -378,7 +379,7 @@ ${selectedBillboardsData
       <body>
         <div class="header">
           <div class="logo-section">
-            <img src="${window.location.origin}/logo-symbol.svg" alt="��عار الشركة" class="logo" onerror="this.style.display='none'" />
+            <img src="${window.location.origin}/logo-symbol.svg" alt="شعار الشركة" class="logo" onerror="this.style.display='none'" />
             <div class="company-info">
               <div class="company-name-ar">الفــــارس الذهبــــي</div>
               <div class="company-name-en">AL FARES AL DAHABI</div>
