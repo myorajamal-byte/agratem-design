@@ -320,12 +320,13 @@ class NewPricingService implements SizeManagement {
     const items: QuoteItem[] = billboards.map(billboard => {
       const zone = this.determinePricingZone(billboard.municipality, billboard.area)
       const priceList = this.determinePriceListFromBillboard(billboard)
-      // Get the duration-adjusted price (already includes duration discount)
+      // Get the duration-adjusted price (already includes duration discount) with municipality multiplier
       const finalPrice = this.getBillboardPriceABWithDuration(
         billboard.size,
         zone,
         priceList,
-        packageDuration.value
+        packageDuration.value,
+        billboard.municipality
       )
 
       // Calculate what the base price would have been without duration discount
@@ -708,7 +709,7 @@ class NewPricingService implements SizeManagement {
           <div class="quote-title">عرض سعر إعلاني محدث</div>
           <div style="color: #666; font-size: 14px;">رقم العرض: ${quote.id}</div>
           <div style="color: #666; font-size: 12px;">تاريخ العرض: ${formatGregorianDate(quote.createdAt)}</div>
-          <div style="color: #666; font-size: 12px;">صالح حتى: ${formatGregorianDate(quote.validUntil)}</div>
+          <div style="color: #666; font-size: 12px;">صالح حت��: ${formatGregorianDate(quote.validUntil)}</div>
         </div>
 
         <div class="customer-section">
@@ -878,7 +879,7 @@ class NewPricingService implements SizeManagement {
   }
 
   /**
-   * ترجمة فئة الزبون إلى العربية
+   * ترجمة فئة ��لزبون إلى العربية
    */
   getCustomerTypeLabel(type: string): string {
     const labels: Record<string, string> = {
