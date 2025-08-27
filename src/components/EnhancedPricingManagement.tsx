@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react'
-import '../styles/pricing-management.css'
 import {
   Settings,
   Save,
@@ -82,7 +81,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
     ],
     municipalities: [
       { id: '1', name: 'مصراتة', multiplier: 1.0 },
-      { id: '2', name: 'زليتن', multiplier: 0.8 },
+      { id: '2', name: 'زل��تن', multiplier: 0.8 },
       { id: '3', name: 'بنغازي', multiplier: 1.2 },
       { id: '4', name: 'طرابلس', multiplier: 1.0 }
     ],
