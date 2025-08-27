@@ -1,4 +1,5 @@
 import { PriceList, PricingZone, BillboardSize, QuoteItem, Quote, CustomerType, PackageDuration, PriceListType } from '@/types'
+import { formatGregorianDate } from '@/lib/dateUtils'
 
 // الباقات الزمنية المتاحة
 const DEFAULT_PACKAGES: PackageDuration[] = [
@@ -691,8 +692,8 @@ class PricingService {
         <div class="quote-header">
           <div class="quote-title">عرض سعر إعلاني</div>
           <div style="color: #666; font-size: 14px;">رقم العرض: ${quote.id}</div>
-          <div style="color: #666; font-size: 12px;">تاريخ العرض: ${new Date(quote.createdAt).toLocaleDateString('ar-SA')}</div>
-          <div style="color: #666; font-size: 12px;">صالح حتى: ${new Date(quote.validUntil).toLocaleDateString('ar-SA')}</div>
+          <div style="color: #666; font-size: 12px;">تاريخ العرض: ${formatGregorianDate(quote.createdAt)}</div>
+          <div style="color: #666; font-size: 12px;">صالح حتى: ${formatGregorianDate(quote.validUntil)}</div>
         </div>
 
         <div class="customer-section">
@@ -834,7 +835,7 @@ class PricingService {
             <li>الأسعار المذكورة شاملة جميع الخدمات</li>
             <li>يتم الدفع مقدماً قبل بدء الحملة الإعلانية</li>
             <li>في حالة إلغاء الحجز، يتم استرداد 50% من المبلغ المدفوع</li>
-            <li>الشركة غير مسؤولة عن أي أضرار طبيعية قد تلحق باللوحة</li>
+            <li>الشركة غ��ر مسؤولة عن أي أضرار طبيعية قد تلحق باللوحة</li>
             <li>يحق للشركة تغيير موقع اللوحة في حالات الضرورة القصوى</li>
           </ul>
         </div>
