@@ -70,7 +70,7 @@ const DEFAULT_PRICING: PriceList = {
       }
     },
     'شركات': {
-      name: 'شركات',
+      name: 'ش��كات',
       prices: {
         marketers: {
           '5x13': 3800,
@@ -133,7 +133,7 @@ const DEFAULT_PRICING: PriceList = {
 }
 
 /**
- * خدمة إدارة الأسعار والفواتير
+ * خدمة إدارة الأسعار وا��فواتير
  * تشمل إدارة أسعار اللوحات وإنشاء فواتير العروض
  */
 class PricingService {
@@ -241,7 +241,7 @@ class PricingService {
   }
 
   /**
-   * ��رجمة فئة الزبون إلى العربية
+   * ترجمة فئة الزبون إلى العربية
    */
   getCustomerTypeLabel(type: CustomerType): string {
     const labels = {
@@ -651,8 +651,16 @@ class PricingService {
 
         <div class="totals-section">
           <div class="total-row">
-            <span>المجموع الفرعي:</span>
+            <span>المجموع قبل الخصم:</span>
             <span class="price">${quote.subtotal.toLocaleString()} ${quote.currency}</span>
+          </div>
+          <div class="total-row" style="color: #e53e3e;">
+            <span>إجمالي الخصم (${quote.packageInfo.discount}%):</span>
+            <span class="price">- ${quote.totalDiscount.toLocaleString()} ${quote.currency}</span>
+          </div>
+          <div class="total-row">
+            <span>المجموع بعد الخصم:</span>
+            <span class="price">${(quote.subtotal - quote.totalDiscount).toLocaleString()} ${quote.currency}</span>
           </div>
           ${quote.tax > 0 ? `
           <div class="total-row">
@@ -664,6 +672,11 @@ class PricingService {
             <span>الإجمالي النهائي:</span>
             <span>${quote.total.toLocaleString()} ${quote.currency}</span>
           </div>
+          <div style="margin-top: 15px; padding: 10px; background: #e6fffa; border: 1px solid #38b2ac; border-radius: 6px;">
+            <div style="text-align: center; color: #38b2ac; font-weight: bold; font-size: 12px;">
+              🎉 لقد وفرت ${quote.totalDiscount.toLocaleString()} ${quote.currency} مع باقة "${quote.packageInfo.label}"!
+            </div>
+          </div>
         </div>
 
         <div class="terms">
@@ -674,7 +687,7 @@ class PricingService {
             <li>يتم الدفع مقدماً قبل بدء الحملة الإعلانية</li>
             <li>في حالة إلغاء الحجز، يتم استرداد 50% من المبلغ المدفوع</li>
             <li>الشركة غير مسؤولة عن أي أضرار طبيعية قد تلحق باللوحة</li>
-            <li>يحق للشركة تغيير موقع اللوحة في حالات الضرورة القصوى</li>
+            <li>يحق للشركة تغيير موقع اللوحة في ح��لات الضرورة القصوى</li>
           </ul>
         </div>
 
