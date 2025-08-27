@@ -11,6 +11,7 @@ import EmailDialog from "@/components/EmailDialog"
 import Footer from "@/components/Footer"
 import SystemSettings from "@/components/SystemSettings"
 import EnhancedPricingManagement from "@/components/EnhancedPricingManagement"
+import InstallationPricingManagement from "@/components/InstallationPricingManagement"
 import QuoteDialog from "@/components/QuoteDialog"
 import { loadBillboardsFromExcel } from "@/services/billboardService"
 import { clientService } from "@/services/clientService"
@@ -50,7 +51,7 @@ export default function MainApp() {
         setLoading(true)
         const data = await loadBillboardsFromExcel()
 
-        // تطبيق فلترة الزبون المخصص إذا ك��ن المستخدم لديه هذه الصلاحية
+        // ��طبيق فلترة الزبون المخصص إذا ك��ن المستخدم لديه هذه الصلاحية
         let filteredData = data
         if (user?.permissions.some(p => p.name === 'view_specific_client') && user.assignedClient) {
           filteredData = clientService.filterBillboardsByClient(data, user.assignedClient)
@@ -153,7 +154,7 @@ export default function MainApp() {
 
 تفاصيل العميل:
 الاسم: ${customerName}
-البريد الإلكتروني: ${customerEmail}
+البريد ا��إلكتروني: ${customerEmail}
 رقم الهاتف: ${customerPhone || "غير محدد"}
 
 رسالة العميل:
@@ -377,7 +378,7 @@ ${selectedBillboardsData
       <body>
         <div class="header">
           <div class="logo-section">
-            <img src="${window.location.origin}/logo-symbol.svg" alt="شعار الشركة" class="logo" onerror="this.style.display='none'" />
+            <img src="${window.location.origin}/logo-symbol.svg" alt="��عار الشركة" class="logo" onerror="this.style.display='none'" />
             <div class="company-info">
               <div class="company-name-ar">الفــــارس الذهبــــي</div>
               <div class="company-name-en">AL FARES AL DAHABI</div>
