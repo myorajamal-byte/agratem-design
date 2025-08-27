@@ -11,7 +11,10 @@ import {
   Printer,
   X,
   Save,
-  Send
+  Send,
+  MapPin,
+  Wrench,
+  Clock
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -19,6 +22,7 @@ import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Billboard, BillboardSize, Quote, CustomerType, PackageDuration } from '@/types'
 import { newPricingService } from '@/services/newPricingService'
+import { installationPricingService } from '@/services/installationPricingService'
 
 interface QuoteDialogProps {
   isOpen: boolean
@@ -97,7 +101,7 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
 
   const generateQuote = () => {
     if (!customerInfo.name || !customerInfo.email || !customerInfo.phone || !selectedPackage) {
-      setError('يرجى ملء جميع الحقول المطلوبة واختيار باقة')
+      setError('يرج�� ملء جميع الحقول المطلوبة واختيار باقة')
       return
     }
 
@@ -413,7 +417,7 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
                   </div>
                   
                   <div>
-                    <h3 className="font-bold text-green-800 mb-2">تفاصيل العرض</h3>
+                    <h3 className="font-bold text-green-800 mb-2">ت��اصيل العرض</h3>
                     <div className="space-y-1 text-sm">
                       <p><strong>تاريخ الإنشاء:</strong> {new Date(generatedQuote.createdAt).toLocaleDateString('ar-SA')}</p>
                       <p><strong>صالح حتى:</strong> {new Date(generatedQuote.validUntil).toLocaleDateString('ar-SA')}</p>
