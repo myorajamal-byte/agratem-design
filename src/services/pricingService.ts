@@ -542,7 +542,7 @@ class PricingService {
 
         <div class="quote-header">
           <div class="quote-title">عرض سعر إعلاني</div>
-          <div style="color: #666; font-size: 14px;">رقم ��لعرض: ${quote.id}</div>
+          <div style="color: #666; font-size: 14px;">رقم العرض: ${quote.id}</div>
           <div style="color: #666; font-size: 12px;">تاريخ العرض: ${new Date(quote.createdAt).toLocaleDateString('ar-SA')}</div>
           <div style="color: #666; font-size: 12px;">صالح حتى: ${new Date(quote.validUntil).toLocaleDateString('ar-SA')}</div>
         </div>
@@ -576,8 +576,16 @@ class PricingService {
               ${quote.items.length} لوحة
             </div>
             <div class="info-item">
-              <span class="info-label">مدة الإعلان:</span>
-              ${quote.duration} ${quote.unit}
+              <span class="info-label">نوع الزبون:</span>
+              ${this.getCustomerTypeLabel(quote.customerInfo.type)}
+            </div>
+            <div class="info-item">
+              <span class="info-label">الباقة:</span>
+              ${quote.packageInfo.label}
+            </div>
+            <div class="info-item">
+              <span class="info-label">الخصم:</span>
+              ${quote.packageInfo.discount}%
             </div>
             <div class="info-item">
               <span class="info-label">العملة:</span>
@@ -637,7 +645,7 @@ class PricingService {
           <ul>
             <li>هذا العرض صالح لمدة 30 يوماً من تاريخ الإصدار</li>
             <li>الأسعار المذكورة شاملة جميع الخدمات</li>
-            <li>يتم الدفع ��قدماً قبل بدء الحملة الإعلانية</li>
+            <li>يتم الدفع مقدماً قبل بدء الحملة الإعلانية</li>
             <li>في حالة إلغاء الحجز، يتم استرداد 50% من المبلغ المدفوع</li>
             <li>الشركة غير مسؤولة عن أي أضرار طبيعية قد تلحق باللوحة</li>
             <li>يحق للشركة تغيير موقع اللوحة في حالات الضرورة القصوى</li>
