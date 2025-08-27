@@ -143,6 +143,14 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
     setLoading(true)
 
     try {
+      // إنشاء باقة مخصصة بالمدة المحددة
+      const customPackage: PackageDuration = {
+        value: duration,
+        unit: duration === 1 ? 'month' : 'months',
+        label: `${duration} ${duration === 1 ? 'شهر' : 'أشهر'}`,
+        discount: selectedPackage.discount
+      }
+
       const quote = newPricingService.generateQuote(
         customerInfo,
         selectedBillboardsData.map(billboard => ({
@@ -157,7 +165,7 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
           level: billboard.level,
           priceCategory: billboard.priceCategory
         })),
-        selectedPackage
+        customPackage
       )
 
       setGeneratedQuote(quote)
