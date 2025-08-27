@@ -377,7 +377,7 @@ ${selectedBillboardsData
             <div class="company-info">
               <div class="company-name-ar">الفــــارس الذهبــــي</div>
               <div class="company-name-en">AL FARES AL DAHABI</div>
-              <div class="company-name-ar" style="font-size: 10px;">للدعــــــاية والإعـــلان</div>
+              <div class="company-name-ar" style="font-size: 10px;">ل��دعــــــاية والإعـــلان</div>
             </div>
           </div>
           <div class="title-section">
@@ -545,7 +545,7 @@ ${selectedBillboardsData
                   🎯 عرض مخصص: تظهر لك فقط العقود الخاصة بالزبون "{user.assignedClient}"
                 </p>
                 <p className="text-xs text-blue-600 mt-1">
-                  إجمالي اللوحات المعروضة: {filteredBillboards.length} لوحة
+                  إجمالي اللوح��ت المعروضة: {filteredBillboards.length} لوحة
                 </p>
               </div>
             </div>
@@ -555,6 +555,8 @@ ${selectedBillboardsData
         <SearchFilters
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
+          contractFilter={contractFilter}
+          setContractFilter={setContractFilter}
           selectedMunicipalities={selectedMunicipalities}
           setSelectedMunicipalities={setSelectedMunicipalities}
           selectedSizes={selectedSizes}
@@ -567,6 +569,7 @@ ${selectedBillboardsData
           setShowMap={setShowMap}
           municipalities={municipalities}
           sizes={sizes}
+          contracts={contracts}
           onPrint={handlePrint}
         />
 
