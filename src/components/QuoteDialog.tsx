@@ -49,6 +49,11 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
   const [error, setError] = useState('')
   const [generatedQuote, setGeneratedQuote] = useState<Quote | null>(null)
 
+  // متغيرات التواريخ الجديدة
+  const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0])
+  const [duration, setDuration] = useState(1) // بالأشهر
+  const [includeInstallation, setIncludeInstallation] = useState(false)
+
   const packages = newPricingService.getPackages()
   const customerTypes = newPricingService.getCustomerTypes()
 
@@ -101,7 +106,7 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
 
   const generateQuote = () => {
     if (!customerInfo.name || !customerInfo.email || !customerInfo.phone || !selectedPackage) {
-      setError('يرج�� ملء جميع الحقول المطلوبة واختيار باقة')
+      setError('يرجى ملء جميع الحقول المطلوبة واختيار باقة')
       return
     }
 
@@ -378,7 +383,7 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
                       )}
                       <div className="border-t border-green-300 pt-2">
                         <div className="flex justify-between text-lg">
-                          <span className="font-bold">الإجمالي النهائي:</span>
+                          <span className="font-bold">الإجمالي النه��ئي:</span>
                           <span className="font-black text-green-700">
                             {quoteDetails.total.toLocaleString()} {pricing.currency}
                           </span>
@@ -417,7 +422,7 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
                   </div>
                   
                   <div>
-                    <h3 className="font-bold text-green-800 mb-2">ت��اصيل العرض</h3>
+                    <h3 className="font-bold text-green-800 mb-2">تفاصيل العرض</h3>
                     <div className="space-y-1 text-sm">
                       <p><strong>تاريخ الإنشاء:</strong> {new Date(generatedQuote.createdAt).toLocaleDateString('ar-SA')}</p>
                       <p><strong>صالح حتى:</strong> {new Date(generatedQuote.validUntil).toLocaleDateString('ar-SA')}</p>
