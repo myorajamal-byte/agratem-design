@@ -176,6 +176,104 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
     }
   }
 
+  const calculateMultipleBillboards = () => {
+    try {
+      const calculations: Array<{billboard: Billboard, calculation: PricingCalculation}> = []
+      let totalPrice = 0
+      let totalDailyRate = 0
+
+      selectedBillboardsData.forEach(billboard => {
+        const size = billboard.size as BillboardSize
+        const municipality = billboard.municipality || selectedMunicipality
+        const level = billboard.level === 'A' ? 'A' : 'B' as PriceListType
+
+        const pricing = newPricingService.getPricing()
+        const zone = pricing.zones[municipality]
+
+        if (!zone) {
+          console.warn(`المنطقة "${municipality}" غير موجودة`)
+          return
+        }
+
+        let basePrice = 0
+        let breakdown: string[] = []
+
+        // Get base price based on customer type and level
+        if (pricingMode === 'daily') {
+          const customerPricing = zone.prices[selectedCustomerType]
+          basePrice = customerPricing?.[size] || 0
+          breakdown.push(`السعر الأساسي اليومي (${selectedCustomerType}): ${basePrice.toLocaleString()} د.ل`)
+        } else {
+          const abPricing = zone.abPrices?.[level]
+          basePrice = abPricing?.[size] || 0
+          breakdown.push(`سعر الباقة الأساسي (مستوى ${level}): ${basePrice.toLocaleString()} د.ل`)
+        }
+
+        let finalPrice = basePrice
+        let dailyRate = basePrice
+
+        if (pricingMode === 'daily') {
+          finalPrice = basePrice * daysCount
+          breakdown.push(`إجمالي ${daysCount} أيام: ${finalPrice.toLocaleString()} د.ل`)
+          dailyRate = basePrice
+        } else {
+          const daysInPackage = packageDuration === 30 ? 30 : packageDuration === 90 ? 90 : packageDuration === 180 ? 180 : 365
+          dailyRate = finalPrice / daysInPackage
+          breakdown.push(`السعر اليومي للباقة: ${dailyRate.toFixed(2)} د.ل`)
+        }
+
+        // Add installation cost if needed
+        let totalInstallationCost = 0
+        if (needInstallation && installationCost > 0) {
+          totalInstallationCost = installationCost
+          finalPrice += totalInstallationCost
+          breakdown.push(`تكلفة التركيب: ${totalInstallationCost.toLocaleString()} د.ل`)
+        }
+
+        // Apply customer discount
+        if (selectedCustomerType === 'companies') {
+          const discount = Math.round(finalPrice * 0.05)
+          finalPrice -= discount
+          breakdown.push(`خصم الشركات (5%): -${discount.toLocaleString()} د.ل`)
+        } else if (selectedCustomerType === 'marketers') {
+          const discount = Math.round(finalPrice * 0.15)
+          finalPrice -= discount
+          breakdown.push(`خصم المسوقين (15%): -${discount.toLocaleString()} د.ل`)
+        }
+
+        breakdown.push(`السعر النهائي: ${finalPrice.toLocaleString()} د.ل`)
+
+        const billboardCalculation: PricingCalculation = {
+          basePrice,
+          municipalityMultiplier: 1.0,
+          durationDiscount: 0,
+          installationCost: totalInstallationCost,
+          finalPrice,
+          dailyRate,
+          breakdown
+        }
+
+        calculations.push({
+          billboard,
+          calculation: billboardCalculation
+        })
+
+        totalPrice += finalPrice
+        totalDailyRate += dailyRate
+      })
+
+      setMultipleCalculations(calculations)
+      setTotalCalculation({
+        totalPrice,
+        totalDailyRate,
+        count: selectedBillboardsData.length
+      })
+
+    } catch (error) {
+      console.error('خطأ في حساب التسعير المتعدد:', error)
+    }
+  }
+
   const formatPrice = (price: number): string => {
     return new Intl.NumberFormat('ar-SA', {
       style: 'decimal',
@@ -186,7 +284,7 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
 
   const generateQuote = () => {
     if (!calculation || !customerInfo.name) {
-      alert('يرجى ملء معل��مات العميل لإنشاء عرض السعر')
+      alert('يرجى ملء معلومات العميل لإنشاء عرض السعر')
       return
     }
 
@@ -249,7 +347,7 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
       <div>التاريخ: ${data.date}</div>
       
       <div class="section">
-        <div class="section-title">معلومات العميل</div>
+        <div class="section-title">��علومات العميل</div>
         <div class="info-row"><span>الاسم:</span><span>${data.customer.name}</span></div>
         ${data.customer.company ? `<div class="info-row"><span>الشركة:</span><span>${data.customer.company}</span></div>` : ''}
         <div class="info-row"><span>الهاتف:</span><span>${data.customer.phone}</span></div>
@@ -652,7 +750,7 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
                         calculation
                       }
                       navigator.clipboard.writeText(JSON.stringify(data, null, 2))
-                      alert('تم نسخ بيانات التسعي��!')
+                      alert('تم نسخ بيانات التسعير!')
                     }}
                     variant="outline"
                     className="w-full"
