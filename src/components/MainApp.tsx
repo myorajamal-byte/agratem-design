@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { Search, MapPin, Star, Award, Users, MessageCircle, Mail, FileText, Settings, DollarSign, Wrench } from "lucide-react"
+import { Search, MapPin, Star, Award, Users, MessageCircle, Mail, FileText, Settings, DollarSign, Wrench, Calculator, BookOpen } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 
@@ -14,6 +14,8 @@ import EnhancedPricingManagement from "@/components/EnhancedPricingManagement"
 import InstallationPricingManagement from "@/components/InstallationPricingManagement"
 import QuoteDialog from "@/components/QuoteDialog"
 import PricingSystemStatus from "@/components/PricingSystemStatus"
+import SimplifiedPricingCalculator from "@/components/SimplifiedPricingCalculator"
+import PricingSystemGuide from "@/components/PricingSystemGuide"
 import BookingMode from "@/components/BookingMode"
 import PricingDurationSelector from "@/components/PricingDurationSelector"
 import { loadBillboardsFromExcel } from "@/services/billboardService"
@@ -48,6 +50,8 @@ export default function MainApp() {
   const [showInstallationPricing, setShowInstallationPricing] = useState(false)
   const [showQuoteDialog, setShowQuoteDialog] = useState(false)
   const [showSystemStatus, setShowSystemStatus] = useState(false)
+  const [showSimplifiedCalculator, setShowSimplifiedCalculator] = useState(false)
+  const [showSystemGuide, setShowSystemGuide] = useState(false)
   const [showBookingMode, setShowBookingMode] = useState(false)
   const [selectedPricingDuration, setSelectedPricingDuration] = useState<PackageDuration | null>(null)
   const [billboardDates, setBillboardDates] = useState<Record<string, string>>({})
@@ -164,7 +168,7 @@ export default function MainApp() {
 تفاصيل العميل:
 الاسم: ${customerName}
 البريد الإلكتروني: ${customerEmail}
-رقم الهاتف: ${customerPhone || "غير محدد"}
+رقم ��لهاتف: ${customerPhone || "غير محدد"}
 
 رس��لة العميل:
 ${emailMessage || "لا توجد رسالة إ��افية"}
@@ -616,6 +620,20 @@ ${selectedBillboardsData
             </h3>
             <div className="flex flex-wrap gap-3">
               <Button
+                onClick={() => setShowSimplifiedCalculator(true)}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold"
+              >
+                <Calculator className="w-4 h-4 mr-2" />
+                حاسبة التسعير المبسطة
+              </Button>
+              <Button
+                onClick={() => setShowSystemGuide(true)}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white"
+              >
+                <BookOpen className="w-4 h-4 mr-2" />
+                دليل استخدام النظام
+              </Button>
+              <Button
                 onClick={() => setShowPricingManagement(true)}
                 className="bg-green-600 hover:bg-green-700 text-white"
               >
@@ -725,11 +743,18 @@ ${selectedBillboardsData
                   </>
                 )}
                 <Button
+                  onClick={() => setShowSimplifiedCalculator(true)}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white px-6"
+                >
+                  <Calculator className="w-4 h-4 ml-2" />
+                  حساب الأسعار
+                </Button>
+                <Button
                   onClick={() => setShowEmailDialog(true)}
                   className="bg-green-600 hover:bg-green-700 text-white px-6"
                 >
                   <Mail className="w-4 h-4 ml-2" />
-                  إرسال ال����ائمة
+                  إرسال القائمة
                 </Button>
               </div>
             </div>
@@ -907,6 +932,22 @@ ${selectedBillboardsData
               [billboardId]: date
             }))
           }}
+        />
+      )}
+
+      {/* الحاسبة المبسطة */}
+      {showSimplifiedCalculator && (
+        <SimplifiedPricingCalculator
+          onClose={() => setShowSimplifiedCalculator(false)}
+          selectedBillboards={selectedBillboards.size > 0 ? Array.from(selectedBillboards) : undefined}
+          allBillboards={billboards}
+        />
+      )}
+
+      {/* دليل النظام */}
+      {showSystemGuide && (
+        <PricingSystemGuide
+          onClose={() => setShowSystemGuide(false)}
         />
       )}
     </div>
