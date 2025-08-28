@@ -48,6 +48,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
     role: 'user' as 'admin' | 'user',
     permissions: [] as Permission[],
     assignedClient: '',
+    pricingCategory: 'individuals' as 'A' | 'B' | 'companies' | 'individuals' | 'marketers',
     password: '',
     isActive: true
   })
@@ -87,6 +88,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
       role: 'user',
       permissions: [],
       assignedClient: '',
+      pricingCategory: 'individuals',
       password: '',
       isActive: true
     })
