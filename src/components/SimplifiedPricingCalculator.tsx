@@ -79,7 +79,7 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
 
       // Set default municipality from first selected billboard
       if (selectedData.length > 0) {
-        setSelectedMunicipality(selectedData[0].municipality || 'مصراتة')
+        setSelectedMunicipality(selectedData[0].municipality || '��صراتة')
       }
     } else {
       setCalculationMode('single')
@@ -181,6 +181,12 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
       const calculations: Array<{billboard: Billboard, calculation: PricingCalculation}> = []
       let totalPrice = 0
       let totalDailyRate = 0
+
+      if (selectedBillboardsData.length === 0) {
+        setMultipleCalculations([])
+        setTotalCalculation({ totalPrice: 0, totalDailyRate: 0, count: 0 })
+        return
+      }
 
       selectedBillboardsData.forEach(billboard => {
         const size = billboard.size as BillboardSize
@@ -478,7 +484,7 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
               </div>
               <div>
                 <h1 className="text-2xl font-bold">
-                  {calculationMode === 'multiple' ? 'حاسبة تسعير اللوحات المختارة' : 'حاسبة التسعير المبسطة'}
+                  {calculationMode === 'multiple' ? 'حاسبة تسعير اللوحا�� المختارة' : 'حاسبة التسعير المبسطة'}
                 </h1>
                 <p className="text-sm opacity-90">
                   {calculationMode === 'multiple'
@@ -662,7 +668,7 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
               <Card className="p-4">
                 <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
                   <MapPin className="w-5 h-5 text-orange-600" />
-                  الموقع ��العميل
+                  الموقع والعميل
                 </h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -750,7 +756,7 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
                         value={installationCost}
                         onChange={(e) => setInstallationCost(parseInt(e.target.value) || 0)}
                         min="0"
-                        placeholder="أدخل تكلفة التركيب"
+                        placeholder="أد��ل تكلفة التركيب"
                       />
                     </div>
                   )}
