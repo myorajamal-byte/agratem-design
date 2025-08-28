@@ -840,6 +840,28 @@ ${selectedBillboardsData
           billboards={billboards}
         />
       )}
+
+      {/* صفحة حالة النظام والاختبار */}
+      {showSystemStatus && user?.permissions.some(p => p.name === 'admin_access') && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-6xl max-h-[95vh] overflow-hidden">
+            <div className="bg-gradient-to-r from-purple-600 to-purple-700 p-4 text-white flex items-center justify-between">
+              <h2 className="text-xl font-bold">حالة النظام والاختبار</h2>
+              <Button
+                onClick={() => setShowSystemStatus(false)}
+                variant="outline"
+                size="sm"
+                className="bg-white/20 border-white/30 text-white hover:bg-white/30"
+              >
+                إغلاق
+              </Button>
+            </div>
+            <div className="overflow-y-auto max-h-[calc(95vh-80px)]">
+              <PricingSystemStatus />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
