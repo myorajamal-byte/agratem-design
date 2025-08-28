@@ -119,6 +119,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
       role: newUser.role,
       permissions: newUser.role === 'admin' ? permissions : newUser.permissions,
       assignedClient: newUser.assignedClient || undefined,
+      pricingCategory: newUser.pricingCategory,
       isActive: newUser.isActive
     }, newUser.password)
 
@@ -140,7 +141,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
     const result = authService.updateUser(editingUser)
 
     if (result.success) {
-      setSuccess('تم تحديث المستخدم بنجاح')
+      setSuccess('تم تحديث المستخد�� بنجاح')
       setEditingUser(null)
       loadData()
     } else {
@@ -348,9 +349,9 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
         {/* نافذة إضافة مستخدم */}
         {showAddUser && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-60">
-            <Card className="w-full max-w-md max-h-[90vh] overflow-y-auto">
-              <div className="p-6">
-                <h3 className="text-xl font-bold mb-4">إضافة مستخدم جديد</h3>
+            <Card className="w-full max-w-md max-h-[90vh] overflow-y-auto bg-white">
+              <div className="p-6 bg-white">
+                <h3 className="text-xl font-bold mb-4 text-gray-900">إضافة مستخدم جديد</h3>
                 
                 <div className="space-y-4">
                   <div>
@@ -395,11 +396,32 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
                     <select
                       value={newUser.role}
                       onChange={(e) => setNewUser(prev => ({ ...prev, role: e.target.value as 'admin' | 'user' }))}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 bg-white"
                     >
                       <option value="user">مستخدم</option>
                       <option value="admin">مدير</option>
                     </select>
+                  </div>
+
+                  {/* اختيار فئة الأسعار */}
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">
+                      فئة الأسعار التي ستظهر للمستخدم
+                    </label>
+                    <select
+                      value={newUser.pricingCategory}
+                      onChange={(e) => setNewUser(prev => ({ ...prev, pricingCategory: e.target.value as 'A' | 'B' | 'companies' | 'individuals' | 'marketers' }))}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 bg-white"
+                    >
+                      <option value="individuals">العاديين (أسعار متوسطة)</option>
+                      <option value="marketers">المسوقين (أسعار مخفضة)</option>
+                      <option value="companies">الشركات (أسعار عالية)</option>
+                      <option value="A">قائمة أسعار A</option>
+                      <option value="B">قائمة أسعار B</option>
+                    </select>
+                    <p className="text-xs text-gray-500 mt-1">
+                      تحدد هذه الفئة الأسعار التي ستظهر للمستخدم عند عرض اللوحات الإعلانية
+                    </p>
                   </div>
 
                   {newUser.role !== 'admin' && (
