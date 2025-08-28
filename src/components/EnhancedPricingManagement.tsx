@@ -120,7 +120,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
   const [newCategory, setNewCategory] = useState({ name: '', description: '', color: 'blue' })
   const [newLevel, setNewLevel] = useState({ name: '', description: '', discount: 0 })
   const [loading, setLoading] = useState(false)
-  const [notification, setNotification] = useState<{ type: 'success' | 'error', message: string } | null>(null)
+  const [notification, setNotification] = useState<{ type: 'success' | 'error' | 'info', message: string } | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [syncStatus, setSyncStatus] = useState<SyncStatus>({ isLoading: false })
   const [showSyncInfo, setShowSyncInfo] = useState(false)
