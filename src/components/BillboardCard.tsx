@@ -2,7 +2,7 @@ import { MapPin, Eye, DollarSign } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Billboard, BillboardSize } from "@/types"
+import { Billboard, BillboardSize, PackageDuration } from "@/types"
 import { pricingService } from "@/services/pricingService"
 import { newPricingService } from "@/services/newPricingService"
 import { installationPricingService } from "@/services/installationPricingService"
@@ -13,9 +13,10 @@ interface BillboardCardProps {
   onToggleSelection: (billboardId: string) => void
   onViewImage: (imageUrl: string) => void
   showPricing?: boolean // عرض الأسعار للأدمن
+  selectedDuration?: PackageDuration | null // المدة المحددة للتسعير
 }
 
-export default function BillboardCard({ billboard, isSelected, onToggleSelection, onViewImage, showPricing = false }: BillboardCardProps) {
+export default function BillboardCard({ billboard, isSelected, onToggleSelection, onViewImage, showPricing = false, selectedDuration = null }: BillboardCardProps) {
   // حساب الأيام المتبقية للانتهاء
   const getDaysRemaining = () => {
     if (!billboard.expiryDate) return null
