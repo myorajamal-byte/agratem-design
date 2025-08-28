@@ -178,7 +178,7 @@ ${selectedBillboardsData
       `${index + 1}. ${billboard.name}
    الموقع: ${billboard.location}
    المنطقة: ${billboard.area}
-   الحالة: ${billboard.status === "متاح" ? "متاحة" : "غير متاح��"}
+   الحالة: ${billboard.status === "متاح" ? "متاحة" : "غير متاحة"}
    
 `,
   )
@@ -407,7 +407,7 @@ ${selectedBillboardsData
               <th style="width: 16%;">صورة اللوحة</th>
               <th style="width: 12%;">رقم اللوحة</th>
               <th style="width: 22%;">موقع اللوحة</th>
-              <th style="width: 14%;">البلدية</th>
+              <th style="width: 14%;">ال��لدية</th>
               <th style="width: 14%;">المنطقة</th>
               <th style="width: 12%;">المقاس</th>
               <th style="width: 10%;">الحالة</th>
@@ -562,7 +562,7 @@ ${selectedBillboardsData
             <div className="flex">
               <div className="ml-3">
                 <p className="text-sm text-blue-700 font-semibold">
-                  🎯 عرض مخصص: ت��هر لك فقط العقود الخاصة بالزبون "{user.assignedClient}"
+                  🎯 عرض مخصص: تظهر لك فقط العقود الخاصة بالزبون "{user.assignedClient}"
                 </p>
                 <p className="text-xs text-blue-600 mt-1">
                   إجمالي اللوحات المعروضة: {filteredBillboards.length} لوحة
@@ -713,7 +713,7 @@ ${selectedBillboardsData
                   size="sm"
                   className="text-red-600 border-red-300 hover:bg-red-50 bg-transparent"
                 >
-                  إلغاء ��لتحديد
+                  إلغاء التحديد
                 </Button>
                 {user?.permissions.some(p => p.name === 'admin_access') && (
                   <>
@@ -916,6 +916,13 @@ ${selectedBillboardsData
               [billboardId]: date
             }))
           }}
+        />
+      )}
+
+      {/* الحاسبة المبسطة */}
+      {showSimplifiedCalculator && (
+        <SimplifiedPricingCalculator
+          onClose={() => setShowSimplifiedCalculator(false)}
         />
       )}
     </div>
