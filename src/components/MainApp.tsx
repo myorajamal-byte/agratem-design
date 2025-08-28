@@ -384,7 +384,7 @@ ${selectedBillboardsData
           <div class="logo-section">
             <img src="${window.location.origin}/logo-symbol.svg" alt="شعار الشركة" class="logo" onerror="this.style.display='none'" />
             <div class="company-info">
-              <div class="company-name-ar">الفــــارس الذهبــــي</div>
+              <div class="company-name-ar">الفــــارس الذ��بــــي</div>
               <div class="company-name-en">AL FARES AL DAHABI</div>
               <div class="company-name-ar" style="font-size: 10px;">للدعــــــاية والإعـــلان</div>
             </div>
@@ -607,6 +607,13 @@ ${selectedBillboardsData
               >
                 <Wrench className="w-4 h-4 mr-2" />
                 أسعار التركيب
+              </Button>
+              <Button
+                onClick={() => setShowSystemStatus(true)}
+                className="bg-purple-600 hover:bg-purple-700 text-white"
+              >
+                <Settings className="w-4 h-4 mr-2" />
+                حالة النظام والاختبار
               </Button>
             </div>
           </div>
