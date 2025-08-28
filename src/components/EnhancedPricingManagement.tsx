@@ -103,7 +103,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
     categories: [
       { id: 'marketers', name: 'مسوقين', description: 'خصم للمسوقين', color: 'blue' },
       { id: 'companies', name: 'شركات', description: 'أسعار الشركات', color: 'green' },
-      { id: 'individuals', name: 'أفراد', description: 'ال��سعار العادية', color: 'purple' }
+      { id: 'individuals', name: 'أفراد', description: 'الأسعار العادية', color: 'purple' }
     ],
     sizes: ['5x13', '4x12', '4x10', '3x8', '3x6', '3x4'],
     currentLevel: 'A',
@@ -122,6 +122,8 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
   const [loading, setLoading] = useState(false)
   const [notification, setNotification] = useState<{ type: 'success' | 'error', message: string } | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
+  const [syncStatus, setSyncStatus] = useState<SyncStatus>({ isLoading: false })
+  const [showSyncInfo, setShowSyncInfo] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Duration options with discounts
@@ -337,7 +339,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
   const addSize = () => {
     const newSize = prompt('أدخل المقاس الجديد (مثال: 6x14):')
     if (!newSize || !newSize.match(/^\d+x\d+$/)) {
-      showNotification('error', 'يرجى إدخال مقاس صحيح بصيغة رقمxرقم')
+      showNotification('error', 'يرجى إدخال مقاس صحيح بصيغة رق��xرقم')
       return
     }
 
@@ -459,7 +461,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
     if (window.confirm('هل أنت متأكد من إلغاء جميع التغييرات غير المحفوظة؟')) {
       initializePricingData()
       setUnsavedChanges({ hasChanges: false, changedCells: new Set() })
-      showNotification('success', 'تم ��لغاء جميع التغييرات')
+      showNotification('success', 'تم إلغاء جميع التغييرات')
     }
   }
 
@@ -1108,7 +1110,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-1">خصم اختياري (%)</label>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">خصم ��ختياري (%)</label>
                   <Input
                     type="number"
                     value={newLevel.discount}
