@@ -51,6 +51,7 @@ export default function MainApp() {
   const [showQuoteDialog, setShowQuoteDialog] = useState(false)
   const [showSystemStatus, setShowSystemStatus] = useState(false)
   const [showSimplifiedCalculator, setShowSimplifiedCalculator] = useState(false)
+  const [showSystemGuide, setShowSystemGuide] = useState(false)
   const [showBookingMode, setShowBookingMode] = useState(false)
   const [selectedPricingDuration, setSelectedPricingDuration] = useState<PackageDuration | null>(null)
   const [billboardDates, setBillboardDates] = useState<Record<string, string>>({})
@@ -179,7 +180,7 @@ ${selectedBillboardsData
       `${index + 1}. ${billboard.name}
    الموقع: ${billboard.location}
    المنطقة: ${billboard.area}
-   الحالة: ${billboard.status === "متاح" ? "متاحة" : "غير متاحة"}
+   الحالة: ${billboard.status === "متا��" ? "متاحة" : "غير متاحة"}
    
 `,
   )
@@ -644,7 +645,7 @@ ${selectedBillboardsData
                 className="bg-purple-600 hover:bg-purple-700 text-white"
               >
                 <Settings className="w-4 h-4 mr-2" />
-                حالة النظام ��الاختبار
+                حالة النظام والاختبار
               </Button>
             </div>
           </div>
@@ -817,7 +818,7 @@ ${selectedBillboardsData
             <div className="w-24 h-24 mx-auto mb-6 bg-yellow-100 rounded-full flex items-center justify-center">
               <Search className="w-12 h-12 text-yellow-500" />
             </div>
-            <p className="text-gray-600 text-xl mb-4 font-bold">لا توجد لوحات تطا���ق معايير البحث</p>
+            <p className="text-gray-600 text-xl mb-4 font-bold">ل�� توجد لوحات تطا���ق معايير البحث</p>
             <p className="text-gray-500 font-semibold">جرب تغيير معايير البحث أو الفلاتر</p>
           </div>
         )}
