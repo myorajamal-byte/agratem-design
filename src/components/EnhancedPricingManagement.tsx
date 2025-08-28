@@ -160,7 +160,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
         showNotification('info', `تم العثور على ${syncCheck.missingZones.length} منطقة جديدة تحتاج مزامنة`)
       }
     } catch (error) {
-      console.error('خطأ ��ي فحص حالة المزامنة:', error)
+      console.error('خطأ في فحص حالة المزامنة:', error)
     }
   }
 
@@ -350,17 +350,18 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
     setEditingValue(pricingData.prices[size]?.[category]?.toString() || '')
   }
 
-  const saveEdit = () => {
+  const saveEdit = async () => {
     if (!editingCell) return
-    
+
     const [size, category] = editingCell.split('-')
     const value = parseInt(editingValue) || 0
-    
+
     if (value < 0) {
       showNotification('error', 'لا يمكن أن يكون السعر أقل من صفر')
       return
     }
 
+    // Update local state
     setPricingData(prev => ({
       ...prev,
       prices: {
@@ -376,6 +377,31 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       hasChanges: true,
       changedCells: new Set([...prev.changedCells, editingCell])
     }))
+
+    // Auto-save the change
+    try {
+      const { newPricingService } = await import('@/services/newPricingService')
+      const currentPricing = newPricingService.getPricing()
+
+      // Update the specific pricing zone (assuming we're working with the current municipality)
+      const currentZone = pricingData.currentMunicipality
+      const zoneName = pricingData.municipalities.find(m => m.id === currentZone)?.name || 'مصراتة'
+
+      if (currentPricing.zones[zoneName]) {
+        // Update the zone's customer type pricing
+        const customerType = category as 'marketers' | 'individuals' | 'companies'
+        if (currentPricing.zones[zoneName].prices[customerType]) {
+          currentPricing.zones[zoneName].prices[customerType][size] = value
+
+          const result = newPricingService.updatePricing(currentPricing)
+          if (result.success) {
+            console.log(`تم حفظ السعر تلقائياً: ${size} - ${category} = ${value}`)
+          }
+        }
+      }
+    } catch (error) {
+      console.warn('لم يتم الحفظ التلقائي:', error)
+    }
 
     setEditingCell(null)
     showNotification('success', 'تم تحديث السعر بنجاح')
@@ -598,7 +624,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
         showNotification('error', 'فشل في حفظ بعض التغييرات')
       }
     } catch (error: any) {
-      showNotification('error', `خطأ في ��لحفظ: ${error.message}`)
+      showNotification('error', `خطأ في الحفظ: ${error.message}`)
     }
 
     setLoading(false)
