@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { Search, MapPin, Star, Award, Users, MessageCircle, Mail, FileText, Settings, DollarSign, Wrench } from "lucide-react"
+import { Search, MapPin, Star, Award, Users, MessageCircle, Mail, FileText, Settings, DollarSign, Wrench, Calculator } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 
@@ -178,7 +178,7 @@ ${selectedBillboardsData
       `${index + 1}. ${billboard.name}
    الموقع: ${billboard.location}
    المنطقة: ${billboard.area}
-   الحالة: ${billboard.status === "متاح" ? "متاحة" : "غير متاحة"}
+   الحالة: ${billboard.status === "متاح" ? "متاحة" : "غير متاح��"}
    
 `,
   )
@@ -562,7 +562,7 @@ ${selectedBillboardsData
             <div className="flex">
               <div className="ml-3">
                 <p className="text-sm text-blue-700 font-semibold">
-                  🎯 عرض مخصص: تظهر لك فقط العقود الخاصة بالزبون "{user.assignedClient}"
+                  🎯 عرض مخصص: ت��هر لك فقط العقود الخاصة بالزبون "{user.assignedClient}"
                 </p>
                 <p className="text-xs text-blue-600 mt-1">
                   إجمالي اللوحات المعروضة: {filteredBillboards.length} لوحة
@@ -713,7 +713,7 @@ ${selectedBillboardsData
                   size="sm"
                   className="text-red-600 border-red-300 hover:bg-red-50 bg-transparent"
                 >
-                  إلغاء التحديد
+                  إلغاء ��لتحديد
                 </Button>
                 {user?.permissions.some(p => p.name === 'admin_access') && (
                   <>
