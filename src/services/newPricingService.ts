@@ -431,10 +431,10 @@ class NewPricingService implements SizeManagement {
 
     // إنشاء منطقة جديدة تلقائياً للبلدية
     console.log(`إنشاء منطقة سعرية جديدة للبلدية: ${municipality}`)
-    const zoneName = municipality.trim()
+    const trimmedZoneName = municipality.trim()
     this.addPricingZoneForMunicipality(municipality)
 
-    return zoneName
+    return trimmedZoneName
   }
 
   /**
@@ -994,7 +994,7 @@ class NewPricingService implements SizeManagement {
             <li>هذا العرض صالح لمدة 30 يوماً من تاريخ الإصدار</li>
             <li>الأسعار تحدد تلقائياً حسب تصنيف اللوحة (A أو B)</li>
             <li>يتم الدفع مقدماً قبل بدء الحملة الإعلانية</li>
-            <li>في حالة إلغاء الحجز، يتم استرداد 50% من المبلغ المدفوع</li>
+            <li>في حالة إلغاء الحجز، يتم استرد��د 50% من المبلغ المدفوع</li>
             <li>الشركة غير مسؤولة ��ن أي أضرار طبيعية قد تلحق باللوحة</li>
             <li>يحق للشركة تغيير موقع اللوحة في حالات الضرورة القصوى</li>
           </ul>
