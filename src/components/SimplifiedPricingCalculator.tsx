@@ -23,7 +23,11 @@ interface SimplifiedPricingCalculatorProps {
   allBillboards?: Billboard[] // جميع اللوحات للمراجعة
 }
 
-const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = ({ onClose }) => {
+const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = ({
+  onClose,
+  selectedBillboards,
+  allBillboards
+}) => {
   // State for pricing inputs
   const [selectedSize, setSelectedSize] = useState<BillboardSize>('5x13')
   const [selectedLevel, setSelectedLevel] = useState<PriceListType>('A')
@@ -267,7 +271,7 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
               </div>
               <div>
                 <h1 className="text-2xl font-bold">حاسبة التسعير المبسطة</h1>
-                <p className="text-sm opacity-90">احسب ��سعار اللوحات الإعلانية بسهولة</p>
+                <p className="text-sm opacity-90">احسب أسعار اللوحا�� الإعلانية بسهولة</p>
               </div>
             </div>
             <Button
