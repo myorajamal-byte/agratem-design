@@ -46,7 +46,7 @@ const createDefaultABPricing = (): DurationPricing => ({
 const DEFAULT_LIBYA_MUNICIPALITIES = [
   'مصراتة', 'طرابلس', 'بنغازي', 'زليتن', 'الخمس', 'سرت',
   'أبو سليم', 'تاجوراء', 'جنزور', 'الزاوية', 'صبراتة',
-  'درنة', 'البيضاء', 'المرج', 'الك��رة', 'سبها',
+  'درنة', 'البيضاء', 'المرج', 'الكفرة', 'سبها',
   'مزدة', 'ترهونة', 'غريان', 'يفرن', 'نالوت'
 ]
 
@@ -259,7 +259,7 @@ class NewPricingService implements SizeManagement {
 
     const basePrice = zoneData.prices[customerType][size]
 
-    // تطبيق معامل البلدية إذا تم توفيره (ا��تراضي: 1)
+    // تطبيق معامل البلدية إذا تم توفيره (افتراضي: 1)
     if (municipality) {
       const multiplier = this.getMunicipalityMultiplier(municipality)
       return Math.round(basePrice * multiplier)
@@ -408,6 +408,8 @@ class NewPricingService implements SizeManagement {
    * المنطقة السعرية هي نفس اسم البلدية
    */
   determinePricingZone(municipality: string, area?: string): string {
+    if (!municipality) return 'مصراتة' // افتراضي
+
     // استخدام اسم البلدية مباشرة كمنطقة سعرية
     const zoneName = municipality.trim()
 
@@ -427,8 +429,11 @@ class NewPricingService implements SizeManagement {
       }
     }
 
-    // إعادة المنطقة الافتراضية إذا لم يوجد تطابق
-    return availableZones[0] || 'مصراتة'
+    // إنشاء منطقة جديدة تلقائياً للبلدية
+    console.log(`إنشاء منطقة سعرية جديدة للبلدية: ${municipality}`)
+    this.addPricingZoneForMunicipality(municipality)
+
+    return municipality
   }
 
   /**
@@ -973,7 +978,7 @@ class NewPricingService implements SizeManagement {
           <ul>
             <li>هذا العرض صالح لمدة 30 يوماً من تاريخ الإصدار</li>
             <li>الأسعار تحدد تلقائياً حسب تصنيف اللوحة (A أو B)</li>
-            <li>��تم الدفع مقدماً قبل بدء الحملة الإعلانية</li>
+            <li>يتم الدفع مقدماً قبل بدء الحملة الإعلانية</li>
             <li>في حالة إلغاء الحجز، يتم استرداد 50% من المبلغ المدفوع</li>
             <li>الشركة غير مسؤولة ��ن أي أضرار طبيعية قد تلحق باللوحة</li>
             <li>يحق للشركة تغيير موقع اللوحة في حالات الضرورة القصوى</li>
