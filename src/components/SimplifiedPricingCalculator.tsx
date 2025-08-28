@@ -219,7 +219,7 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
         } else {
           const daysInPackage = packageDuration === 30 ? 30 : packageDuration === 90 ? 90 : packageDuration === 180 ? 180 : 365
           dailyRate = finalPrice / daysInPackage
-          breakdown.push(`السعر اليومي للباقة: ${dailyRate.toFixed(2)} د.ل`)
+          breakdown.push(`السعر ا��يومي للباقة: ${dailyRate.toFixed(2)} د.ل`)
         }
 
         // Add installation cost if needed
@@ -337,6 +337,8 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
   }
 
   const generateQuoteHTML = (data: any) => {
+    const isMultiple = data.mode === 'multiple'
+
     return `
     <!DOCTYPE html>
     <html dir="rtl" lang="ar">
@@ -355,6 +357,11 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
         .breakdown { background: #f9f9f9; padding: 15px; border-radius: 5px; }
         .total { font-size: 20px; font-weight: bold; color: #D4AF37; text-align: center; padding: 20px; background: #f5f5f5; border-radius: 8px; }
         .footer { text-align: center; margin-top: 40px; color: #666; }
+        .billboard-item { background: #f8f9fa; margin: 10px 0; padding: 10px; border-radius: 5px; border: 1px solid #ddd; }
+        .billboard-price { color: #D4AF37; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+        th { background: #D4AF37; color: white; }
       </style>
     </head>
     <body>
@@ -362,10 +369,10 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
         <div class="company-name">الفارس الذهبي للدعاية والإعلان</div>
         <div>AL FARES AL DAHABI</div>
       </div>
-      
-      <div class="quote-title">عرض سعر لوحة إعلانية</div>
+
+      <div class="quote-title">${isMultiple ? 'عرض سعر حملة إعلانية' : 'عرض سعر لوحة إعلانية'}</div>
       <div>التاريخ: ${data.date}</div>
-      
+
       <div class="section">
         <div class="section-title">معلومات العميل</div>
         <div class="info-row"><span>الاسم:</span><span>${data.customer.name}</span></div>
@@ -373,32 +380,83 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
         <div class="info-row"><span>الهاتف:</span><span>${data.customer.phone}</span></div>
         <div class="info-row"><span>البريد الإلكتروني:</span><span>${data.customer.email}</span></div>
       </div>
-      
-      <div class="section">
-        <div class="section-title">تفاصيل اللوحة</div>
-        <div class="info-row"><span>المقاس:</span><span>${data.billboard.size}</span></div>
-        <div class="info-row"><span>المستوى:</span><span>${data.billboard.level}</span></div>
-        <div class="info-row"><span>البلدية:</span><span>${data.billboard.municipality}</span></div>
-        <div class="info-row"><span>نوع العميل:</span><span>${
-          data.billboard.customerType === 'individuals' ? 'فرد' :
-          data.billboard.customerType === 'companies' ? 'شركة' : 'مسوق'
-        }</span></div>
-        <div class="info-row"><span>نوع التسعير:</span><span>${data.pricing.mode === 'daily' ? 'يومي' : 'باقة'}</span></div>
-        ${data.pricing.days ? `<div class="info-row"><span>عدد الأيام:</span><span>${data.pricing.days} يوم</span></div>` : ''}
-        ${data.pricing.package ? `<div class="info-row"><span>مدة الباقة:</span><span>${data.pricing.package} يوم</span></div>` : ''}
-      </div>
-      
-      <div class="section">
-        <div class="section-title">تفصيل الأسعار</div>
-        <div class="breakdown">
-          ${data.pricing.calculation.breakdown.map((item: string) => `<div>${item}</div>`).join('')}
+
+      ${isMultiple ? `
+        <div class="section">
+          <div class="section-title">تفاصيل الحملة الإعلانية</div>
+          <div class="info-row"><span>عدد اللوحات:</span><span>${data.billing.billboards.length} لوحة</span></div>
+          <div class="info-row"><span>نوع العميل:</span><span>${
+            data.pricing.customerType === 'individuals' ? 'فرد' :
+            data.pricing.customerType === 'companies' ? 'شركة' : 'مسوق'
+          }</span></div>
+          <div class="info-row"><span>نوع التسعير:</span><span>${data.pricing.mode === 'daily' ? 'يومي' : 'باقة'}</span></div>
+          ${data.pricing.days ? `<div class="info-row"><span>عدد الأيام:</span><span>${data.pricing.days} يوم</span></div>` : ''}
+          ${data.pricing.package ? `<div class="info-row"><span>مدة الباقة:</span><span>${data.pricing.package} يوم</span></div>` : ''}
+          ${data.pricing.needInstallation ? `<div class="info-row"><span>تكلفة التركيب:</span><span>${formatPrice(data.pricing.installationCost)} لكل لوحة</span></div>` : ''}
         </div>
-      </div>
-      
-      <div class="total">
-        المبلغ الإجمالي: ${formatPrice(data.pricing.calculation.finalPrice)}
-      </div>
-      
+
+        <div class="section">
+          <div class="section-title">تفصيل اللوحات والأسعار</div>
+          <table>
+            <thead>
+              <tr>
+                <th>م</th>
+                <th>اسم اللوحة</th>
+                <th>الموقع</th>
+                <th>المقاس</th>
+                <th>البلدية</th>
+                <th>السعر</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${data.billing.calculations.map((item: any, index: number) => `
+                <tr>
+                  <td>${index + 1}</td>
+                  <td>${item.billboard.name}</td>
+                  <td>${item.billboard.location}</td>
+                  <td>${item.billboard.size}</td>
+                  <td>${item.billboard.municipality}</td>
+                  <td class="billboard-price">${formatPrice(item.calculation.finalPrice)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="total">
+          إجمالي الحملة الإعلانية: ${formatPrice(data.billing.total.totalPrice)}
+          <br>
+          <small style="font-size: 14px; font-weight: normal;">
+            (${data.billing.total.count} لوحة • متوسط يومي: ${formatPrice(data.billing.total.totalDailyRate)})
+          </small>
+        </div>
+      ` : `
+        <div class="section">
+          <div class="section-title">تفاصيل اللوحة</div>
+          <div class="info-row"><span>المقاس:</span><span>${data.billing.billboard.size}</span></div>
+          <div class="info-row"><span>المستوى:</span><span>${data.billing.billboard.level}</span></div>
+          <div class="info-row"><span>البلدية:</span><span>${data.billing.billboard.municipality}</span></div>
+          <div class="info-row"><span>نوع العميل:</span><span>${
+            data.billing.billboard.customerType === 'individuals' ? 'فرد' :
+            data.billing.billboard.customerType === 'companies' ? 'شركة' : 'مسوق'
+          }</span></div>
+          <div class="info-row"><span>نوع التسعير:</span><span>${data.pricing.mode === 'daily' ? 'يومي' : 'باقة'}</span></div>
+          ${data.pricing.days ? `<div class="info-row"><span>عدد الأيام:</span><span>${data.pricing.days} يوم</span></div>` : ''}
+          ${data.pricing.package ? `<div class="info-row"><span>مدة الباقة:</span><span>${data.pricing.package} يوم</span></div>` : ''}
+        </div>
+
+        <div class="section">
+          <div class="section-title">تفصيل الأسعار</div>
+          <div class="breakdown">
+            ${data.billing.calculation.breakdown.map((item: string) => `<div>${item}</div>`).join('')}
+          </div>
+        </div>
+
+        <div class="total">
+          المبلغ الإجمالي: ${formatPrice(data.billing.calculation.finalPrice)}
+        </div>
+      `}
+
       <div class="footer">
         <p>شكراً لثقتكم في الفارس الذهبي للدعاية والإعلان</p>
         <p>العرض صالح لمدة 30 يوماً من تاريخ الإصدار</p>
@@ -731,7 +789,7 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">البريد الإلكتروني</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1">البريد الإلكت��وني</label>
                     <Input
                       value={customerInfo.email}
                       onChange={(e) => setCustomerInfo(prev => ({ ...prev, email: e.target.value }))}
