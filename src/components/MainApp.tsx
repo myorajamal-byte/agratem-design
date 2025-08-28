@@ -168,7 +168,7 @@ export default function MainApp() {
 تفاصيل العميل:
 الاسم: ${customerName}
 البريد الإلكتروني: ${customerEmail}
-رقم الهاتف: ${customerPhone || "غير محدد"}
+رقم ��لهاتف: ${customerPhone || "غير محدد"}
 
 رس��لة العميل:
 ${emailMessage || "لا توجد رسالة إ��افية"}
@@ -193,7 +193,7 @@ ${selectedBillboardsData
 
       window.open(mailtoLink, "_blank")
 
-      alert("تم فتح برنامج البريد الإلكتروني مع ��فاصيل اللوحات ال��ختارة!")
+      alert("تم فتح برنامج البريد الإلكتروني مع ��فاصيل اللوحات المختارة!")
       setShowEmailDialog(false)
       clearSelection()
       setCustomerEmail("")
@@ -461,7 +461,7 @@ ${selectedBillboardsData
                       عرض الموقع
                     </a>
                   `
-                      : '<span style="color: #666; font-size: 8px;">غ��ر متوفر</span>'
+                      : '<span style="color: #666; font-size: 8px;">غير متوفر</span>'
                   }
                 </td>
               </tr>
@@ -887,7 +887,7 @@ ${selectedBillboardsData
         <InstallationPricingManagement onClose={() => setShowInstallationPricing(false)} />
       )}
 
-      {/* نافذة فات��ر�� العرض */}
+      {/* نافذة فاتور�� العرض */}
       {showQuoteDialog && user?.permissions.some(p => p.name === 'admin_access') && (
         <QuoteDialog
           isOpen={showQuoteDialog}
@@ -939,6 +939,8 @@ ${selectedBillboardsData
       {showSimplifiedCalculator && (
         <SimplifiedPricingCalculator
           onClose={() => setShowSimplifiedCalculator(false)}
+          selectedBillboards={selectedBillboards.size > 0 ? Array.from(selectedBillboards) : undefined}
+          allBillboards={billboards}
         />
       )}
 
