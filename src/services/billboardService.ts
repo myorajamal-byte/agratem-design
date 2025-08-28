@@ -277,7 +277,7 @@ function parseExcelDate(dateValue: any): Date | null {
     }
   }
   
-  console.warn("[Service] لا يمكن تحويل القيمة إلى تاريخ:", dateValue, typeof dateValue)
+  console.warn("[Service] لا يمكن تحويل الق��مة إلى تاريخ:", dateValue, typeof dateValue)
   return null
 }
 
@@ -302,7 +302,8 @@ function processBillboardData(billboard: any, index: number): Billboard {
   }
 
   const area = areaValue.toString().trim() || municipality
-  const size = billboard['حجم'] || billboard['الحجم'] || billboard['المقاس مع الدغاية'] || '12X4'
+  const rawSize = billboard['حجم'] || billboard['الحجم'] || billboard['المقاس مع الدغاية'] || '12X4'
+  const size = normalizeBillboardSize(rawSize.toString())
   const coordinates = billboard['احداثي - GPS'] || billboard['الإحداثيات GPS'] || '32.8872,13.1913'
 
   // بيانات العميل - استخدام أسماء الأعمدة الصحيحة
@@ -509,7 +510,7 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
         throw new Error('ملف Excel المحلي فارغ')
       }
       
-      // معالجة البيانات المحلية بنفس الطريقة - عرض جميع اللوحات
+      // معالجة البيانات المحلية بن��س الطريقة - عرض جميع اللوحات
       const billboards = jsonData.map((billboard: any, index: number) => 
         processBillboardData(billboard, index)
       )
