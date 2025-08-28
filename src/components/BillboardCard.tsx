@@ -14,9 +14,10 @@ interface BillboardCardProps {
   onViewImage: (imageUrl: string) => void
   showPricing?: boolean // عرض الأسعار للأدمن
   selectedDuration?: PackageDuration | null // المدة المحددة للتسعير
+  user?: any // المس��خدم الحالي لتحديد فئة الأسعار
 }
 
-export default function BillboardCard({ billboard, isSelected, onToggleSelection, onViewImage, showPricing = false, selectedDuration = null }: BillboardCardProps) {
+export default function BillboardCard({ billboard, isSelected, onToggleSelection, onViewImage, showPricing = false, selectedDuration = null, user = null }: BillboardCardProps) {
   // حساب الأيام المتبقية للانتهاء
   const getDaysRemaining = () => {
     if (!billboard.expiryDate) return null
