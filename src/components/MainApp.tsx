@@ -189,7 +189,7 @@ ${selectedBillboardsData
 
       window.open(mailtoLink, "_blank")
 
-      alert("تم فتح برنامج البريد الإلكتروني مع تفاصيل اللوحات المختارة!")
+      alert("تم فتح برنامج البريد الإلكتروني مع ��فاصيل اللوحات المختارة!")
       setShowEmailDialog(false)
       clearSelection()
       setCustomerEmail("")
@@ -707,13 +707,22 @@ ${selectedBillboardsData
                   إلغاء التحديد
                 </Button>
                 {user?.permissions.some(p => p.name === 'admin_access') && (
-                  <Button
-                    onClick={() => setShowQuoteDialog(true)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-6"
-                  >
-                    <FileText className="w-4 h-4 ml-2" />
-                    إنشاء فاتورة عرض
-                  </Button>
+                  <>
+                    <Button
+                      onClick={() => setShowQuoteDialog(true)}
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-6"
+                    >
+                      <FileText className="w-4 h-4 ml-2" />
+                      إنشاء فاتورة عرض
+                    </Button>
+                    <Button
+                      onClick={() => setShowBookingMode(true)}
+                      className="bg-purple-600 hover:bg-purple-700 text-white px-6"
+                    >
+                      <Settings className="w-4 h-4 ml-2" />
+                      وضع الحجز
+                    </Button>
+                  </>
                 )}
                 <Button
                   onClick={() => setShowEmailDialog(true)}
