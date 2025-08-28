@@ -1,6 +1,7 @@
 import { PriceList, PricingZone, BillboardSize, QuoteItem, Quote, CustomerType, PackageDuration, PriceListType } from '@/types'
 import { formatGregorianDate } from '@/lib/dateUtils'
 import { dynamicPricingService } from './dynamicPricingService'
+import { jsonDatabase } from './jsonDatabase'
 
 // الباقات الزمنية المتاحة
 const DEFAULT_PACKAGES: PackageDuration[] = [
@@ -221,6 +222,12 @@ class PricingService {
    * تهيئة الأسعار ��لافتراضية
    */
   private initializeDefaultPricing() {
+    // Prefer DB cache if available (loaded from public/database.json)
+    const dbPricing = jsonDatabase.getRentalPricing()
+    if (dbPricing) {
+      localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(dbPricing))
+      return
+    }
     if (!localStorage.getItem(this.PRICING_STORAGE_KEY)) {
       localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(DEFAULT_PRICING))
     }
@@ -243,8 +250,11 @@ class PricingService {
         return dynamicPricingService.generateDynamicPriceList()
       }
       
-      // استخدام الأسعار المحفوظة أو الافتراضية
-      return storedPricing ? JSON.parse(storedPricing) : DEFAULT_PRICING
+      // استخدام الأسعار المحفوظة أو بيانات قاعدة JSON أو الافتراضية
+      if (storedPricing) return JSON.parse(storedPricing)
+      const dbPricing = jsonDatabase.getRentalPricing()
+      if (dbPricing) return dbPricing
+      return DEFAULT_PRICING
     } catch {
       return DEFAULT_PRICING
     }
@@ -256,6 +266,8 @@ class PricingService {
   updatePricing(pricing: PriceList): { success: boolean; error?: string } {
     try {
       localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(pricing))
+      // Persist to JSON DB cache (exportable)
+      jsonDatabase.saveRentalPricing(pricing)
       return { success: true }
     } catch (error) {
       console.error('خطأ في تحديث الأسعار:', error)
@@ -264,7 +276,7 @@ class PricingService {
   }
 
   /**
-   * الحصول على سعر لوحة معينة حسب فئة الزبون
+   * الحصول على سعر لوحة معينة حسب فئة الزب��ن
    * يستخدم النظام الديناميكي إذا كان مفعلاً
    */
   getBillboardPrice(size: BillboardSize, zone: string, customerType: CustomerType = 'individuals', municipality?: string): number {
@@ -377,7 +389,7 @@ class PricingService {
    * المنطقة السعرية هي نفس اسم البلدية
    */
   determinePricingZone(municipality: string, area?: string): string {
-    // استخدام اسم البلدية مباشرة كمنطقة سعرية
+    // استخدام اسم ��لبلدية مباشرة كمنطقة سعرية
     const zoneName = municipality.trim()
 
     // التأكد من وجود أسعار لهذه المنطقة
@@ -421,7 +433,7 @@ class PricingService {
       return false
     }
 
-    // إنشاء منطقة جديدة بنفس أسعار المنطقة الأساسية
+    // إنشاء منطقة جديدة ب��فس أسعار المنطقة الأساسية
     pricing.zones[zoneName] = {
       ...baseZoneData,
       name: zoneName
@@ -557,7 +569,7 @@ class PricingService {
   }
 
   /**
-   * مقارنة الأسعار بين قائمتي A و B لمنطقة معينة
+   * مقارنة الأسعار بين قائمت�� A و B لمنطقة معينة
    */
   comparePriceListsForZone(zone: string): {
     zone: string,
@@ -814,7 +826,7 @@ class PricingService {
               ${quote.customerInfo.name}
             </div>
             <div class="info-item">
-              <span class="info-label">البريد الإلك��روني:</span>
+              <span class="info-label">البر��د الإلك��روني:</span>
               ${quote.customerInfo.email}
             </div>
             <div class="info-item">
@@ -893,7 +905,7 @@ class PricingService {
                 <td class="price" style="font-size: 9px;">
                   ${item.basePrice.toLocaleString()} ${quote.currency}
                   <br>
-                  <span style="font-size: 8px; color: #666;">شهرياً</span>
+                  <span style="font-size: 8px; color: #666;">ش��رياً</span>
                 </td>
                 <td style="font-size: 9px; color: #e53e3e;">
                   ${item.discount > 0 ? `${item.discount}%` : 'لا يوجد'}
@@ -945,7 +957,7 @@ class PricingService {
             <li>الأسعار المذكورة شاملة جميع الخدمات</li>
             <li>يتم الدفع مقدماً قبل بدء الحملة الإعلانية</li>
             <li>في حالة إلغاء الحجز، يتم استرداد 50% من المبلغ المدفوع</li>
-            <li>الشركة غ��ر مسؤولة عن أي أضرار طبيعية قد تلحق باللوحة</li>
+            <li>الشركة غ��ر مسؤولة عن أي أضرار طبيعية قد تلحق بال��وحة</li>
             <li>يحق للشركة تغيير موقع اللوحة في حالات الضرورة القصوى</li>
           </ul>
         </div>
