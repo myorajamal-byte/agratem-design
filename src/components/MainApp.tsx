@@ -591,6 +591,22 @@ ${selectedBillboardsData
           onPrint={handlePrint}
         />
 
+        {/* اختيار مدة التسعير */}
+        {user?.permissions.some(p => p.name === 'admin_access') && (
+          <div className="bg-white rounded-xl shadow-lg p-4 mb-6 border-2 border-emerald-200">
+            <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2 text-right" dir="rtl">
+              <DollarSign className="w-5 h-5 text-emerald-600" />
+              عرض الأسعار حسب المدة
+            </h3>
+            <div className="max-w-md">
+              <PricingDurationSelector
+                selectedDuration={selectedPricingDuration}
+                onDurationChange={setSelectedPricingDuration}
+              />
+            </div>
+          </div>
+        )}
+
         {/* أزرار إدارة الأسعار للمدراء */}
         {user?.permissions.some(p => p.name === 'admin_access') && (
           <div className="bg-white rounded-xl shadow-lg p-4 mb-6 border-2 border-blue-200">
