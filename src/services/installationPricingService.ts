@@ -1,5 +1,6 @@
 import { BillboardSize, InstallationPricing, InstallationPriceZone, InstallationQuote, InstallationQuoteItem } from '@/types'
 import { formatGregorianDate } from '@/lib/dateUtils'
+import { jsonDatabase } from './jsonDatabase'
 
 // المقاسات المتاحة لأسعار التركيب
 const DEFAULT_INSTALLATION_SIZES: BillboardSize[] = ['5x13', '4x12', '4x10', '3x8', '3x6', '3x4']
@@ -62,6 +63,11 @@ class InstallationPricingService {
    * تهيئة البيانات الافتراضية
    */
   private initializeDefaults() {
+    const dbPricing = jsonDatabase.getInstallationPricing()
+    if (dbPricing) {
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(dbPricing))
+      return
+    }
     if (!localStorage.getItem(this.STORAGE_KEY)) {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(DEFAULT_INSTALLATION_PRICING))
     }
@@ -99,6 +105,8 @@ class InstallationPricingService {
         lastUpdated: new Date().toISOString()
       }
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(updatedPricing))
+      // Persist to JSON DB cache (exportable)
+      jsonDatabase.saveInstallationPricing(updatedPricing)
       return { success: true, message: 'تم حفظ أسعار التركيب بنجاح' }
     } catch (error) {
       console.error('Error saving installation pricing:', error)
