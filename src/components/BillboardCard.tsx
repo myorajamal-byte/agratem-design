@@ -33,7 +33,12 @@ export default function BillboardCard({ billboard, isSelected, onToggleSelection
 
   // حساب السعر والمنطقة السعرية
   const getPricingInfo = () => {
-    if (!showPricing) return null
+    if (!showPricing) {
+      console.log('BillboardCard: showPricing is false, skipping price calculation')
+      return null
+    }
+
+    console.log('BillboardCard: Calculating pricing for', billboard.name, billboard.municipality, billboard.size, billboard.level)
 
     try {
       // تحديد المنطقة السعرية
