@@ -92,6 +92,21 @@ export default function BillboardCard({ billboard, isSelected, onToggleSelection
         }
       }
 
+      // إذا لم يجد أي سعر، استخدم أسعار افتراضية
+      if (monthlyPrice === 0) {
+        console.log('BillboardCard: All pricing services returned 0, using default prices')
+        const defaultPrices: Record<string, number> = {
+          '5x13': 4000,
+          '4x12': 3200,
+          '4x10': 2500,
+          '3x8': 1700,
+          '3x6': 1200,
+          '3x4': 900
+        }
+        monthlyPrice = defaultPrices[billboard.size] || 1000
+        console.log('BillboardCard: Using default price:', monthlyPrice)
+      }
+
       // حساب سعر التركيب
       const installationZone = installationPricingService.determineInstallationZone(
         billboard.municipality,
