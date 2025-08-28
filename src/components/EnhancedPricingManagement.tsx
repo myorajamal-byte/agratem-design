@@ -135,10 +135,68 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
     { value: 365, label: 'سنة كاملة', discount: 20, unit: 'year' }
   ]
 
-  // Initialize pricing data
+  // Initialize pricing data and check sync status
   useEffect(() => {
     initializePricingData()
+    checkSyncStatus()
   }, [])
+
+  // Check if sync is needed
+  const checkSyncStatus = async () => {
+    try {
+      const { newPricingService } = await import('@/services/newPricingService')
+      const syncCheck = await newPricingService.checkNeedForSync()
+
+      setSyncStatus(prev => ({
+        ...prev,
+        needsSync: syncCheck.needsSync,
+        missingZones: syncCheck.missingZones
+      }))
+
+      if (syncCheck.needsSync) {
+        showNotification('info', `تم العثور على ${syncCheck.missingZones.length} منطقة جديدة تحتاج مزامنة`)
+      }
+    } catch (error) {
+      console.error('خطأ في فحص حالة المزامنة:', error)
+    }
+  }
+
+  // Sync pricing zones with Excel data
+  const syncWithExcel = async () => {
+    setSyncStatus(prev => ({ ...prev, isLoading: true }))
+
+    try {
+      const { newPricingService } = await import('@/services/newPricingService')
+      const result = await newPricingService.syncWithExcelData()
+
+      if (result.success && result.summary) {
+        setSyncStatus({
+          isLoading: false,
+          lastSync: new Date().toISOString(),
+          totalMunicipalities: result.summary.totalMunicipalities,
+          existingZones: result.summary.existingZones,
+          newZonesCreated: result.summary.newZonesCreated,
+          needsSync: false,
+          missingZones: []
+        })
+
+        // تحديث البيانات المعروضة
+        initializePricingData()
+
+        const message = result.summary.newZonesCreated > 0
+          ? `تمت المزامنة بنجاح! تم إنشاء ${result.summary.newZonesCreated} منطقة جديدة`
+          : 'تمت المزامنة بنجاح! جميع المناطق محدثة'
+
+        showNotification('success', message)
+      } else {
+        setSyncStatus(prev => ({ ...prev, isLoading: false }))
+        showNotification('error', `فشل في المزامنة: ${result.error}`)
+      }
+    } catch (error: any) {
+      setSyncStatus(prev => ({ ...prev, isLoading: false }))
+      showNotification('error', `خطأ في المزامنة: ${error.message}`)
+    }
+  }
 
   // Show notification temporarily
   const showNotification = (type: 'success' | 'error', message: string) => {
@@ -339,7 +397,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
   const addSize = () => {
     const newSize = prompt('أدخل المقاس الجديد (مثال: 6x14):')
     if (!newSize || !newSize.match(/^\d+x\d+$/)) {
-      showNotification('error', 'يرجى إدخال مقاس صحيح بصيغة رق��xرقم')
+      showNotification('error', 'يرجى إدخال مقاس صحيح بصيغة رقمxرقم')
       return
     }
 
@@ -1110,7 +1168,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-1">خصم ��ختياري (%)</label>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">خصم اختياري (%)</label>
                   <Input
                     type="number"
                     value={newLevel.discount}
