@@ -618,6 +618,13 @@ ${selectedBillboardsData
             </h3>
             <div className="flex flex-wrap gap-3">
               <Button
+                onClick={() => setShowSimplifiedCalculator(true)}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold"
+              >
+                <Calculator className="w-4 h-4 mr-2" />
+                حاسبة التسعير المبسطة
+              </Button>
+              <Button
                 onClick={() => setShowPricingManagement(true)}
                 className="bg-green-600 hover:bg-green-700 text-white"
               >
