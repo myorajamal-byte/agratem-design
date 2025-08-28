@@ -298,18 +298,56 @@ export default function BillboardCard({ billboard, isSelected, onToggleSelection
                     </div>
                   </div>
 
-                  {/* السعر الشهري */}
+                  {/* السعر الأساسي */}
                   <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg p-3 border border-blue-200">
                     <div className="flex" dir="rtl" style={{justifyContent: 'space-between'}}>
                       <span className="text-xl text-blue-900 font-black font-sans">
                         {pricingInfo.monthlyPrice.toLocaleString()} {pricingInfo.currency}
                       </span>
                       <div className="text-right">
-                        <span className="text-sm text-blue-700 font-semibold font-sans block">:السعر {pricingInfo.unit}</span>
+                        <span className="text-sm text-blue-700 font-semibold font-sans block">:السعر الشهري الأساسي</span>
                         <span className="text-xs text-blue-600 font-medium font-sans">{billboard.size}</span>
                       </div>
                     </div>
                   </div>
+
+                  {/* السعر مع المدة المحددة */}
+                  {selectedDuration && pricingInfo.discount > 0 && (
+                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-3 border border-green-200">
+                      <div className="space-y-2">
+                        <div className="flex" dir="rtl" style={{justifyContent: 'space-between'}}>
+                          <span className="text-lg text-green-900 font-bold font-sans">
+                            {pricingInfo.finalPrice.toLocaleString()} {pricingInfo.currency}
+                          </span>
+                          <div className="text-right">
+                            <span className="text-sm text-green-700 font-semibold font-sans block">:السعر بعد الخصم</span>
+                            <span className="text-xs text-green-600 font-medium font-sans">شهرياً</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 justify-end" dir="rtl">
+                          <span className="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-bold">
+                            خصم {pricingInfo.discount}%
+                          </span>
+                          <span className="text-xs text-gray-600">({pricingInfo.unit})</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* الإجمالي للمدة المحددة */}
+                  {selectedDuration && (
+                    <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg p-3 border-2 border-indigo-200">
+                      <div className="flex" dir="rtl" style={{justifyContent: 'space-between'}}>
+                        <span className="text-xl text-indigo-900 font-black font-sans">
+                          {pricingInfo.totalPrice.toLocaleString()} {pricingInfo.currency}
+                        </span>
+                        <div className="text-right">
+                          <span className="text-sm text-indigo-700 font-bold font-sans block">:الإجمالي</span>
+                          <span className="text-xs text-indigo-600 font-medium font-sans">{pricingInfo.unit}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {/* سعر التركيب */}
                   {pricingInfo.installationPrice > 0 && (
@@ -326,14 +364,16 @@ export default function BillboardCard({ billboard, isSelected, onToggleSelection
                     </div>
                   )}
 
-                  {/* الإجمالي */}
+                  {/* الإجمالي النهائي (مع التركيب) */}
                   {pricingInfo.installationPrice > 0 && (
                     <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-3 border-2 border-purple-200">
                       <div className="flex" dir="rtl" style={{justifyContent: 'space-between'}}>
                         <span className="text-xl text-purple-900 font-black font-sans">
-                          {(pricingInfo.monthlyPrice + pricingInfo.installationPrice).toLocaleString()} {pricingInfo.currency}
+                          {((selectedDuration ? pricingInfo.totalPrice : pricingInfo.monthlyPrice) + pricingInfo.installationPrice).toLocaleString()} {pricingInfo.currency}
                         </span>
-                        <span className="text-sm text-purple-700 font-bold font-sans">:الإجمالي (شهر + تركيب)</span>
+                        <span className="text-sm text-purple-700 font-bold font-sans">
+                          :الإجمالي النهائي ({selectedDuration ? pricingInfo.unit : 'شهر'} + تركيب)
+                        </span>
                       </div>
                     </div>
                   )}
