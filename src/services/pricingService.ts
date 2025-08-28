@@ -396,8 +396,11 @@ class PricingService {
       }
     }
 
-    // إعادة المنطقة الافتراضية إذا لم يوجد تطابق
-    return availableZones[0] || 'مصراتة'
+    // إضافة منطقة جديدة للبلدية إذا لم توجد
+    this.addPricingZoneForMunicipality(municipality)
+
+    // إعادة المنطقة مقطعة (متوافقة مع المفتاح المحفوظ)
+    return municipality.trim()
   }
 
   /**

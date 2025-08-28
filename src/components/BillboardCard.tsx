@@ -2,7 +2,7 @@ import { MapPin, Eye, DollarSign } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Billboard, BillboardSize } from "@/types"
+import { Billboard, BillboardSize, PackageDuration } from "@/types"
 import { pricingService } from "@/services/pricingService"
 import { newPricingService } from "@/services/newPricingService"
 import { installationPricingService } from "@/services/installationPricingService"
@@ -13,9 +13,11 @@ interface BillboardCardProps {
   onToggleSelection: (billboardId: string) => void
   onViewImage: (imageUrl: string) => void
   showPricing?: boolean // عرض الأسعار للأدمن
+  selectedDuration?: PackageDuration | null // المدة المحددة للتسعير
+  user?: any // المس��خدم الحالي لتحديد فئة الأسعار
 }
 
-export default function BillboardCard({ billboard, isSelected, onToggleSelection, onViewImage, showPricing = false }: BillboardCardProps) {
+export default function BillboardCard({ billboard, isSelected, onToggleSelection, onViewImage, showPricing = false, selectedDuration = null, user = null }: BillboardCardProps) {
   // حساب الأيام المتبقية للانتهاء
   const getDaysRemaining = () => {
     if (!billboard.expiryDate) return null
@@ -34,11 +36,8 @@ export default function BillboardCard({ billboard, isSelected, onToggleSelection
   // حساب السعر والمنطقة السعرية
   const getPricingInfo = () => {
     if (!showPricing) {
-      console.log('BillboardCard: showPricing is false, skipping price calculation')
       return null
     }
-
-    console.log('BillboardCard: Calculating pricing for', billboard.name, billboard.municipality, billboard.size, billboard.level)
 
     try {
       // تحديد المنطقة السعرية
@@ -77,6 +76,19 @@ export default function BillboardCard({ billboard, isSelected, onToggleSelection
         }
       }
 
+      // إذا لم يجد أي سعر، استخدم أسعار افتراضية
+      if (monthlyPrice === 0) {
+        const defaultPrices: Record<string, number> = {
+          '5x13': 4000,
+          '4x12': 3200,
+          '4x10': 2500,
+          '3x8': 1700,
+          '3x6': 1200,
+          '3x4': 900
+        }
+        monthlyPrice = defaultPrices[billboard.size] || 1000
+      }
+
       // حساب سعر التركيب
       const installationZone = installationPricingService.determineInstallationZone(
         billboard.municipality,
@@ -89,14 +101,31 @@ export default function BillboardCard({ billboard, isSelected, onToggleSelection
 
       const pricing = newPricingService.getPricing()
 
+      // تطبيق حساب الخصم بناءً على المدة المحددة
+      let finalPrice = monthlyPrice
+      let totalPrice = monthlyPrice
+      let discount = 0
+      let durationLabel = 'شهرياً'
+
+      if (selectedDuration) {
+        const priceCalc = pricingService.calculatePriceWithDiscount(monthlyPrice, selectedDuration)
+        finalPrice = priceCalc.finalPrice
+        totalPrice = priceCalc.finalPrice * selectedDuration.value
+        discount = priceCalc.discount
+        durationLabel = selectedDuration.label
+      }
+
       return {
         zone,
         priceList,
         monthlyPrice,
+        finalPrice,
+        totalPrice,
+        discount,
         installationPrice,
         installationZone,
         currency: pricing.currency || 'د.ل',
-        unit: 'شهرياً'
+        unit: durationLabel
       }
     } catch (error) {
       console.error('خطأ في حساب السعر:', error)
@@ -104,10 +133,13 @@ export default function BillboardCard({ billboard, isSelected, onToggleSelection
         zone: billboard.municipality,
         priceList: 'A',
         monthlyPrice: 0,
+        finalPrice: 0,
+        totalPrice: 0,
+        discount: 0,
         installationPrice: 0,
         installationZone: 'المنطقة الأساسية',
         currency: 'د.ل',
-        unit: 'شهرياً'
+        unit: selectedDuration?.label || 'شهرياً'
       }
     }
   }
@@ -277,18 +309,56 @@ export default function BillboardCard({ billboard, isSelected, onToggleSelection
                     </div>
                   </div>
 
-                  {/* السعر الشهري */}
+                  {/* السعر الأساسي */}
                   <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg p-3 border border-blue-200">
                     <div className="flex" dir="rtl" style={{justifyContent: 'space-between'}}>
                       <span className="text-xl text-blue-900 font-black font-sans">
                         {pricingInfo.monthlyPrice.toLocaleString()} {pricingInfo.currency}
                       </span>
                       <div className="text-right">
-                        <span className="text-sm text-blue-700 font-semibold font-sans block">:السعر {pricingInfo.unit}</span>
+                        <span className="text-sm text-blue-700 font-semibold font-sans block">:السعر الشهري الأساسي</span>
                         <span className="text-xs text-blue-600 font-medium font-sans">{billboard.size}</span>
                       </div>
                     </div>
                   </div>
+
+                  {/* السعر مع المدة المحددة */}
+                  {selectedDuration && pricingInfo.discount > 0 && (
+                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-3 border border-green-200">
+                      <div className="space-y-2">
+                        <div className="flex" dir="rtl" style={{justifyContent: 'space-between'}}>
+                          <span className="text-lg text-green-900 font-bold font-sans">
+                            {pricingInfo.finalPrice.toLocaleString()} {pricingInfo.currency}
+                          </span>
+                          <div className="text-right">
+                            <span className="text-sm text-green-700 font-semibold font-sans block">:السعر بعد الخصم</span>
+                            <span className="text-xs text-green-600 font-medium font-sans">شهرياً</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 justify-end" dir="rtl">
+                          <span className="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-bold">
+                            خصم {pricingInfo.discount}%
+                          </span>
+                          <span className="text-xs text-gray-600">({pricingInfo.unit})</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* الإجمالي للمدة المحددة */}
+                  {selectedDuration && (
+                    <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg p-3 border-2 border-indigo-200">
+                      <div className="flex" dir="rtl" style={{justifyContent: 'space-between'}}>
+                        <span className="text-xl text-indigo-900 font-black font-sans">
+                          {pricingInfo.totalPrice.toLocaleString()} {pricingInfo.currency}
+                        </span>
+                        <div className="text-right">
+                          <span className="text-sm text-indigo-700 font-bold font-sans block">:الإجمالي</span>
+                          <span className="text-xs text-indigo-600 font-medium font-sans">{pricingInfo.unit}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {/* سعر التركيب */}
                   {pricingInfo.installationPrice > 0 && (
@@ -305,14 +375,16 @@ export default function BillboardCard({ billboard, isSelected, onToggleSelection
                     </div>
                   )}
 
-                  {/* الإجمالي */}
+                  {/* الإجمالي النهائي (مع التركيب) */}
                   {pricingInfo.installationPrice > 0 && (
                     <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-3 border-2 border-purple-200">
                       <div className="flex" dir="rtl" style={{justifyContent: 'space-between'}}>
                         <span className="text-xl text-purple-900 font-black font-sans">
-                          {(pricingInfo.monthlyPrice + pricingInfo.installationPrice).toLocaleString()} {pricingInfo.currency}
+                          {((selectedDuration ? pricingInfo.totalPrice : pricingInfo.monthlyPrice) + pricingInfo.installationPrice).toLocaleString()} {pricingInfo.currency}
                         </span>
-                        <span className="text-sm text-purple-700 font-bold font-sans">:الإجمالي (شهر + تركيب)</span>
+                        <span className="text-sm text-purple-700 font-bold font-sans">
+                          :الإجمالي النهائي ({selectedDuration ? pricingInfo.unit : 'شهر'} + تركيب)
+                        </span>
                       </div>
                     </div>
                   )}

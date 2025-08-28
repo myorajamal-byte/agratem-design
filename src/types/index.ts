@@ -27,6 +27,7 @@ export interface User {
   role: 'admin' | 'user'
   permissions: Permission[]
   assignedClient?: string // اسم الزبون المخصص للمستخدم
+  pricingCategory?: 'A' | 'B' | 'companies' | 'individuals' | 'marketers' // فئة الأسعار التي ستظهر للمستخدم
   createdAt: string
   lastLogin?: string
   isActive: boolean

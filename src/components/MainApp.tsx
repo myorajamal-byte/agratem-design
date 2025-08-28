@@ -14,9 +14,11 @@ import EnhancedPricingManagement from "@/components/EnhancedPricingManagement"
 import InstallationPricingManagement from "@/components/InstallationPricingManagement"
 import QuoteDialog from "@/components/QuoteDialog"
 import PricingSystemStatus from "@/components/PricingSystemStatus"
+import BookingMode from "@/components/BookingMode"
+import PricingDurationSelector from "@/components/PricingDurationSelector"
 import { loadBillboardsFromExcel } from "@/services/billboardService"
 import { clientService } from "@/services/clientService"
-import { Billboard } from "@/types"
+import { Billboard, PackageDuration } from "@/types"
 import { useAuth } from "@/contexts/AuthContext"
 import { hybridSystemTest } from "@/utils/hybridSystemTest"
 
@@ -46,6 +48,9 @@ export default function MainApp() {
   const [showInstallationPricing, setShowInstallationPricing] = useState(false)
   const [showQuoteDialog, setShowQuoteDialog] = useState(false)
   const [showSystemStatus, setShowSystemStatus] = useState(false)
+  const [showBookingMode, setShowBookingMode] = useState(false)
+  const [selectedPricingDuration, setSelectedPricingDuration] = useState<PackageDuration | null>(null)
+  const [billboardDates, setBillboardDates] = useState<Record<string, string>>({})
 
   const itemsPerPage = 12
 
@@ -162,7 +167,7 @@ export default function MainApp() {
 رقم الهاتف: ${customerPhone || "غير محدد"}
 
 رس��لة العميل:
-${emailMessage || "لا توجد رسالة إضافية"}
+${emailMessage || "لا توجد رسالة إ��افية"}
 
 اللوحات المختارة (${selectedBillboards.size} لوحة):
 ${selectedBillboardsData
@@ -184,7 +189,7 @@ ${selectedBillboardsData
 
       window.open(mailtoLink, "_blank")
 
-      alert("تم فتح برنامج البريد الإلكتروني مع تفاصيل اللوحات المختارة!")
+      alert("تم فتح برنامج البريد الإلكتروني مع ��فاصيل اللوحات المختارة!")
       setShowEmailDialog(false)
       clearSelection()
       setCustomerEmail("")
@@ -586,6 +591,22 @@ ${selectedBillboardsData
           onPrint={handlePrint}
         />
 
+        {/* اختيار مدة التسعير */}
+        {user?.permissions.some(p => p.name === 'admin_access') && (
+          <div className="bg-white rounded-xl shadow-lg p-4 mb-6 border-2 border-emerald-200">
+            <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2 text-right" dir="rtl">
+              <DollarSign className="w-5 h-5 text-emerald-600" />
+              عرض الأسعار حسب المدة
+            </h3>
+            <div className="max-w-md">
+              <PricingDurationSelector
+                selectedDuration={selectedPricingDuration}
+                onDurationChange={setSelectedPricingDuration}
+              />
+            </div>
+          </div>
+        )}
+
         {/* أزرار إدارة الأسعار للمدراء */}
         {user?.permissions.some(p => p.name === 'admin_access') && (
           <div className="bg-white rounded-xl shadow-lg p-4 mb-6 border-2 border-blue-200">
@@ -663,6 +684,7 @@ ${selectedBillboardsData
               onToggleSelection={toggleBillboardSelection}
               onViewImage={setSelectedImage}
               showPricing={user?.permissions.some(p => p.name === 'admin_access')}
+              selectedDuration={selectedPricingDuration}
             />
           ))}
         </div>
@@ -685,13 +707,22 @@ ${selectedBillboardsData
                   إلغاء التحديد
                 </Button>
                 {user?.permissions.some(p => p.name === 'admin_access') && (
-                  <Button
-                    onClick={() => setShowQuoteDialog(true)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-6"
-                  >
-                    <FileText className="w-4 h-4 ml-2" />
-                    إنشاء فاتورة عرض
-                  </Button>
+                  <>
+                    <Button
+                      onClick={() => setShowQuoteDialog(true)}
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-6"
+                    >
+                      <FileText className="w-4 h-4 ml-2" />
+                      إنشاء فاتورة عرض
+                    </Button>
+                    <Button
+                      onClick={() => setShowBookingMode(true)}
+                      className="bg-purple-600 hover:bg-purple-700 text-white px-6"
+                    >
+                      <Settings className="w-4 h-4 ml-2" />
+                      وضع الحجز
+                    </Button>
+                  </>
                 )}
                 <Button
                   onClick={() => setShowEmailDialog(true)}
@@ -776,7 +807,7 @@ ${selectedBillboardsData
             <div className="w-24 h-24 mx-auto mb-6 bg-yellow-100 rounded-full flex items-center justify-center">
               <Search className="w-12 h-12 text-yellow-500" />
             </div>
-            <p className="text-gray-600 text-xl mb-4 font-bold">لا توجد لوحات تطا��ق معايير البحث</p>
+            <p className="text-gray-600 text-xl mb-4 font-bold">لا توجد لوحات تطا���ق معايير البحث</p>
             <p className="text-gray-500 font-semibold">جرب تغيير معايير البحث أو الفلاتر</p>
           </div>
         )}
@@ -861,6 +892,22 @@ ${selectedBillboardsData
             </div>
           </div>
         </div>
+      )}
+
+      {/* وضع الحجز */}
+      {showBookingMode && (
+        <BookingMode
+          isOpen={showBookingMode}
+          onClose={() => setShowBookingMode(false)}
+          selectedBillboards={selectedBillboards}
+          billboards={billboards}
+          onDateChange={(billboardId, date) => {
+            setBillboardDates(prev => ({
+              ...prev,
+              [billboardId]: date
+            }))
+          }}
+        />
       )}
     </div>
   )
