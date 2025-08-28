@@ -65,12 +65,26 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
     count: number
   }>({ totalPrice: 0, totalDailyRate: 0, count: 0 })
 
-  // Load available options
+  // Load available options and selected billboards
   useEffect(() => {
     const pricing = newPricingService.getPricing()
     setAvailableSizes(['5x13', '4x12', '4x10', '3x8', '3x6', '3x4'])
     setAvailableMunicipalities(Object.keys(pricing.zones))
-  }, [])
+
+    // Check if we have selected billboards
+    if (selectedBillboards && selectedBillboards.length > 0 && allBillboards) {
+      const selectedData = allBillboards.filter(billboard => selectedBillboards.includes(billboard.id))
+      setSelectedBillboardsData(selectedData)
+      setCalculationMode('multiple')
+
+      // Set default municipality from first selected billboard
+      if (selectedData.length > 0) {
+        setSelectedMunicipality(selectedData[0].municipality || 'مصراتة')
+      }
+    } else {
+      setCalculationMode('single')
+    }
+  }, [selectedBillboards, allBillboards])
 
   // Calculate pricing when inputs change
   useEffect(() => {
@@ -154,7 +168,7 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
       })
 
     } catch (error) {
-      console.error('خطأ في حساب التسعير:', error)
+      console.error('��طأ في حساب التسعير:', error)
     }
   }
 
