@@ -1,4 +1,4 @@
-import { PriceList, BillboardSize, QuoteItem, Quote, CustomerType, PackageDuration, PriceListType, SizeManagement, DurationPricing } from '@/types'
+import { PriceList, BillboardSize, QuoteItem, Quote, CustomerType, PackageDuration, PriceListType, SizeManagement, DurationPricing, PricingZone, CustomerTypePricing, ABPricing } from '@/types'
 import { formatGregorianDate } from '@/lib/dateUtils'
 
 // ا��مقاسات الافتراضية
@@ -52,7 +52,7 @@ const DEFAULT_LIBYA_MUNICIPALITIES = [
 
 // إنشاء منطقة سعرية افتراضية لبلدية
 const createDefaultZoneForMunicipality = (municipalityName: string): PricingZone => {
-  // تحديد معامل البلدية من municipalityService إن أمكن
+  // تحديد معا��ل البلدية من municipalityService إن أمكن
   let municipalityMultiplier = 1.0
   try {
     if (typeof window !== 'undefined' && (window as any).municipalityService) {
@@ -510,7 +510,7 @@ class NewPricingService implements SizeManagement {
         return { success: false, error: result.errors.join(', ') }
       }
     } catch (error: any) {
-      console.error('[NewPricingService] خطأ في مزامنة المناطق:', error)
+      console.error('[NewPricingService] خطأ ف�� مزامنة المناطق:', error)
       return { success: false, error: error.message }
     }
   }
@@ -630,7 +630,7 @@ class NewPricingService implements SizeManagement {
     const pricing = this.getPricing()
     const updatedPricing = { ...pricing }
 
-    // حذف المقاس من ج��يع المناطق
+    // حذف المقاس من ج����ع المناطق
     Object.keys(updatedPricing.zones).forEach(zoneName => {
       const zone = updatedPricing.zones[zoneName]
       
@@ -912,7 +912,7 @@ class NewPricingService implements SizeManagement {
               <th>الموقع</th>
               <th>المقاس</th>
               <th>قائمة السعر</th>
-              <th>السعر الأساسي</th>
+              <th>ا��سعر الأساسي</th>
               <th>الخصم</th>
               <th>الإجمالي</th>
             </tr>
@@ -1002,7 +1002,7 @@ class NewPricingService implements SizeManagement {
 
         <div class="footer">
           <p>الفارس الذهبي للدعاية والإعلان | هاتف: 218913228908+ | البريد: g.faris.business@gmail.com</p>
-          <p>نشكركم لثقتكم بخدماتنا ونتطلع للعمل معكم</p>
+          <p>نشكركم لثقتكم بخدماتنا و��تطلع للعمل معكم</p>
         </div>
 
         <script>
