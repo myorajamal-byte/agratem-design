@@ -79,7 +79,7 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
 
       // Set default municipality from first selected billboard
       if (selectedData.length > 0) {
-        setSelectedMunicipality(selectedData[0].municipality || '��صراتة')
+        setSelectedMunicipality(selectedData[0].municipality || 'مصراتة')
       }
     } else {
       setCalculationMode('single')
@@ -484,7 +484,7 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
               </div>
               <div>
                 <h1 className="text-2xl font-bold">
-                  {calculationMode === 'multiple' ? 'حاسبة تسعير اللوحا�� المختارة' : 'حاسبة التسعير المبسطة'}
+                  {calculationMode === 'multiple' ? 'حاسبة تسعير اللوحات المختارة' : 'حاسبة التسعير المبسطة'}
                 </h1>
                 <p className="text-sm opacity-90">
                   {calculationMode === 'multiple'
@@ -506,6 +506,27 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
         </div>
 
         <div className="p-6 overflow-y-auto max-h-[calc(95vh-120px)]">
+          {/* رسالة إرشادية عندما لا توجد لوحات مختارة */}
+          {calculationMode === 'multiple' && selectedBillboardsData.length === 0 && (
+            <Card className="mb-6 p-6 bg-gradient-to-r from-yellow-50 to-amber-50 border-2 border-yellow-300">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-yellow-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <List className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-xl font-bold text-yellow-900 mb-2">لا توجد لوحات مختارة</h3>
+                <p className="text-yellow-800 mb-4">
+                  لاستخدام هذه الميزة، يرجى اختيار لوحات من الصفحة الرئيسية أولاً، ثم الضغط على "حساب الأسعار"
+                </p>
+                <Button
+                  onClick={() => setCalculationMode('single')}
+                  className="bg-yellow-600 hover:bg-yellow-700 text-white"
+                >
+                  التبديل إلى الحساب المنفرد
+                </Button>
+              </div>
+            </Card>
+          )}
+
           {/* عرض اللوحات المختارة */}
           {calculationMode === 'multiple' && selectedBillboardsData.length > 0 && (
             <Card className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200">
@@ -756,7 +777,7 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
                         value={installationCost}
                         onChange={(e) => setInstallationCost(parseInt(e.target.value) || 0)}
                         min="0"
-                        placeholder="أد��ل تكلفة التركيب"
+                        placeholder="أدخل تكلفة التركيب"
                       />
                     </div>
                   )}
