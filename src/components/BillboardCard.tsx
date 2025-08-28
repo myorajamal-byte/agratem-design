@@ -90,14 +90,31 @@ export default function BillboardCard({ billboard, isSelected, onToggleSelection
 
       const pricing = newPricingService.getPricing()
 
+      // تطبيق حساب الخصم بناءً على المدة المحددة
+      let finalPrice = monthlyPrice
+      let totalPrice = monthlyPrice
+      let discount = 0
+      let durationLabel = 'شهرياً'
+
+      if (selectedDuration) {
+        const priceCalc = pricingService.calculatePriceWithDiscount(monthlyPrice, selectedDuration)
+        finalPrice = priceCalc.finalPrice
+        totalPrice = priceCalc.finalPrice * selectedDuration.value
+        discount = priceCalc.discount
+        durationLabel = selectedDuration.label
+      }
+
       return {
         zone,
         priceList,
         monthlyPrice,
+        finalPrice,
+        totalPrice,
+        discount,
         installationPrice,
         installationZone,
         currency: pricing.currency || 'د.ل',
-        unit: 'شهرياً'
+        unit: durationLabel
       }
     } catch (error) {
       console.error('خطأ في حساب السعر:', error)
@@ -105,10 +122,13 @@ export default function BillboardCard({ billboard, isSelected, onToggleSelection
         zone: billboard.municipality,
         priceList: 'A',
         monthlyPrice: 0,
+        finalPrice: 0,
+        totalPrice: 0,
+        discount: 0,
         installationPrice: 0,
         installationZone: 'المنطقة الأساسية',
         currency: 'د.ل',
-        unit: 'شهرياً'
+        unit: selectedDuration?.label || 'شهرياً'
       }
     }
   }
