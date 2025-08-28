@@ -2,16 +2,16 @@ import React, { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { 
-  CheckCircle, 
-  AlertTriangle, 
-  RefreshCw, 
-  Info, 
+import {
+  CheckCircle,
+  AlertTriangle,
+  RefreshCw,
+  Info,
   PlayCircle,
   Database,
   Settings,
   FileSpreadsheet,
-  Sync
+  RotateCcw
 } from 'lucide-react'
 import { PricingSystemTest, quickSystemTest, getSystemInfo } from '@/utils/pricingSystemTest'
 import { usePricingZoneSync } from '@/hooks/usePricingZoneSync'
@@ -35,7 +35,7 @@ const PricingSystemStatus: React.FC = () => {
     getSyncStats 
   } = usePricingZoneSync()
 
-  // تحميل معلومات النظام عند التحميل
+  // تح��يل معلومات النظام عند التحميل
   useEffect(() => {
     loadSystemInfo()
   }, [])
@@ -81,7 +81,7 @@ const PricingSystemStatus: React.FC = () => {
     <div className="space-y-6 p-6 max-w-4xl mx-auto">
       <div className="text-center">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          حالة نظام إدارة المناطق السعرية
+          حالة نظام إدارة ��لمناطق السعرية
         </h1>
         <p className="text-gray-600">
           مراقبة وتشخيص النظام الجديد لمزامنة المناطق السعرية مع ملف الإكسل
