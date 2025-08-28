@@ -404,7 +404,7 @@ class NewPricingService implements SizeManagement {
   }
 
   /**
-   * تحديد المنطقة السعرية بناءً على البلدية مباشرة
+   * تحديد المنطقة السعرية ب��اءً على البلدية مباشرة
    * المنطقة السعرية هي نفس اسم البلدية
    */
   determinePricingZone(municipality: string, area?: string): string {
@@ -431,9 +431,10 @@ class NewPricingService implements SizeManagement {
 
     // إنشاء منطقة جديدة تلقائياً للبلدية
     console.log(`إنشاء منطقة سعرية جديدة للبلدية: ${municipality}`)
+    const zoneName = municipality.trim()
     this.addPricingZoneForMunicipality(municipality)
 
-    return municipality
+    return zoneName
   }
 
   /**
