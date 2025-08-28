@@ -52,6 +52,19 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
   const [availableMunicipalities, setAvailableMunicipalities] = useState<string[]>([])
   const [calculation, setCalculation] = useState<PricingCalculation | null>(null)
 
+  // Selected billboards data
+  const [selectedBillboardsData, setSelectedBillboardsData] = useState<Billboard[]>([])
+  const [calculationMode, setCalculationMode] = useState<'single' | 'multiple'>('single')
+  const [multipleCalculations, setMultipleCalculations] = useState<Array<{
+    billboard: Billboard
+    calculation: PricingCalculation
+  }>>([])
+  const [totalCalculation, setTotalCalculation] = useState<{
+    totalPrice: number
+    totalDailyRate: number
+    count: number
+  }>({ totalPrice: 0, totalDailyRate: 0, count: 0 })
+
   // Load available options
   useEffect(() => {
     const pricing = newPricingService.getPricing()
@@ -271,7 +284,7 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
               </div>
               <div>
                 <h1 className="text-2xl font-bold">حاسبة التسعير المبسطة</h1>
-                <p className="text-sm opacity-90">احسب أسعار اللوحا�� الإعلانية بسهولة</p>
+                <p className="text-sm opacity-90">احسب أسعار اللوحات الإعلانية بسهولة</p>
               </div>
             </div>
             <Button
