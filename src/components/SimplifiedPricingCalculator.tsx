@@ -219,7 +219,7 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
         } else {
           const daysInPackage = packageDuration === 30 ? 30 : packageDuration === 90 ? 90 : packageDuration === 180 ? 180 : 365
           dailyRate = finalPrice / daysInPackage
-          breakdown.push(`السعر ا��يومي للباقة: ${dailyRate.toFixed(2)} د.ل`)
+          breakdown.push(`السعر اليومي للباقة: ${dailyRate.toFixed(2)} د.ل`)
         }
 
         // Add installation cost if needed
@@ -662,7 +662,7 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
               <Card className="p-4">
                 <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
                   <MapPin className="w-5 h-5 text-orange-600" />
-                  الموقع والعميل
+                  الموقع ��العميل
                 </h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -789,7 +789,7 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">البريد الإلكت��وني</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1">البريد الإلكتروني</label>
                     <Input
                       value={customerInfo.email}
                       onChange={(e) => setCustomerInfo(prev => ({ ...prev, email: e.target.value }))}
@@ -1000,20 +1000,35 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
                 <div className="space-y-3">
                   <Button
                     onClick={generateQuote}
-                    disabled={!customerInfo.name || !calculation}
+                    disabled={!customerInfo.name || (calculationMode === 'single' && !calculation) || (calculationMode === 'multiple' && multipleCalculations.length === 0)}
                     className="w-full bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white py-3"
                   >
                     <FileText className="w-5 h-5 ml-2" />
-                    إنشاء عرض سعر
+                    {calculationMode === 'multiple' ? 'إنشاء عرض حملة إعلانية' : 'إنشاء عرض سعر'}
                   </Button>
                   <Button
                     onClick={() => {
-                      const data = {
+                      const data = calculationMode === 'multiple' ? {
+                        mode: 'multiple',
+                        billboards: selectedBillboardsData.length,
+                        calculations: multipleCalculations.map(c => ({
+                          billboard: c.billboard.name,
+                          size: c.billboard.size,
+                          municipality: c.billboard.municipality,
+                          price: c.calculation.finalPrice
+                        })),
+                        total: totalCalculation,
+                        customerType: selectedCustomerType,
+                        pricingMode: pricingMode,
+                        days: pricingMode === 'daily' ? daysCount : undefined,
+                        package: pricingMode === 'package' ? packageDuration : undefined
+                      } : {
+                        mode: 'single',
                         size: selectedSize,
                         level: selectedLevel,
                         municipality: selectedMunicipality,
                         customerType: selectedCustomerType,
-                        mode: pricingMode,
+                        pricingMode: pricingMode,
                         days: pricingMode === 'daily' ? daysCount : undefined,
                         package: pricingMode === 'package' ? packageDuration : undefined,
                         calculation
