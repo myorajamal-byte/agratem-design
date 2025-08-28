@@ -1,4 +1,15 @@
 import React, { useState, useEffect } from 'react'
+import {
+  TrendingUp,
+  X,
+  Settings,
+  Building2,
+  MapPin,
+  DollarSign,
+  Search,
+  Plus,
+  Download
+} from 'lucide-react'
 import { dynamicPricingService } from '@/services/dynamicPricingService'
 import { pricingService } from '@/services/pricingService'
 import { municipalityService, Municipality } from '@/services/municipalityService'
