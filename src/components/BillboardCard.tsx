@@ -4,6 +4,8 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Billboard, BillboardSize } from "@/types"
 import { pricingService } from "@/services/pricingService"
+import { newPricingService } from "@/services/newPricingService"
+import { installationPricingService } from "@/services/installationPricingService"
 
 interface BillboardCardProps {
   billboard: Billboard
@@ -31,19 +33,82 @@ export default function BillboardCard({ billboard, isSelected, onToggleSelection
 
   // حساب السعر والمنطقة السعرية
   const getPricingInfo = () => {
-    if (!showPricing) return null
+    if (!showPricing) {
+      console.log('BillboardCard: showPricing is false, skipping price calculation')
+      return null
+    }
 
-    // استخدام البلدية مباشرة كمنطقة سعرية مع إضافة المنطقة إذا لم توجد
-    const zone = pricingService.determinePricingZone(billboard.municipality)
-    pricingService.addPricingZoneForMunicipality(billboard.municipality)
-    const price = pricingService.getBillboardPrice(billboard.size as BillboardSize, zone, 'companies', billboard.municipality) // استخدام سعر الشركات كافتراضي مع معامل البلدية
-    const pricing = pricingService.getPricing()
+    console.log('BillboardCard: Calculating pricing for', billboard.name, billboard.municipality, billboard.size, billboard.level)
 
-    return {
-      zone,
-      price,
-      currency: pricing.currency,
-      unit: 'شهرياً' // إضافة وحدة الوقت
+    try {
+      // تحديد المنطقة السعرية
+      const zone = newPricingService.determinePricingZone(billboard.municipality) || pricingService.determinePricingZone(billboard.municipality)
+
+      // تحديد قائمة الأسعار (A أو B) من مستوى اللوحة
+      const priceList = newPricingService.determinePriceListFromBillboard(billboard)
+
+      // حساب السعر الشهري باستخدام النظام الجديد
+      let monthlyPrice = newPricingService.getBillboardPriceABWithDuration(
+        billboard.size as BillboardSize,
+        zone,
+        priceList,
+        1, // شهر واحد
+        billboard.municipality
+      )
+
+      // إذا لم يجد سعر في النظام الجديد، استخدم النظام القديم
+      if (monthlyPrice === 0) {
+        pricingService.addPricingZoneForMunicipality(billboard.municipality)
+        monthlyPrice = pricingService.getBillboardPriceAB(
+          billboard.size as BillboardSize,
+          zone,
+          priceList,
+          billboard.municipality
+        )
+
+        // إذا لم يجد في A/B، جرب النظام التقليدي
+        if (monthlyPrice === 0) {
+          monthlyPrice = pricingService.getBillboardPrice(
+            billboard.size as BillboardSize,
+            zone,
+            'companies',
+            billboard.municipality
+          )
+        }
+      }
+
+      // حساب سعر التركيب
+      const installationZone = installationPricingService.determineInstallationZone(
+        billboard.municipality,
+        billboard.area
+      )
+      const installationPrice = installationPricingService.getInstallationPrice(
+        billboard.size as BillboardSize,
+        installationZone
+      )
+
+      const pricing = newPricingService.getPricing()
+
+      return {
+        zone,
+        priceList,
+        monthlyPrice,
+        installationPrice,
+        installationZone,
+        currency: pricing.currency || 'د.ل',
+        unit: 'شهرياً'
+      }
+    } catch (error) {
+      console.error('خطأ في حساب السعر:', error)
+      return {
+        zone: billboard.municipality,
+        priceList: 'A',
+        monthlyPrice: 0,
+        installationPrice: 0,
+        installationZone: 'المنطقة الأساسية',
+        currency: 'د.ل',
+        unit: 'شهرياً'
+      }
     }
   }
 
@@ -187,26 +252,70 @@ export default function BillboardCard({ billboard, isSelected, onToggleSelection
           {/* معلومات الأسعار للأدمن */}
           {showPricing && pricingInfo && (
             <div className="border-t border-gray-200 pt-3" dir="rtl">
-              <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-3">
-                <h4 className="text-sm font-bold text-green-800 mb-2 text-right font-sans flex items-center gap-2" dir="rtl">
-                  <DollarSign className="w-4 h-4" />
-                  معلومات التسعير
+              <div className="bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 border-2 border-emerald-200 rounded-xl p-4 shadow-lg">
+                <h4 className="text-lg font-black text-emerald-800 mb-3 text-right font-sans flex items-center gap-3" dir="rtl">
+                  <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center">
+                    <DollarSign className="w-5 h-5 text-white" />
+                  </div>
+                  معلومات التسعير الشاملة
                 </h4>
-                <div className="space-y-1 text-right">
-                  <div className="flex" dir="rtl" style={{justifyContent: 'space-between'}}>
-                    <span className="text-sm text-green-900 font-bold font-sans">{pricingInfo.zone}</span>
-                    <span className="text-sm text-green-700 font-semibold font-sans">:المنطقة السعرية</span>
+
+                <div className="space-y-3 text-right">
+                  {/* المنطقة ومستوى اللوحة */}
+                  <div className="bg-white/70 rounded-lg p-3 border border-emerald-100">
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="flex" dir="rtl" style={{justifyContent: 'space-between'}}>
+                        <span className="text-sm text-emerald-900 font-bold font-sans">{pricingInfo.zone}</span>
+                        <span className="text-xs text-emerald-700 font-semibold font-sans">:المنطقة</span>
+                      </div>
+                      <div className="flex" dir="rtl" style={{justifyContent: 'space-between'}}>
+                        <span className="text-sm text-emerald-900 font-bold font-sans bg-emerald-100 px-2 py-1 rounded-full">
+                          مستوى {pricingInfo.priceList}
+                        </span>
+                        <span className="text-xs text-emerald-700 font-semibold font-sans">:التصنيف</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex" dir="rtl" style={{justifyContent: 'space-between'}}>
-                    <span className="text-lg text-green-900 font-black font-sans">
-                      {pricingInfo.price.toLocaleString()} {pricingInfo.currency}
-                    </span>
-                    <span className="text-sm text-green-700 font-semibold font-sans">:السعر {pricingInfo.unit}</span>
+
+                  {/* السعر الشهري */}
+                  <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg p-3 border border-blue-200">
+                    <div className="flex" dir="rtl" style={{justifyContent: 'space-between'}}>
+                      <span className="text-xl text-blue-900 font-black font-sans">
+                        {pricingInfo.monthlyPrice.toLocaleString()} {pricingInfo.currency}
+                      </span>
+                      <div className="text-right">
+                        <span className="text-sm text-blue-700 font-semibold font-sans block">:السعر {pricingInfo.unit}</span>
+                        <span className="text-xs text-blue-600 font-medium font-sans">{billboard.size}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex" dir="rtl" style={{justifyContent: 'space-between'}}>
-                    <span className="text-sm text-green-900 font-bold font-sans">{billboard.size}</span>
-                    <span className="text-sm text-green-700 font-semibold font-sans">:المقاس</span>
-                  </div>
+
+                  {/* سعر التركيب */}
+                  {pricingInfo.installationPrice > 0 && (
+                    <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg p-3 border border-amber-200">
+                      <div className="flex" dir="rtl" style={{justifyContent: 'space-between'}}>
+                        <span className="text-lg text-amber-900 font-bold font-sans">
+                          {pricingInfo.installationPrice.toLocaleString()} {pricingInfo.currency}
+                        </span>
+                        <div className="text-right">
+                          <span className="text-sm text-amber-700 font-semibold font-sans block">:سعر التركيب</span>
+                          <span className="text-xs text-amber-600 font-medium font-sans">{pricingInfo.installationZone}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* الإجمالي */}
+                  {pricingInfo.installationPrice > 0 && (
+                    <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-3 border-2 border-purple-200">
+                      <div className="flex" dir="rtl" style={{justifyContent: 'space-between'}}>
+                        <span className="text-xl text-purple-900 font-black font-sans">
+                          {(pricingInfo.monthlyPrice + pricingInfo.installationPrice).toLocaleString()} {pricingInfo.currency}
+                        </span>
+                        <span className="text-sm text-purple-700 font-bold font-sans">:الإجمالي (شهر + تركيب)</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
