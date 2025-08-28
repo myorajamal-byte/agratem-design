@@ -284,7 +284,7 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
 
   const generateQuote = () => {
     if (!calculation || !customerInfo.name) {
-      alert('يرجى ملء معلومات العميل ل��نشاء عرض السعر')
+      alert('يرجى ملء معلومات العميل لإنشاء عرض السعر')
       return
     }
 
@@ -422,6 +422,51 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
         </div>
 
         <div className="p-6 overflow-y-auto max-h-[calc(95vh-120px)]">
+          {/* عرض اللوحات المختارة */}
+          {calculationMode === 'multiple' && selectedBillboardsData.length > 0 && (
+            <Card className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200">
+              <h3 className="text-lg font-bold text-blue-900 mb-4 flex items-center gap-2">
+                <List className="w-5 h-5" />
+                اللوحات المختارة ({selectedBillboardsData.length})
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 max-h-48 overflow-y-auto">
+                {selectedBillboardsData.map((billboard, index) => (
+                  <div
+                    key={billboard.id}
+                    className="bg-white p-3 rounded-lg border border-blue-200 shadow-sm"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                        {index + 1}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-semibold text-gray-900 text-sm truncate">
+                          {billboard.name}
+                        </div>
+                        <div className="text-xs text-gray-600 truncate">
+                          {billboard.location}
+                        </div>
+                        <div className="flex gap-2 mt-1">
+                          <Badge variant="outline" className="text-xs">
+                            {billboard.size}
+                          </Badge>
+                          <Badge variant="outline" className="text-xs">
+                            {billboard.municipality}
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 p-3 bg-blue-100 rounded-lg">
+                <div className="text-sm text-blue-800 text-center">
+                  💡 سيتم حساب سعر كل لوحة بناءً على مواصفاتها الخاصة
+                </div>
+              </div>
+            </Card>
+          )}
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Left Panel - Inputs */}
             <div className="space-y-6">
