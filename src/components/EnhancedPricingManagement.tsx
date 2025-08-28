@@ -561,13 +561,17 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
           {/* Notification */}
           {notification && (
             <div className={`mb-6 p-4 rounded-lg border-l-4 ${
-              notification.type === 'success' 
-                ? 'bg-green-50 border-green-400 text-green-700' 
+              notification.type === 'success'
+                ? 'bg-green-50 border-green-400 text-green-700'
+                : notification.type === 'info'
+                ? 'bg-blue-50 border-blue-400 text-blue-700'
                 : 'bg-red-50 border-red-400 text-red-700'
             }`}>
               <div className="flex items-center gap-2">
                 {notification.type === 'success' ? (
                   <CheckCircle className="w-5 h-5" />
+                ) : notification.type === 'info' ? (
+                  <Info className="w-5 h-5" />
                 ) : (
                   <AlertTriangle className="w-5 h-5" />
                 )}
