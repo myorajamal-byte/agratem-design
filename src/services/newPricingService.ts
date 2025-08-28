@@ -42,39 +42,67 @@ const createDefaultABPricing = (): DurationPricing => ({
   '12': createDefaultPricesForDuration(12)
 })
 
-// قائمة الأسعار الافتراضية الجديدة
-const DEFAULT_PRICING_NEW: PriceList = {
-  zones: {
-    'مصراتة': {
-      name: 'مصراتة',
-      prices: {
-        marketers: createDefaultPricesForDuration(1),
-        individuals: createDefaultPricesForDuration(1),
-        companies: createDefaultPricesForDuration(1)
-      },
-      abPrices: {
-        A: createDefaultABPricing(),
-        B: {
-          '1': createDefaultPricesForDuration(1),
-          '3': createDefaultPricesForDuration(3),
-          '6': createDefaultPricesForDuration(6),
-          '12': createDefaultPricesForDuration(12)
-        }
-      }
-    },
-    'أبو سليم': {
-      name: 'أبو سليم',
-      prices: {
-        marketers: createDefaultPricesForDuration(1),
-        individuals: createDefaultPricesForDuration(1),
-        companies: createDefaultPricesForDuration(1)
-      },
-      abPrices: {
-        A: createDefaultABPricing(),
-        B: createDefaultABPricing()
+// قائمة البلديات الليبية الأساسية
+const DEFAULT_LIBYA_MUNICIPALITIES = [
+  'مصراتة', 'طرابلس', 'بنغازي', 'زليتن', 'الخمس', 'سرت',
+  'أبو سليم', 'تاجوراء', 'جنزور', 'الزاوية', 'صبراتة',
+  'درنة', 'البيضاء', 'المرج', 'الك��رة', 'سبها',
+  'مزدة', 'ترهونة', 'غريان', 'يفرن', 'نالوت'
+]
+
+// إنشاء منطقة سعرية افتراضية لبلدية
+const createDefaultZoneForMunicipality = (municipalityName: string): PricingZone => {
+  // تحديد معامل البلدية من municipalityService إن أمكن
+  let municipalityMultiplier = 1.0
+  try {
+    if (typeof window !== 'undefined' && (window as any).municipalityService) {
+      const municipality = (window as any).municipalityService.getMunicipalityByName(municipalityName)
+      if (municipality) {
+        municipalityMultiplier = municipality.multiplier
       }
     }
-  },
+  } catch (error) {
+    console.log(`استخدام معامل افتراضي للبلدية: ${municipalityName}`)
+  }
+
+  // تطبيق المعامل على الأسعار الأساسية
+  const adjustedPrices = (basePrices: Record<string, number>) => {
+    const adjusted: Record<string, number> = {}
+    Object.keys(basePrices).forEach(size => {
+      adjusted[size] = Math.round(basePrices[size] * municipalityMultiplier)
+    })
+    return adjusted
+  }
+
+  const adjustedABPricing = (): DurationPricing => {
+    const basePricing = createDefaultABPricing()
+    const adjusted: DurationPricing = {}
+    Object.keys(basePricing).forEach(duration => {
+      adjusted[duration as keyof DurationPricing] = adjustedPrices(basePricing[duration as keyof DurationPricing])
+    })
+    return adjusted
+  }
+
+  return {
+    name: municipalityName,
+    prices: {
+      marketers: adjustedPrices(createDefaultPricesForDuration(1)),
+      individuals: adjustedPrices(createDefaultPricesForDuration(1)),
+      companies: adjustedPrices(createDefaultPricesForDuration(1))
+    },
+    abPrices: {
+      A: adjustedABPricing(),
+      B: adjustedABPricing()
+    }
+  }
+}
+
+// قائمة الأسعار الافتراضية الجديدة
+const DEFAULT_PRICING_NEW: PriceList = {
+  zones: DEFAULT_LIBYA_MUNICIPALITIES.reduce((zones, municipality) => {
+    zones[municipality] = createDefaultZoneForMunicipality(municipality)
+    return zones
+  }, {} as Record<string, PricingZone>),
   packages: DEFAULT_PACKAGES,
   currency: 'د.ل'
 }
@@ -231,7 +259,7 @@ class NewPricingService implements SizeManagement {
 
     const basePrice = zoneData.prices[customerType][size]
 
-    // تطبيق معامل البلدية إذا تم توفيره (افتراضي: 1)
+    // تطبيق معامل البلدية إذا تم توفيره (ا��تراضي: 1)
     if (municipality) {
       const multiplier = this.getMunicipalityMultiplier(municipality)
       return Math.round(basePrice * multiplier)
@@ -945,7 +973,7 @@ class NewPricingService implements SizeManagement {
           <ul>
             <li>هذا العرض صالح لمدة 30 يوماً من تاريخ الإصدار</li>
             <li>الأسعار تحدد تلقائياً حسب تصنيف اللوحة (A أو B)</li>
-            <li>يتم الدفع مقدماً قبل بدء الحملة الإعلانية</li>
+            <li>��تم الدفع مقدماً قبل بدء الحملة الإعلانية</li>
             <li>في حالة إلغاء الحجز، يتم استرداد 50% من المبلغ المدفوع</li>
             <li>الشركة غير مسؤولة ��ن أي أضرار طبيعية قد تلحق باللوحة</li>
             <li>يحق للشركة تغيير موقع اللوحة في حالات الضرورة القصوى</li>
