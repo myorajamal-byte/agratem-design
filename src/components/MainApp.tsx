@@ -684,6 +684,7 @@ ${selectedBillboardsData
               onToggleSelection={toggleBillboardSelection}
               onViewImage={setSelectedImage}
               showPricing={user?.permissions.some(p => p.name === 'admin_access')}
+              selectedDuration={selectedPricingDuration}
             />
           ))}
         </div>
