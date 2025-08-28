@@ -283,31 +283,51 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
   }
 
   const generateQuote = () => {
-    if (!calculation || !customerInfo.name) {
+    if (!customerInfo.name) {
       alert('يرجى ملء معلومات العميل لإنشاء عرض السعر')
+      return
+    }
+
+    if (calculationMode === 'multiple' && multipleCalculations.length === 0) {
+      alert('لا توجد حسابات للوحات المختارة')
+      return
+    }
+
+    if (calculationMode === 'single' && !calculation) {
+      alert('يرجى إدخال بيانات اللوحة لإنشاء عرض السعر')
       return
     }
 
     const quoteData = {
       date: new Date().toLocaleDateString('ar-SA'),
       customer: customerInfo,
-      billboard: {
-        size: selectedSize,
-        level: selectedLevel,
-        municipality: selectedMunicipality,
-        customerType: selectedCustomerType
+      mode: calculationMode,
+      billing: calculationMode === 'multiple' ? {
+        billboards: selectedBillboardsData,
+        calculations: multipleCalculations,
+        total: totalCalculation
+      } : {
+        billboard: {
+          size: selectedSize,
+          level: selectedLevel,
+          municipality: selectedMunicipality,
+          customerType: selectedCustomerType
+        },
+        calculation
       },
       pricing: {
         mode: pricingMode,
         days: pricingMode === 'daily' ? daysCount : undefined,
         package: pricingMode === 'package' ? packageDuration : undefined,
-        calculation
+        customerType: selectedCustomerType,
+        needInstallation,
+        installationCost
       }
     }
 
     // Generate quote document
     const quoteHtml = generateQuoteHTML(quoteData)
-    
+
     // Open in new window for printing
     const printWindow = window.open('', '_blank')
     if (printWindow) {
@@ -416,7 +436,7 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
               size="sm"
               className="bg-white/20 border-white/30 text-white hover:bg-white/30"
             >
-              إغ��اق
+              إغلاق
             </Button>
           </div>
         </div>
