@@ -205,20 +205,67 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
   }
 
   // Initialize default pricing data
-  const initializePricingData = () => {
-    const initialPrices: Record<string, Record<string, number>> = {}
-    
-    pricingData.sizes.forEach(size => {
-      initialPrices[size] = {}
-      pricingData.categories.forEach(category => {
-        // Generate realistic pricing based on size and category
-        const basePrice = getSizeBasePrice(size)
-        const categoryMultiplier = getCategoryMultiplier(category.id)
-        initialPrices[size][category.id] = Math.round(basePrice * categoryMultiplier)
-      })
-    })
+  const initializePricingData = async () => {
+    try {
+      // Load from the new pricing service
+      const { newPricingService } = await import('@/services/newPricingService')
+      const pricingFromService = newPricingService.getPricing()
 
-    setPricingData(prev => ({ ...prev, prices: initialPrices }))
+      // Update municipalities list from pricing zones
+      const availableZones = Object.keys(pricingFromService.zones)
+      const updatedMunicipalities = availableZones.map((zoneName, index) => ({
+        id: (index + 1).toString(),
+        name: zoneName,
+        multiplier: 1.0 // Will be updated from municipality service if available
+      }))
+
+      // Try to get multipliers from municipality service
+      try {
+        const { municipalityService } = await import('@/services/municipalityService')
+        updatedMunicipalities.forEach(muni => {
+          const municipalityData = municipalityService.getMunicipalityByName(muni.name)
+          if (municipalityData) {
+            muni.multiplier = municipalityData.multiplier
+          }
+        })
+      } catch (error) {
+        console.warn('Municipality service not available, using default multipliers')
+      }
+
+      const initialPrices: Record<string, Record<string, number>> = {}
+
+      pricingData.sizes.forEach(size => {
+        initialPrices[size] = {}
+        pricingData.categories.forEach(category => {
+          // Generate realistic pricing based on size and category
+          const basePrice = getSizeBasePrice(size)
+          const categoryMultiplier = getCategoryMultiplier(category.id)
+          initialPrices[size][category.id] = Math.round(basePrice * categoryMultiplier)
+        })
+      })
+
+      setPricingData(prev => ({
+        ...prev,
+        prices: initialPrices,
+        municipalities: updatedMunicipalities
+      }))
+
+    } catch (error) {
+      console.error('خطأ في تحميل بيانات الأسعار:', error)
+      // Fallback to original initialization
+      const initialPrices: Record<string, Record<string, number>> = {}
+
+      pricingData.sizes.forEach(size => {
+        initialPrices[size] = {}
+        pricingData.categories.forEach(category => {
+          const basePrice = getSizeBasePrice(size)
+          const categoryMultiplier = getCategoryMultiplier(category.id)
+          initialPrices[size][category.id] = Math.round(basePrice * categoryMultiplier)
+        })
+      })
+
+      setPricingData(prev => ({ ...prev, prices: initialPrices }))
+    }
   }
 
   // Get base price for size
@@ -425,7 +472,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       }
     })
 
-    showNotification('success', `تم إضافة ��قاس "${newSize}" ب��جاح`)
+    showNotification('success', `تم إضافة ��قاس "${newSize}" بنجاح`)
   }
 
   // Delete size
