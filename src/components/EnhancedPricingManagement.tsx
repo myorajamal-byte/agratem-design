@@ -137,8 +137,11 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
 
   // Initialize pricing data and check sync status
   useEffect(() => {
-    initializePricingData()
-    checkSyncStatus()
+    const init = async () => {
+      await initializePricingData()
+      await checkSyncStatus()
+    }
+    init()
   }, [])
 
   // Check if sync is needed
@@ -563,7 +566,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
 
   // Reset all changes
   const resetAllChanges = () => {
-    if (window.confirm('هل أنت متأكد من إلغاء جميع التغييرات غير المحفوظة؟')) {
+    if (window.confirm('هل ��نت متأكد من إلغاء جميع التغييرات غير المحفوظة؟')) {
       initializePricingData()
       setUnsavedChanges({ hasChanges: false, changedCells: new Set() })
       showNotification('success', 'تم إلغاء جميع التغييرات')
