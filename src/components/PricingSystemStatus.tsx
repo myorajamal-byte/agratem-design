@@ -154,7 +154,7 @@ const PricingSystemStatus: React.FC = () => {
               {isLoading ? (
                 <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
               ) : (
-                <Sync className="w-4 h-4 mr-2" />
+                <RotateCcw className="w-4 h-4 mr-2" />
               )}
               مزامنة المناطق الآن
             </Button>
