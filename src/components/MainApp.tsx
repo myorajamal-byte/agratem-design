@@ -193,7 +193,7 @@ ${selectedBillboardsData
 
       window.open(mailtoLink, "_blank")
 
-      alert("تم فتح برنامج البريد الإلكتروني مع ��فاصيل اللوحات المختارة!")
+      alert("تم فتح برنامج البريد الإلكتروني مع ��فاص��ل اللوحات المختارة!")
       setShowEmailDialog(false)
       clearSelection()
       setCustomerEmail("")
@@ -393,7 +393,7 @@ ${selectedBillboardsData
           <div class="logo-section">
             <img src="${window.location.origin}/logo-symbol.svg" alt="شعار الشركة" class="logo" onerror="this.style.display='none'" />
             <div class="company-info">
-              <div class="company-name-ar">��لفــــارس الذ��بــــي</div>
+              <div class="company-name-ar">الفــــارس الذ��بــــي</div>
               <div class="company-name-en">AL FARES AL DAHABI</div>
               <div class="company-name-ar" style="font-size: 10px;">للدعــــــاية والإعـــلان</div>
             </div>
@@ -461,7 +461,7 @@ ${selectedBillboardsData
                       عرض الموقع
                     </a>
                   `
-                      : '<span style="color: #666; font-size: 8px;">غير متوفر</span>'
+                      : '<span style="color: #666; font-size: 8px;">غير ��توفر</span>'
                   }
                 </td>
               </tr>
@@ -625,6 +625,13 @@ ${selectedBillboardsData
               >
                 <Calculator className="w-4 h-4 mr-2" />
                 حاسبة التسعير المبسطة
+              </Button>
+              <Button
+                onClick={() => setShowSystemGuide(true)}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white"
+              >
+                <BookOpen className="w-4 h-4 mr-2" />
+                دليل استخدام النظام
               </Button>
               <Button
                 onClick={() => setShowPricingManagement(true)}
