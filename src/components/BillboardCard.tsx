@@ -34,6 +34,14 @@ export default function BillboardCard({ billboard, isSelected, onToggleSelection
 
   // حساب السعر والمنطقة السعرية
   const getPricingInfo = () => {
+    console.log('BillboardCard: getPricingInfo called', {
+      showPricing,
+      billboardName: billboard.name,
+      municipality: billboard.municipality,
+      size: billboard.size,
+      level: billboard.level
+    })
+
     if (!showPricing) {
       console.log('BillboardCard: showPricing is false, skipping price calculation')
       return null
@@ -44,9 +52,11 @@ export default function BillboardCard({ billboard, isSelected, onToggleSelection
     try {
       // تحديد المنطقة السعرية
       const zone = newPricingService.determinePricingZone(billboard.municipality) || pricingService.determinePricingZone(billboard.municipality)
+      console.log('BillboardCard: Determined zone:', zone)
 
       // تحديد قائمة الأسعار (A أو B) من مستوى اللوحة
       const priceList = newPricingService.determinePriceListFromBillboard(billboard)
+      console.log('BillboardCard: Determined priceList:', priceList)
 
       // حساب السعر الشهري باستخدام النظام الجديد
       let monthlyPrice = newPricingService.getBillboardPriceABWithDuration(
@@ -56,9 +66,11 @@ export default function BillboardCard({ billboard, isSelected, onToggleSelection
         1, // شهر واحد
         billboard.municipality
       )
+      console.log('BillboardCard: newPricingService price:', monthlyPrice)
 
       // إذا لم يجد سعر في النظام الجديد، استخدم النظام القديم
       if (monthlyPrice === 0) {
+        console.log('BillboardCard: newPricingService returned 0, trying pricingService')
         pricingService.addPricingZoneForMunicipality(billboard.municipality)
         monthlyPrice = pricingService.getBillboardPriceAB(
           billboard.size as BillboardSize,
@@ -66,6 +78,7 @@ export default function BillboardCard({ billboard, isSelected, onToggleSelection
           priceList,
           billboard.municipality
         )
+        console.log('BillboardCard: pricingService.getBillboardPriceAB:', monthlyPrice)
 
         // إذا لم يجد في A/B، جرب النظام التقليدي
         if (monthlyPrice === 0) {
@@ -75,6 +88,7 @@ export default function BillboardCard({ billboard, isSelected, onToggleSelection
             'companies',
             billboard.municipality
           )
+          console.log('BillboardCard: pricingService.getBillboardPrice (companies):', monthlyPrice)
         }
       }
 
