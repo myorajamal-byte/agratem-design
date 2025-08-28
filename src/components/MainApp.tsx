@@ -193,7 +193,7 @@ ${selectedBillboardsData
 
       window.open(mailtoLink, "_blank")
 
-      alert("تم فتح برنامج البريد الإلكتروني مع ��فاص��ل اللوحات المختارة!")
+      alert("تم فتح برنامج البريد الإلكتروني مع ��فاصيل اللوحات المختارة!")
       setShowEmailDialog(false)
       clearSelection()
       setCustomerEmail("")
@@ -461,7 +461,7 @@ ${selectedBillboardsData
                       عرض الموقع
                     </a>
                   `
-                      : '<span style="color: #666; font-size: 8px;">غير ��توفر</span>'
+                      : '<span style="color: #666; font-size: 8px;">غير متوفر</span>'
                   }
                 </td>
               </tr>
@@ -932,6 +932,13 @@ ${selectedBillboardsData
       {showSimplifiedCalculator && (
         <SimplifiedPricingCalculator
           onClose={() => setShowSimplifiedCalculator(false)}
+        />
+      )}
+
+      {/* دليل النظام */}
+      {showSystemGuide && (
+        <PricingSystemGuide
+          onClose={() => setShowSystemGuide(false)}
         />
       )}
     </div>
