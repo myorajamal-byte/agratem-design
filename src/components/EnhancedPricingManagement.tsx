@@ -446,7 +446,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
     // Auto-save new category (this is more for demo - categories are UI-specific)
     try {
       await autoSaveChanges({})
-      console.log(`تم حفظ الفئة الجدي��ة تلقائياً: ${newCategory.name}`)
+      console.log(`تم حفظ الفئة الجديدة تلقائياً: ${newCategory.name}`)
     } catch (error) {
       console.warn('لم يتم حفظ الفئة الجديدة تلقائياً:', error)
     }
@@ -875,13 +875,13 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                    <Sync className="w-6 h-6 text-blue-600" />
+                    <RotateCcw className="w-6 h-6 text-blue-600" />
                   </div>
                   <div>
                     <h3 className="font-bold text-blue-900">مزامنة المناطق السعرية مع ملف الإكسل</h3>
                     {syncStatus.needsSync ? (
                       <p className="text-sm text-blue-700">
-                        🔥 ��م العثور عل�� <span className="font-bold">{syncStatus.missingZones?.length || 0}</span> منطقة جديدة في ملف الإكسل تحتاج إلى مزامنة
+                        🔥 تم العثور عل�� <span className="font-bold">{syncStatus.missingZones?.length || 0}</span> منطقة جديدة في ملف الإكسل تحتاج إلى مزامنة
                       </p>
                     ) : syncStatus.lastSync ? (
                       <p className="text-sm text-green-700">
