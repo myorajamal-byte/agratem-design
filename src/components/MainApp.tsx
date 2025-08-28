@@ -193,7 +193,7 @@ ${selectedBillboardsData
 
       window.open(mailtoLink, "_blank")
 
-      alert("تم فتح برنامج البريد الإلكتروني مع ��فاصيل اللوحات المختارة!")
+      alert("تم فتح برنامج البريد الإلكتروني مع ��فاصيل اللوحات ال��ختارة!")
       setShowEmailDialog(false)
       clearSelection()
       setCustomerEmail("")
@@ -461,7 +461,7 @@ ${selectedBillboardsData
                       عرض الموقع
                     </a>
                   `
-                      : '<span style="color: #666; font-size: 8px;">غير متوفر</span>'
+                      : '<span style="color: #666; font-size: 8px;">غ��ر متوفر</span>'
                   }
                 </td>
               </tr>
@@ -743,11 +743,18 @@ ${selectedBillboardsData
                   </>
                 )}
                 <Button
+                  onClick={() => setShowSimplifiedCalculator(true)}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white px-6"
+                >
+                  <Calculator className="w-4 h-4 ml-2" />
+                  حساب الأسعار
+                </Button>
+                <Button
                   onClick={() => setShowEmailDialog(true)}
                   className="bg-green-600 hover:bg-green-700 text-white px-6"
                 >
                   <Mail className="w-4 h-4 ml-2" />
-                  إرسال ال����ائمة
+                  إرسال القائمة
                 </Button>
               </div>
             </div>
@@ -880,7 +887,7 @@ ${selectedBillboardsData
         <InstallationPricingManagement onClose={() => setShowInstallationPricing(false)} />
       )}
 
-      {/* نافذة فاتور�� العرض */}
+      {/* نافذة فات��ر�� العرض */}
       {showQuoteDialog && user?.permissions.some(p => p.name === 'admin_access') && (
         <QuoteDialog
           isOpen={showQuoteDialog}
