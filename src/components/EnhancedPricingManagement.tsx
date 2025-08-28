@@ -413,7 +413,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
   }
 
   // Add new category
-  const addCategory = () => {
+  const addCategory = async () => {
     if (!newCategory.name.trim()) return
 
     const categoryId = Date.now().toString()
@@ -424,10 +424,11 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       color: newCategory.color
     }
 
+    // Update local state
     setPricingData(prev => {
       const updatedCategories = [...prev.categories, newCat]
       const updatedPrices = { ...prev.prices }
-      
+
       // Add default prices for new category
       prev.sizes.forEach(size => {
         if (!updatedPrices[size]) updatedPrices[size] = {}
@@ -441,6 +442,14 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
         prices: updatedPrices
       }
     })
+
+    // Auto-save new category (this is more for demo - categories are UI-specific)
+    try {
+      await autoSaveChanges({})
+      console.log(`تم حفظ الفئة الجديدة تلقائياً: ${newCategory.name}`)
+    } catch (error) {
+      console.warn('لم يتم حفظ الفئة الجديدة تلقائياً:', error)
+    }
 
     setNewCategory({ name: '', description: '', color: 'blue' })
     setShowCategoryModal(false)
