@@ -76,6 +76,16 @@ interface UnsavedChanges {
   changedCells: Set<string>
 }
 
+interface SyncStatus {
+  isLoading: boolean
+  lastSync?: string
+  totalMunicipalities?: number
+  existingZones?: number
+  newZonesCreated?: number
+  needsSync?: boolean
+  missingZones?: string[]
+}
+
 const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   // State Management
   const [pricingData, setPricingData] = useState<PricingData>({
@@ -93,7 +103,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
     categories: [
       { id: 'marketers', name: 'مسوقين', description: 'خصم للمسوقين', color: 'blue' },
       { id: 'companies', name: 'شركات', description: 'أسعار الشركات', color: 'green' },
-      { id: 'individuals', name: 'أفراد', description: 'الأسعار العادية', color: 'purple' }
+      { id: 'individuals', name: 'أفراد', description: 'ال��سعار العادية', color: 'purple' }
     ],
     sizes: ['5x13', '4x12', '4x10', '3x8', '3x6', '3x4'],
     currentLevel: 'A',
@@ -449,7 +459,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
     if (window.confirm('هل أنت متأكد من إلغاء جميع التغييرات غير المحفوظة؟')) {
       initializePricingData()
       setUnsavedChanges({ hasChanges: false, changedCells: new Set() })
-      showNotification('success', 'تم إلغاء جميع التغييرات')
+      showNotification('success', 'تم ��لغاء جميع التغييرات')
     }
   }
 
