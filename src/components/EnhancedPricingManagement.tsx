@@ -199,9 +199,9 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
   }
 
   // Show notification temporarily
-  const showNotification = (type: 'success' | 'error', message: string) => {
+  const showNotification = (type: 'success' | 'error' | 'info', message: string) => {
     setNotification({ type, message })
-    setTimeout(() => setNotification(null), 3000)
+    setTimeout(() => setNotification(null), type === 'info' ? 5000 : 3000)
   }
 
   // Initialize default pricing data
