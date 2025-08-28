@@ -1,6 +1,54 @@
 import * as XLSX from 'xlsx'
 import { Billboard } from '@/types'
 
+// تطبيع أحجام اللوحات لتكون متوافقة مع مفاتيح التسعير
+const normalizeBillboardSize = (size: string): string => {
+  if (!size) return '4x12'
+
+  // تحويل النص إلى صغير وإزالة المسافات
+  let normalized = size.toString().trim().toLowerCase()
+
+  // استبدال X بـ x
+  normalized = normalized.replace(/[×xX]/g, 'x')
+
+  // إزالة أي مسافات أو رموز إضافية
+  normalized = normalized.replace(/[^\dx]/g, '')
+
+  // معالجة الأحجام الشائعة
+  const sizeMap: Record<string, string> = {
+    '12x4': '4x12',
+    '13x5': '5x13',
+    '10x4': '4x10',
+    '8x3': '3x8',
+    '6x3': '3x6',
+    '4x3': '3x4',
+    '18x6': '6x18',
+    '15x5': '5x15'
+  }
+
+  // تطبيق الخريطة إذا وجدت
+  if (sizeMap[normalized]) {
+    return sizeMap[normalized]
+  }
+
+  // إذا لم توجد في الخريطة، التأكد من التنسيق الصحيح
+  const parts = normalized.split('x')
+  if (parts.length === 2) {
+    const [width, height] = parts.map(p => parseInt(p)).filter(n => !isNaN(n))
+    if (width && height) {
+      // ترتيب الأبعاد: العرض × الارتفاع (الأصغر أولاً عادة)
+      if (width <= height) {
+        return `${width}x${height}`
+      } else {
+        return `${height}x${width}`
+      }
+    }
+  }
+
+  // افتراضي
+  return '4x12'
+}
+
 const ONLINE_URL =
   "https://docs.google.com/spreadsheets/d/1fF9BUgBcW9OW3nWT97Uke_z2Pq3y_LC0/export?format=xlsx&gid=0&usp=sharing"
 const CSV_URL =
@@ -277,7 +325,7 @@ function processBillboardData(billboard: any, index: number): Billboard {
 
   // تحديد الحالة بناءً على وجود عقد
   if (contractNumber && contractNumber.trim() !== '' && contractNumber !== '#N/A') {
-    status = 'محجوز'
+    status = 'محج��ز'
 
     // إذا كان هناك تاريخ انتهاء، تحقق من اقرب من الانتهاء
     if (expiryDateValue) {
@@ -397,7 +445,7 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
         } catch (localError: any) {
           console.error("[Service] فشل في قراءة الملف المحلي أيضاً:", localError.message)
           throw new Error(
-            `فشل في قراءة الملف من الرابط والملف المحلي. آخر خطأ من الرابط: ${lastError?.message}. خطأ الملف المحلي: ${localError.message}`,
+            `فشل في قراءة الملف من الرابط ��الملف المحلي. آخر خطأ من الرابط: ${lastError?.message}. خطأ الملف المحلي: ${localError.message}`,
           )
         }
       }
