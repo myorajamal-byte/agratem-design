@@ -479,7 +479,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
   }
 
   // Add new size
-  const addSize = () => {
+  const addSize = async () => {
     const newSize = prompt('أدخل المقاس الجديد (مثال: 6x14):')
     if (!newSize || !newSize.match(/^\d+x\d+$/)) {
       showNotification('error', 'يرجى إدخال مقاس صحيح بصيغة رقمxرقم')
@@ -881,7 +881,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                     <h3 className="font-bold text-blue-900">مزامنة المناطق السعرية مع ملف الإكسل</h3>
                     {syncStatus.needsSync ? (
                       <p className="text-sm text-blue-700">
-                        🔥 تم العثور على <span className="font-bold">{syncStatus.missingZones?.length || 0}</span> منطقة جديدة في ملف الإكسل تحتاج إلى مزامنة
+                        🔥 تم العثور عل�� <span className="font-bold">{syncStatus.missingZones?.length || 0}</span> منطقة جديدة في ملف الإكسل تحتاج إلى مزامنة
                       </p>
                     ) : syncStatus.lastSync ? (
                       <p className="text-sm text-green-700">
