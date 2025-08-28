@@ -35,7 +35,7 @@ const PricingSystemStatus: React.FC = () => {
     getSyncStats 
   } = usePricingZoneSync()
 
-  // تح��يل معلومات النظام عند التحميل
+  // تحميل معلومات النظام عند التحميل
   useEffect(() => {
     loadSystemInfo()
   }, [])
@@ -81,7 +81,7 @@ const PricingSystemStatus: React.FC = () => {
     <div className="space-y-6 p-6 max-w-4xl mx-auto">
       <div className="text-center">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          حالة نظام إدارة ��لمناطق السعرية
+          حالة نظام إدارة المناطق السعرية
         </h1>
         <p className="text-gray-600">
           مراقبة وتشخيص النظام الجديد لمزامنة المناطق السعرية مع ملف الإكسل
@@ -92,7 +92,7 @@ const PricingSystemStatus: React.FC = () => {
       <Card className="p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <Sync className="w-6 h-6 text-blue-600" />
+            <RotateCcw className="w-6 h-6 text-blue-600" />
             <h2 className="text-xl font-bold">حالة المزامنة</h2>
           </div>
           <Button
