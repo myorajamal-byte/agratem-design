@@ -15,6 +15,7 @@ import InstallationPricingManagement from "@/components/InstallationPricingManag
 import QuoteDialog from "@/components/QuoteDialog"
 import PricingSystemStatus from "@/components/PricingSystemStatus"
 import SimplifiedPricingCalculator from "@/components/SimplifiedPricingCalculator"
+import PricingSystemGuide from "@/components/PricingSystemGuide"
 import BookingMode from "@/components/BookingMode"
 import PricingDurationSelector from "@/components/PricingDurationSelector"
 import { loadBillboardsFromExcel } from "@/services/billboardService"
@@ -407,7 +408,7 @@ ${selectedBillboardsData
               <th style="width: 16%;">صورة اللوحة</th>
               <th style="width: 12%;">رقم اللوحة</th>
               <th style="width: 22%;">موقع اللوحة</th>
-              <th style="width: 14%;">ال��لدية</th>
+              <th style="width: 14%;">البلدية</th>
               <th style="width: 14%;">المنطقة</th>
               <th style="width: 12%;">المقاس</th>
               <th style="width: 10%;">الحالة</th>
@@ -643,7 +644,7 @@ ${selectedBillboardsData
                 className="bg-purple-600 hover:bg-purple-700 text-white"
               >
                 <Settings className="w-4 h-4 mr-2" />
-                حالة النظام والاختبار
+                حالة النظام ��الاختبار
               </Button>
             </div>
           </div>
