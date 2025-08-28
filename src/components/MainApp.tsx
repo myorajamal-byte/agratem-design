@@ -14,9 +14,11 @@ import EnhancedPricingManagement from "@/components/EnhancedPricingManagement"
 import InstallationPricingManagement from "@/components/InstallationPricingManagement"
 import QuoteDialog from "@/components/QuoteDialog"
 import PricingSystemStatus from "@/components/PricingSystemStatus"
+import BookingMode from "@/components/BookingMode"
+import PricingDurationSelector from "@/components/PricingDurationSelector"
 import { loadBillboardsFromExcel } from "@/services/billboardService"
 import { clientService } from "@/services/clientService"
-import { Billboard } from "@/types"
+import { Billboard, PackageDuration } from "@/types"
 import { useAuth } from "@/contexts/AuthContext"
 import { hybridSystemTest } from "@/utils/hybridSystemTest"
 
@@ -46,6 +48,9 @@ export default function MainApp() {
   const [showInstallationPricing, setShowInstallationPricing] = useState(false)
   const [showQuoteDialog, setShowQuoteDialog] = useState(false)
   const [showSystemStatus, setShowSystemStatus] = useState(false)
+  const [showBookingMode, setShowBookingMode] = useState(false)
+  const [selectedPricingDuration, setSelectedPricingDuration] = useState<PackageDuration | null>(null)
+  const [billboardDates, setBillboardDates] = useState<Record<string, string>>({})
 
   const itemsPerPage = 12
 
@@ -162,7 +167,7 @@ export default function MainApp() {
 رقم الهاتف: ${customerPhone || "غير محدد"}
 
 رس��لة العميل:
-${emailMessage || "لا توجد رسالة إضافية"}
+${emailMessage || "لا توجد رسالة إ��افية"}
 
 اللوحات المختارة (${selectedBillboards.size} لوحة):
 ${selectedBillboardsData
