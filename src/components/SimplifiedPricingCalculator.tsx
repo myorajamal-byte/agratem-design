@@ -284,7 +284,7 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
 
   const generateQuote = () => {
     if (!calculation || !customerInfo.name) {
-      alert('��رجى ملء معلومات العميل لإنشاء عرض السعر')
+      alert('يرجى ملء معلومات العميل لإنشاء عرض السعر')
       return
     }
 
@@ -416,7 +416,7 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
               size="sm"
               className="bg-white/20 border-white/30 text-white hover:bg-white/30"
             >
-              إغلاق
+              إغ��اق
             </Button>
           </div>
         </div>
@@ -830,18 +830,51 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
                   ملخص العرض
                 </h3>
                 <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span>المقاس:</span>
-                    <Badge variant="outline">{selectedSize}</Badge>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>المستوى:</span>
-                    <Badge variant="outline">مستوى {selectedLevel}</Badge>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>البلدية:</span>
-                    <Badge variant="outline">{selectedMunicipality}</Badge>
-                  </div>
+                  {calculationMode === 'multiple' ? (
+                    <>
+                      <div className="flex justify-between">
+                        <span>عدد اللوحات:</span>
+                        <Badge variant="outline" className="bg-blue-100 text-blue-800">
+                          {selectedBillboardsData.length} لوحة
+                        </Badge>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>المقاسات:</span>
+                        <div className="flex flex-wrap gap-1">
+                          {[...new Set(selectedBillboardsData.map(b => b.size))].map(size => (
+                            <Badge key={size} variant="outline" className="text-xs">
+                              {size}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>البلديات:</span>
+                        <div className="flex flex-wrap gap-1">
+                          {[...new Set(selectedBillboardsData.map(b => b.municipality))].map(municipality => (
+                            <Badge key={municipality} variant="outline" className="text-xs">
+                              {municipality}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex justify-between">
+                        <span>المقاس:</span>
+                        <Badge variant="outline">{selectedSize}</Badge>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>المستوى:</span>
+                        <Badge variant="outline">مستوى {selectedLevel}</Badge>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>البلدية:</span>
+                        <Badge variant="outline">{selectedMunicipality}</Badge>
+                      </div>
+                    </>
+                  )}
                   <div className="flex justify-between">
                     <span>نوع العميل:</span>
                     <Badge variant="outline" className={
