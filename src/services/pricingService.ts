@@ -1,5 +1,6 @@
 import { PriceList, PricingZone, BillboardSize, QuoteItem, Quote, CustomerType, PackageDuration, PriceListType } from '@/types'
 import { formatGregorianDate } from '@/lib/dateUtils'
+import { dynamicPricingService } from './dynamicPricingService'
 
 // الباقات الزمنية المتاحة
 const DEFAULT_PACKAGES: PackageDuration[] = [
@@ -227,11 +228,23 @@ class PricingService {
 
   /**
    * الحصول على قائمة الأسعار
+   * يستخدم النظام الديناميكي لإنشاء المناطق السعرية بناءً على البلديات
    */
   getPricing(): PriceList {
     try {
-      const pricing = localStorage.getItem(this.PRICING_STORAGE_KEY)
-      return pricing ? JSON.parse(pricing) : DEFAULT_PRICING
+      // محاولة الحصول على الأسعار المحفوظة
+      const storedPricing = localStorage.getItem(this.PRICING_STORAGE_KEY)
+      
+      // إذا كان المستخدم يفضل استخدام النظام الديناميكي
+      const useDynamicPricing = localStorage.getItem('al-fares-use-dynamic-pricing') === 'true'
+      
+      if (useDynamicPricing) {
+        // استخدام النظام الديناميكي لإنشاء قائمة الأسعار
+        return dynamicPricingService.generateDynamicPriceList()
+      }
+      
+      // استخدام الأسعار المحفوظة أو الافتراضية
+      return storedPricing ? JSON.parse(storedPricing) : DEFAULT_PRICING
     } catch {
       return DEFAULT_PRICING
     }
@@ -252,8 +265,26 @@ class PricingService {
 
   /**
    * الحصول على سعر لوحة معينة حسب فئة الزبون
+   * يستخدم النظام الديناميكي إذا كان مفعلاً
    */
   getBillboardPrice(size: BillboardSize, zone: string, customerType: CustomerType = 'individuals', municipality?: string): number {
+    // إذا كان النظام الديناميكي مفعل واسم البلدية متوفر
+    const useDynamicPricing = localStorage.getItem('al-fares-use-dynamic-pricing') === 'true'
+    
+    if (useDynamicPricing && municipality) {
+      // استخدام النظام الديناميكي للحصول على السعر مباشرة من البلدية
+      const dynamicPrice = dynamicPricingService.getPriceForMunicipalityAndSize(
+        municipality, 
+        size, 
+        customerType
+      )
+      
+      if (dynamicPrice !== null) {
+        return dynamicPrice
+      }
+    }
+
+    // استخدام النظام التقليدي
     const pricing = this.getPricing()
     const zoneData = pricing.zones[zone]
 
@@ -442,7 +473,7 @@ class PricingService {
 
     const items: QuoteItem[] = billboards.map(billboard => {
       const zone = this.determinePricingZone(billboard.municipality, billboard.area)
-      const basePrice = this.getBillboardPrice(billboard.size, zone, customerInfo.type)
+      const basePrice = this.getBillboardPrice(billboard.size, zone, customerInfo.type, billboard.municipality)
       const priceCalc = this.calculatePriceWithDiscount(basePrice, packageDuration)
 
       return {
@@ -952,6 +983,57 @@ class PricingService {
 
     printWindow.document.write(printContent)
     printWindow.document.close()
+  }
+
+  /**
+   * تفعيل النظام الديناميكي للتسعير
+   */
+  enableDynamicPricing(): boolean {
+    try {
+      localStorage.setItem('al-fares-use-dynamic-pricing', 'true')
+      console.log('[PricingService] تم تفعيل النظام الديناميكي للتسعير')
+      return true
+    } catch {
+      return false
+    }
+  }
+
+  /**
+   * إلغاء تفعيل النظام الديناميكي للتسعير
+   */
+  disableDynamicPricing(): boolean {
+    try {
+      localStorage.setItem('al-fares-use-dynamic-pricing', 'false')
+      console.log('[PricingService] تم إلغاء تفعيل النظام الديناميكي للتسعير')
+      return true
+    } catch {
+      return false
+    }
+  }
+
+  /**
+   * التحقق من حالة النظام الديناميكي
+   */
+  isDynamicPricingEnabled(): boolean {
+    return localStorage.getItem('al-fares-use-dynamic-pricing') === 'true'
+  }
+
+  /**
+   * الحصول على معلومات النظام الديناميكي
+   */
+  getDynamicPricingInfo(): {
+    enabled: boolean
+    totalMunicipalities: number
+    statistics: any
+  } {
+    const enabled = this.isDynamicPricingEnabled()
+    const statistics = enabled ? dynamicPricingService.getPricingStatistics() : null
+    
+    return {
+      enabled,
+      totalMunicipalities: statistics?.totalMunicipalities || 0,
+      statistics
+    }
   }
 }
 
