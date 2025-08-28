@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { pricingService } from '@/services/pricingService'
 import { newPricingService } from '@/services/newPricingService'
 import { BillboardSize, PriceListType, CustomerType } from '@/types'
 
@@ -221,7 +220,7 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
       </div>
       
       <div class="section">
-        <div class="section-title">تفاصيل اللوحة</div>
+        <div class="section-title">ت��اصيل اللوحة</div>
         <div class="info-row"><span>المقاس:</span><span>${data.billboard.size}</span></div>
         <div class="info-row"><span>المستوى:</span><span>${data.billboard.level}</span></div>
         <div class="info-row"><span>البلدية:</span><span>${data.billboard.municipality}</span></div>
