@@ -913,7 +913,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                     {syncStatus.isLoading ? (
                       <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
                     ) : (
-                      <Zap className="w-4 h-4 mr-2" />
+                      <RotateCcw className="w-4 h-4 mr-2" />
                     )}
                     {syncStatus.isLoading ? 'جاري المزامنة...' : 'مزامنة الآن'}
                   </Button>
