@@ -88,8 +88,12 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
 
   // Calculate pricing when inputs change
   useEffect(() => {
-    calculatePricing()
-  }, [selectedSize, selectedLevel, selectedMunicipality, selectedCustomerType, pricingMode, daysCount, packageDuration, installationCost, needInstallation])
+    if (calculationMode === 'single') {
+      calculatePricing()
+    } else {
+      calculateMultipleBillboards()
+    }
+  }, [selectedSize, selectedLevel, selectedMunicipality, selectedCustomerType, pricingMode, daysCount, packageDuration, installationCost, needInstallation, calculationMode, selectedBillboardsData])
 
   const calculatePricing = () => {
     try {
@@ -168,7 +172,7 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
       })
 
     } catch (error) {
-      console.error('��طأ في حساب التسعير:', error)
+      console.error('خطأ في حساب التسعير:', error)
     }
   }
 
@@ -182,7 +186,7 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
 
   const generateQuote = () => {
     if (!calculation || !customerInfo.name) {
-      alert('يرجى ملء معلومات العميل لإنشاء عرض السعر')
+      alert('يرجى ملء معل��مات العميل لإنشاء عرض السعر')
       return
     }
 
@@ -648,7 +652,7 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
                         calculation
                       }
                       navigator.clipboard.writeText(JSON.stringify(data, null, 2))
-                      alert('تم نسخ بيانات التسعير!')
+                      alert('تم نسخ بيانات التسعي��!')
                     }}
                     variant="outline"
                     className="w-full"
