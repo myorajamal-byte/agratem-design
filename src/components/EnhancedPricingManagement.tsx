@@ -157,7 +157,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       }))
 
       if (syncCheck.needsSync) {
-        showNotification('info', `تم العثور على ${syncCheck.missingZones.length} منطقة جديدة تحتاج مزامنة`)
+        showNotification('info', `تم العثور على ${syncCheck.missingZones.length} منطقة جدي��ة تحتاج مزامنة`)
       }
     } catch (error) {
       console.error('خطأ في فحص حالة المزامنة:', error)
@@ -565,9 +565,9 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
   }
 
   // Reset all changes
-  const resetAllChanges = () => {
-    if (window.confirm('هل ��نت متأكد من إلغاء جميع التغييرات غير المحفوظة؟')) {
-      initializePricingData()
+  const resetAllChanges = async () => {
+    if (window.confirm('هل أنت متأكد من إلغاء جميع التغييرات غير المحفوظة؟')) {
+      await initializePricingData()
       setUnsavedChanges({ hasChanges: false, changedCells: new Set() })
       showNotification('success', 'تم إلغاء جميع التغييرات')
     }
