@@ -284,7 +284,7 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
 
   const generateQuote = () => {
     if (!calculation || !customerInfo.name) {
-      alert('يرجى ملء معلومات العميل لإنشاء عرض السعر')
+      alert('يرجى ملء معلومات العميل ل��نشاء عرض السعر')
       return
     }
 
@@ -347,7 +347,7 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
       <div>التاريخ: ${data.date}</div>
       
       <div class="section">
-        <div class="section-title">��علومات العميل</div>
+        <div class="section-title">معلومات العميل</div>
         <div class="info-row"><span>الاسم:</span><span>${data.customer.name}</span></div>
         ${data.customer.company ? `<div class="info-row"><span>الشركة:</span><span>${data.customer.company}</span></div>` : ''}
         <div class="info-row"><span>الهاتف:</span><span>${data.customer.phone}</span></div>
@@ -399,8 +399,15 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
                 <Calculator className="w-7 h-7" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold">حاسبة التسعير المبسطة</h1>
-                <p className="text-sm opacity-90">احسب أسعار اللوحات الإعلانية بسهولة</p>
+                <h1 className="text-2xl font-bold">
+                  {calculationMode === 'multiple' ? 'حاسبة تسعير اللوحات المختارة' : 'حاسبة التسعير المبسطة'}
+                </h1>
+                <p className="text-sm opacity-90">
+                  {calculationMode === 'multiple'
+                    ? `احسب أسعار ${selectedBillboardsData.length} لوحة مختارة`
+                    : 'احسب أسعار اللوحات الإعلانية بسهولة'
+                  }
+                </p>
               </div>
             </div>
             <Button
