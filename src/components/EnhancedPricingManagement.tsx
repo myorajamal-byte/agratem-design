@@ -425,7 +425,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       }
     })
 
-    showNotification('success', `تم إضافة ��قاس "${newSize}" بنجاح`)
+    showNotification('success', `تم إضافة ��قاس "${newSize}" ب��جاح`)
   }
 
   // Delete size
@@ -743,6 +743,101 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
               ))}
             </div>
           </Card>
+
+          {/* Sync Status and Controls */}
+          {(syncStatus.needsSync || syncStatus.lastSync) && (
+            <Card className="mb-6 p-4 border-2 border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                    <Sync className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-blue-900">مزامنة المناطق السعرية مع ملف الإكسل</h3>
+                    {syncStatus.needsSync ? (
+                      <p className="text-sm text-blue-700">
+                        🔥 تم العثور على <span className="font-bold">{syncStatus.missingZones?.length || 0}</span> منطقة جديدة في ملف الإكسل تحتاج إلى مزامنة
+                      </p>
+                    ) : syncStatus.lastSync ? (
+                      <p className="text-sm text-green-700">
+                        ✅ آخر مزامنة: {new Date(syncStatus.lastSync).toLocaleString('ar-SA')}
+                      </p>
+                    ) : null}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  {syncStatus.lastSync && (
+                    <Button
+                      onClick={() => setShowSyncInfo(!showSyncInfo)}
+                      variant="outline"
+                      size="sm"
+                      className="text-blue-600 border-blue-300"
+                    >
+                      <Info className="w-4 h-4 mr-2" />
+                      التفاصيل
+                    </Button>
+                  )}
+                  <Button
+                    onClick={syncWithExcel}
+                    disabled={syncStatus.isLoading}
+                    className={`${
+                      syncStatus.needsSync
+                        ? 'bg-orange-600 hover:bg-orange-700 animate-pulse'
+                        : 'bg-blue-600 hover:bg-blue-700'
+                    } text-white`}
+                  >
+                    {syncStatus.isLoading ? (
+                      <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <Zap className="w-4 h-4 mr-2" />
+                    )}
+                    {syncStatus.isLoading ? 'جاري المزامنة...' : 'مزامنة الآن'}
+                  </Button>
+                </div>
+              </div>
+
+              {/* Sync Info Details */}
+              {showSyncInfo && syncStatus.lastSync && (
+                <div className="mt-4 p-3 bg-white rounded-lg border border-blue-200">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                    <div className="text-center">
+                      <div className="font-bold text-blue-900">{syncStatus.totalMunicipalities || 0}</div>
+                      <div className="text-blue-700">إجمالي البلديات</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="font-bold text-green-900">{syncStatus.existingZones || 0}</div>
+                      <div className="text-green-700">مناطق موجودة</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="font-bold text-orange-900">{syncStatus.newZonesCreated || 0}</div>
+                      <div className="text-orange-700">مناطق جديدة</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="font-bold text-purple-900">{Object.keys(pricingData.zones || {}).length}</div>
+                      <div className="text-purple-700">إجمالي المناطق</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Missing Zones List */}
+              {syncStatus.needsSync && syncStatus.missingZones && syncStatus.missingZones.length > 0 && (
+                <div className="mt-4 p-3 bg-orange-50 rounded-lg border border-orange-200">
+                  <h4 className="font-bold text-orange-900 mb-2">المناطق الجديدة المكتشفة:</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {syncStatus.missingZones.map(zone => (
+                      <span
+                        key={zone}
+                        className="px-2 py-1 bg-orange-100 text-orange-800 rounded-full text-xs font-semibold"
+                      >
+                        {zone}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </Card>
+          )}
 
           {/* Search and Controls */}
           <Card className="mb-6 p-4">
