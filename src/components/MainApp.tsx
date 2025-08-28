@@ -44,6 +44,7 @@ export default function MainApp() {
   const [showPricingManagement, setShowPricingManagement] = useState(false)
   const [showInstallationPricing, setShowInstallationPricing] = useState(false)
   const [showQuoteDialog, setShowQuoteDialog] = useState(false)
+  const [showSystemStatus, setShowSystemStatus] = useState(false)
 
   const itemsPerPage = 12
 
