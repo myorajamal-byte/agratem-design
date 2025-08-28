@@ -13,6 +13,7 @@ import SystemSettings from "@/components/SystemSettings"
 import EnhancedPricingManagement from "@/components/EnhancedPricingManagement"
 import InstallationPricingManagement from "@/components/InstallationPricingManagement"
 import QuoteDialog from "@/components/QuoteDialog"
+import PricingSystemStatus from "@/components/PricingSystemStatus"
 import { loadBillboardsFromExcel } from "@/services/billboardService"
 import { clientService } from "@/services/clientService"
 import { Billboard } from "@/types"
@@ -389,7 +390,7 @@ ${selectedBillboardsData
             </div>
           </div>
           <div class="title-section">
-            <div class="report-title">المساحات الإعلانية المتاحة</div>
+            <div class="report-title">��لمساحات الإعلانية المتاحة</div>
           </div>
         </div>
 
