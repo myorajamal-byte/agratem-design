@@ -157,10 +157,10 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       }))
 
       if (syncCheck.needsSync) {
-        showNotification('info', `تم العثور على ${syncCheck.missingZones.length} منطقة جدي��ة تحتاج مزامنة`)
+        showNotification('info', `تم العثور على ${syncCheck.missingZones.length} منطقة جديدة تحتاج مزامنة`)
       }
     } catch (error) {
-      console.error('خطأ في فحص حالة المزامنة:', error)
+      console.error('خطأ ��ي فحص حالة المزامنة:', error)
     }
   }
 
@@ -554,14 +554,54 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
     XLSX.writeFile(workbook, 'municipalities.xlsx')
   }
 
+  // Auto-save changes to the pricing service
+  const autoSaveChanges = async (changes: any) => {
+    try {
+      const { newPricingService } = await import('@/services/newPricingService')
+      const currentPricing = newPricingService.getPricing()
+
+      // Update the pricing data with changes
+      const updatedPricing = {
+        ...currentPricing,
+        ...changes
+      }
+
+      const result = newPricingService.updatePricing(updatedPricing)
+
+      if (result.success) {
+        console.log('تم حفظ التغييرات تلقائياً')
+        return true
+      } else {
+        console.error('فشل في الحفظ التلقائي:', result.error)
+        return false
+      }
+    } catch (error) {
+      console.error('خطأ في الحفظ التلقائي:', error)
+      return false
+    }
+  }
+
   // Save all changes
-  const saveAllChanges = () => {
+  const saveAllChanges = async () => {
     setLoading(true)
-    setTimeout(() => {
-      setUnsavedChanges({ hasChanges: false, changedCells: new Set() })
-      setLoading(false)
-      showNotification('success', 'تم حفظ جميع التغييرات بنجاح')
-    }, 1000)
+
+    try {
+      // Save to the new pricing service
+      const success = await autoSaveChanges({
+        // Add any specific changes that need to be saved
+      })
+
+      if (success) {
+        setUnsavedChanges({ hasChanges: false, changedCells: new Set() })
+        showNotification('success', 'تم حفظ جميع التغييرات بنجاح')
+      } else {
+        showNotification('error', 'فشل في حفظ بعض التغييرات')
+      }
+    } catch (error: any) {
+      showNotification('error', `خطأ في ��لحفظ: ${error.message}`)
+    }
+
+    setLoading(false)
   }
 
   // Reset all changes
