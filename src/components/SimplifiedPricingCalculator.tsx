@@ -284,7 +284,7 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
 
   const generateQuote = () => {
     if (!calculation || !customerInfo.name) {
-      alert('يرجى ملء معلومات العميل لإنشاء عرض السعر')
+      alert('��رجى ملء معلومات العميل لإنشاء عرض السعر')
       return
     }
 
@@ -724,8 +724,75 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
 
             {/* Right Panel - Results */}
             <div className="space-y-6">
-              {/* Price Calculation */}
-              {calculation && (
+              {/* Multiple Billboards Results */}
+              {calculationMode === 'multiple' && multipleCalculations.length > 0 && (
+                <>
+                  {/* Individual Billboard Calculations */}
+                  <Card className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 max-h-96 overflow-y-auto">
+                    <h3 className="text-lg font-bold text-blue-900 mb-4 flex items-center gap-3">
+                      <List className="w-5 h-5" />
+                      تفصيل أسعار اللوحات
+                    </h3>
+                    <div className="space-y-3">
+                      {multipleCalculations.map(({ billboard, calculation }, index) => (
+                        <div key={billboard.id} className="bg-white p-3 rounded-lg border border-blue-200">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                                {index + 1}
+                              </div>
+                              <div>
+                                <div className="font-semibold text-gray-900 text-sm">{billboard.name}</div>
+                                <div className="text-xs text-gray-600">{billboard.size} • {billboard.municipality}</div>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div className="font-bold text-blue-700">{formatPrice(calculation.finalPrice)}</div>
+                              <div className="text-xs text-blue-600">يومي: {formatPrice(calculation.dailyRate)}</div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </Card>
+
+                  {/* Total Calculation for Multiple Billboards */}
+                  <Card className="p-6 bg-gradient-to-br from-emerald-50 to-green-50 border-2 border-emerald-200">
+                    <h3 className="text-xl font-bold text-emerald-900 mb-4 flex items-center gap-3">
+                      <div className="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center">
+                        <Calculator className="w-6 h-6 text-white" />
+                      </div>
+                      الإجمالي النهائي
+                    </h3>
+
+                    <div className="space-y-3 mb-6">
+                      <div className="flex justify-between items-center p-3 bg-white rounded-lg shadow-sm">
+                        <span className="text-gray-700">عدد اللوحات</span>
+                        <span className="font-bold text-emerald-700">{totalCalculation.count} لوحة</span>
+                      </div>
+                      <div className="flex justify-between items-center p-3 bg-white rounded-lg shadow-sm">
+                        <span className="text-gray-700">إجمالي السعر</span>
+                        <span className="font-bold text-emerald-700">{formatPrice(totalCalculation.totalPrice)}</span>
+                      </div>
+                      <div className="flex justify-between items-center p-3 bg-white rounded-lg shadow-sm">
+                        <span className="text-gray-700">متوسط السعر اليومي</span>
+                        <span className="font-bold text-emerald-700">{formatPrice(totalCalculation.totalDailyRate / totalCalculation.count)}</span>
+                      </div>
+                    </div>
+
+                    <div className="bg-gradient-to-r from-emerald-600 to-green-600 text-white p-6 rounded-xl text-center">
+                      <div className="text-sm opacity-90 mb-2">إجمالي الحملة الإعلانية</div>
+                      <div className="text-3xl font-black">{formatPrice(totalCalculation.totalPrice)}</div>
+                      <div className="text-sm opacity-90 mt-2">
+                        لـ {totalCalculation.count} لوحة • متوسط يومي: {formatPrice(totalCalculation.totalDailyRate)}
+                      </div>
+                    </div>
+                  </Card>
+                </>
+              )}
+
+              {/* Single Billboard Calculation */}
+              {calculationMode === 'single' && calculation && (
                 <Card className="p-6 bg-gradient-to-br from-emerald-50 to-green-50 border-2 border-emerald-200">
                   <h3 className="text-xl font-bold text-emerald-900 mb-4 flex items-center gap-3">
                     <div className="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center">
