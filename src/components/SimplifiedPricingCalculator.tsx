@@ -395,7 +395,7 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
             data.pricing.customerType === 'individuals' ? 'فرد' :
             data.pricing.customerType === 'companies' ? 'شركة' : 'مسوق'
           }</span></div>
-          <div class="info-row"><span>نوع التسعير:</span><span>${data.pricing.mode === 'daily' ? 'يومي' : 'باقة'}</span></div>
+          <div class="info-row"><span>ن��ع التسعير:</span><span>${data.pricing.mode === 'daily' ? 'يومي' : 'باقة'}</span></div>
           ${data.pricing.days ? `<div class="info-row"><span>عدد الأيام:</span><span>${data.pricing.days} يوم</span></div>` : ''}
           ${data.pricing.package ? `<div class="info-row"><span>مدة الباقة:</span><span>${data.pricing.package} يوم</span></div>` : ''}
           ${data.pricing.needInstallation ? `<div class="info-row"><span>تكلفة التركيب:</span><span>${formatPrice(data.pricing.installationCost)} لكل لوحة</span></div>` : ''}
@@ -521,7 +521,7 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
                   onClick={() => setCalculationMode('single')}
                   className="bg-yellow-600 hover:bg-yellow-700 text-white"
                 >
-                  التبديل إلى الحساب المنفرد
+                  ال��بديل إلى الحساب المنفرد
                 </Button>
               </div>
             </Card>
@@ -565,7 +565,21 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
                 ))}
               </div>
               <div className="mt-4 p-3 bg-blue-100 rounded-lg">
-                <div className="text-sm text-blue-800 text-center">
+                <div className="grid grid-cols-3 gap-4 text-center text-sm text-blue-800 mb-2">
+                  <div>
+                    <div className="font-bold">{[...new Set(selectedBillboardsData.map(b => b.size))].length}</div>
+                    <div>مقاسات مختلفة</div>
+                  </div>
+                  <div>
+                    <div className="font-bold">{[...new Set(selectedBillboardsData.map(b => b.municipality))].length}</div>
+                    <div>بلديات مختلفة</div>
+                  </div>
+                  <div>
+                    <div className="font-bold">{selectedBillboardsData.filter(b => b.status === 'متاح').length}</div>
+                    <div>لوحة متاحة</div>
+                  </div>
+                </div>
+                <div className="text-sm text-blue-800 text-center border-t border-blue-200 pt-2">
                   💡 سيتم حساب سعر كل لوحة بناءً على مواصفاتها الخاصة
                 </div>
               </div>
@@ -940,7 +954,7 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
                       <div className="flex justify-between">
                         <span>عدد اللوحات:</span>
                         <Badge variant="outline" className="bg-blue-100 text-blue-800">
-                          {selectedBillboardsData.length} لوحة
+                          {selectedBillboardsData.length} ��وحة
                         </Badge>
                       </div>
                       <div className="flex justify-between">
