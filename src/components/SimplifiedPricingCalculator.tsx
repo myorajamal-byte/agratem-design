@@ -470,6 +470,45 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Left Panel - Inputs */}
             <div className="space-y-6">
+              {/* نمط الحساب */}
+              {selectedBillboardsData.length > 0 && (
+                <Card className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200">
+                  <h3 className="text-lg font-bold text-purple-900 mb-4 flex items-center gap-2">
+                    <Calculator className="w-5 h-5" />
+                    نمط الحساب
+                  </h3>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Button
+                      onClick={() => setCalculationMode('multiple')}
+                      className={`p-4 h-auto ${
+                        calculationMode === 'multiple'
+                          ? 'bg-purple-600 text-white'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      <div className="text-center">
+                        <List className="w-6 h-6 mx-auto mb-2" />
+                        <div className="font-bold">اللوحات المختارة</div>
+                        <div className="text-xs opacity-75">{selectedBillboardsData.length} لوحة</div>
+                      </div>
+                    </Button>
+                    <Button
+                      onClick={() => setCalculationMode('single')}
+                      className={`p-4 h-auto ${
+                        calculationMode === 'single'
+                          ? 'bg-purple-600 text-white'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      <div className="text-center">
+                        <Calculator className="w-6 h-6 mx-auto mb-2" />
+                        <div className="font-bold">حساب منفرد</div>
+                        <div className="text-xs opacity-75">لوحة واحدة</div>
+                      </div>
+                    </Button>
+                  </div>
+                </Card>
+              )}
               {/* Pricing Mode Selection */}
               <Card className="p-4">
                 <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
