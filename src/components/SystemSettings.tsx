@@ -141,7 +141,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
     const result = authService.updateUser(editingUser)
 
     if (result.success) {
-      setSuccess('تم تحديث المستخد�� بنجاح')
+      setSuccess('تم تحديث المستخدم بنجاح')
       setEditingUser(null)
       loadData()
     } else {
@@ -295,7 +295,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
                         </div>
                         <p className="text-gray-600">{user.email}</p>
                         <p className="text-sm text-gray-500">
-                          الصلاحيات: {user.permissions.map(p => p.description).join(', ') || 'لا توجد صلاحيات'}
+                          الصلاحيات: {user.permissions.map(p => p.description).join(', ') || 'لا توجد ��لاحيات'}
                         </p>
                         {user.assignedClient && (
                           <p className="text-sm text-blue-600 font-semibold">
@@ -362,6 +362,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
                       value={newUser.username}
                       onChange={(e) => setNewUser(prev => ({ ...prev, username: e.target.value }))}
                       placeholder="أدخل اسم المستخدم"
+                      className="bg-white border border-gray-300"
                     />
                   </div>
 
@@ -374,6 +375,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
                       value={newUser.email}
                       onChange={(e) => setNewUser(prev => ({ ...prev, email: e.target.value }))}
                       placeholder="أدخل البريد الإلكتروني"
+                      className="bg-white border border-gray-300"
                     />
                   </div>
 
@@ -386,6 +388,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
                       value={newUser.password}
                       onChange={(e) => setNewUser(prev => ({ ...prev, password: e.target.value }))}
                       placeholder="أدخل كلمة المرور"
+                      className="bg-white border border-gray-300"
                     />
                   </div>
 
@@ -453,7 +456,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
                           <select
                             value={newUser.assignedClient}
                             onChange={(e) => setNewUser(prev => ({ ...prev, assignedClient: e.target.value }))}
-                            className="w-full border border-gray-300 rounded-md px-3 py-2"
+                            className="w-full border border-gray-300 rounded-md px-3 py-2 bg-white"
                           >
                             <option value="">اختر زبون...</option>
                             {clients.map((client) => (
