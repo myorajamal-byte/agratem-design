@@ -118,43 +118,59 @@ const DynamicPricingManagement: React.FC<DynamicPricingManagementProps> = ({ onC
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg max-w-6xl w-full mx-4 max-h-[90vh] overflow-hidden">
-        <div className="p-6 border-b">
-          <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold text-gray-800">
-              إدارة النظام الديناميكي للتسعير
-            </h2>
-            <button
-              onClick={onClose}
-              className="text-gray-500 hover:text-gray-700 text-2xl"
-            >
-              ×
-            </button>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-7xl w-full max-h-[95vh] overflow-hidden border-0">
+        <div className="p-8 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 text-white relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-600/30 via-purple-600/30 to-pink-600/30"></div>
+          <div className="relative z-10">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center shadow-2xl backdrop-blur-sm">
+                  <TrendingUp className="w-9 h-9" />
+                </div>
+                <div>
+                  <h2 className="text-3xl font-black mb-2 bg-gradient-to-r from-white to-purple-100 bg-clip-text text-transparent">
+                    النظام الديناميكي للتسعير
+                  </h2>
+                  <p className="text-purple-100 text-lg font-medium">
+                    إدارة ذكية لأسعار البلديات والمعاملات
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={onClose}
+                className="w-12 h-12 bg-white/20 hover:bg-white/30 rounded-xl flex items-center justify-center transition-all duration-200 backdrop-blur-sm shadow-lg hover:shadow-xl"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
           </div>
         </div>
 
-        <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+        <div className="p-8 overflow-y-auto max-h-[calc(95vh-180px)] bg-gradient-to-br from-slate-50 to-blue-50">
           {/* تفعيل/إلغاء تفعيل النظام */}
-          <div className="mb-6 p-4 bg-blue-50 rounded-lg">
+          <div className="mb-8 p-6 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 rounded-2xl border border-blue-200 shadow-xl">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-lg font-semibold text-blue-800">
-                  النظام الديناميكي للتسعير
+                <h3 className="text-xl font-bold text-blue-900 flex items-center gap-3 mb-2">
+                  <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                    <Settings className="w-5 h-5 text-white" />
+                  </div>
+                  حالة النظام الديناميكي
                 </h3>
-                <p className="text-blue-600 text-sm mt-1">
-                  يقرأ المنطقة السعرية تلقائياً من بيانات اللوحة (حقل البلدية)
+                <p className="text-blue-700 text-sm leading-relaxed bg-white/60 px-4 py-2 rounded-lg backdrop-blur-sm">
+                  نظام ذكي يقرأ المنطقة السعرية تلقائياً من بيانات اللوحة (حقل البلدية)
                 </p>
               </div>
               <button
                 onClick={handleToggleDynamicPricing}
-                className={`px-4 py-2 rounded-lg font-medium ${
+                className={`px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 ${
                   isDynamicEnabled
-                    ? 'bg-green-500 text-white hover:bg-green-600'
-                    : 'bg-gray-300 text-gray-700 hover:bg-gray-400'
+                    ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700'
+                    : 'bg-gradient-to-r from-gray-400 to-gray-500 text-white hover:from-gray-500 hover:to-gray-600'
                 }`}
               >
-                {isDynamicEnabled ? 'مفعل' : 'غير مفعل'}
+                {isDynamicEnabled ? '✅ مفعل' : '❌ غير مفعل'}
               </button>
             </div>
           </div>
@@ -163,70 +179,111 @@ const DynamicPricingManagement: React.FC<DynamicPricingManagementProps> = ({ onC
             <>
               {/* الإحصائيات */}
               {statistics && (
-                <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="bg-green-50 p-4 rounded-lg">
-                    <h4 className="font-semibold text-green-800">إجمالي البلديات</h4>
-                    <p className="text-2xl font-bold text-green-600">
+                <div className="mb-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 p-6 rounded-2xl border border-emerald-200 shadow-xl">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center">
+                        <Building2 className="w-6 h-6 text-white" />
+                      </div>
+                      <h4 className="font-bold text-emerald-800 text-lg">إجمالي البلديات</h4>
+                    </div>
+                    <p className="text-4xl font-black text-emerald-700">
                       {statistics.totalMunicipalities}
                     </p>
+                    <p className="text-emerald-600 text-sm mt-2">بلدية مسجلة</p>
                   </div>
-                  <div className="bg-blue-50 p-4 rounded-lg">
-                    <h4 className="font-semibold text-blue-800">متوسط المعامل</h4>
-                    <p className="text-2xl font-bold text-blue-600">
+                  <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-6 rounded-2xl border border-blue-200 shadow-xl">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center">
+                        <TrendingUp className="w-6 h-6 text-white" />
+                      </div>
+                      <h4 className="font-bold text-blue-800 text-lg">متوسط المعامل</h4>
+                    </div>
+                    <p className="text-4xl font-black text-blue-700">
                       {statistics.averageMultiplier}
                     </p>
+                    <p className="text-blue-600 text-sm mt-2">معامل متوسط</p>
                   </div>
-                  <div className="bg-purple-50 p-4 rounded-lg">
-                    <h4 className="font-semibold text-purple-800">نطاق الأسعار ({statistics.sampleSize})</h4>
-                    <p className="text-sm text-purple-600">
-                      {statistics.priceRange.min.price} - {statistics.priceRange.max.price} د.ل
+                  <div className="bg-gradient-to-br from-purple-50 via-pink-50 to-rose-50 p-6 rounded-2xl border border-purple-200 shadow-xl">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-10 h-10 bg-purple-500 rounded-xl flex items-center justify-center">
+                        <DollarSign className="w-6 h-6 text-white" />
+                      </div>
+                      <h4 className="font-bold text-purple-800 text-lg">نطاق الأسعار</h4>
+                    </div>
+                    <p className="text-lg font-black text-purple-700">
+                      {statistics.priceRange.min.price} - {statistics.priceRange.max.price}
                     </p>
+                    <p className="text-purple-600 text-sm mt-2">دينار ليبي ({statistics.sampleSize})</p>
                   </div>
                 </div>
               )}
 
               {/* أدوات الإدارة */}
-              <div className="mb-6 flex flex-wrap gap-4">
-                <input
-                  type="text"
-                  placeholder="البحث في البلديات..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="flex-1 min-w-64 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
+              <div className="mb-8 flex flex-wrap gap-4">
+                <div className="flex-1 min-w-64 relative">
+                  <Search className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <input
+                    type="text"
+                    placeholder="ابحث في البلديات والمناطق..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full px-6 py-4 pr-12 border-2 border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white shadow-lg hover:shadow-xl transition-all font-medium text-lg"
+                  />
+                </div>
                 <button
                   onClick={() => setShowAddMunicipality(true)}
-                  className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
+                  className="px-6 py-4 bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-2xl hover:from-emerald-600 hover:to-green-700 transition-all duration-200 font-bold shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-2"
                 >
+                  <Plus className="w-5 h-5" />
                   إضافة بلدية
                 </button>
                 <button
                   onClick={handleExportData}
-                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                  className="px-6 py-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-2xl hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 font-bold shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-2"
                 >
+                  <Download className="w-5 h-5" />
                   تصدير البيانات
                 </button>
               </div>
 
               {/* قائمة البلديات */}
-              <div className="bg-white border rounded-lg overflow-hidden">
-                <div className="bg-gray-50 px-4 py-3 border-b">
-                  <div className="grid grid-cols-6 gap-4 font-semibold text-gray-700">
-                    <div>البلدية</div>
-                    <div>المنطقة</div>
-                    <div>المدينة</div>
-                    <div>المعامل</div>
-                    <div>سعر العينة (4x12)</div>
-                    <div>الإجراءات</div>
+              <div className="bg-white border-0 rounded-2xl overflow-hidden shadow-2xl">
+                <div className="bg-gradient-to-r from-slate-700 via-gray-700 to-zinc-700 px-6 py-4 border-b">
+                  <div className="grid grid-cols-6 gap-4 font-bold text-white">
+                    <div className="flex items-center gap-2">
+                      <Building2 className="w-4 h-4" />
+                      <span>البلدية</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <MapPin className="w-4 h-4" />
+                      <span>المنطقة</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <MapPin className="w-4 h-4" />
+                      <span>المدينة</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <TrendingUp className="w-4 h-4" />
+                      <span>المعامل</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <DollarSign className="w-4 h-4" />
+                      <span>سعر عينة (4x12)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Settings className="w-4 h-4" />
+                      <span>الإجراءات</span>
+                    </div>
                   </div>
                 </div>
-                <div className="max-h-96 overflow-y-auto">
-                  {filteredMunicipalities.map((municipality) => (
-                    <div key={municipality.id} className="px-4 py-3 border-b hover:bg-gray-50">
+                <div className="max-h-96 overflow-y-auto bg-gradient-to-br from-slate-50 to-gray-50">
+                  {filteredMunicipalities.map((municipality, index) => (
+                    <div key={municipality.id} className={`px-6 py-4 border-b border-slate-200/60 transition-all duration-300 hover:bg-gradient-to-r hover:from-blue-50 hover:via-indigo-50 hover:to-purple-50 hover:shadow-lg ${index % 2 === 0 ? 'bg-white' : 'bg-slate-50/80'}`}>
                       <div className="grid grid-cols-6 gap-4 items-center">
-                        <div className="font-medium">{municipality.name}</div>
-                        <div className="text-gray-600">{municipality.region || '-'}</div>
-                        <div className="text-gray-600">{municipality.city || '-'}</div>
+                        <div className="font-bold text-gray-900">{municipality.name}</div>
+                        <div className="text-gray-600 font-medium">{municipality.region || 'غير محدد'}</div>
+                        <div className="text-gray-600 font-medium">{municipality.city || 'غير محدد'}</div>
                         <div>
                           <input
                             type="number"
@@ -240,11 +297,11 @@ const DynamicPricingManagement: React.FC<DynamicPricingManagementProps> = ({ onC
                                 handleUpdateMultiplier(municipality.id, newValue)
                               }
                             }}
-                            className="w-20 px-2 py-1 border border-gray-300 rounded text-center"
+                            className="w-24 px-3 py-2 border-2 border-blue-200 rounded-xl text-center font-bold text-lg bg-gradient-to-br from-white to-blue-50 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 shadow-lg hover:shadow-xl transition-all"
                           />
                         </div>
-                        <div className="font-semibold text-green-600">
-                          {municipality.samplePrice} د.ل
+                        <div className="font-black text-emerald-700 text-lg">
+                          {municipality.samplePrice.toLocaleString()} د.ل
                         </div>
                         <div>
                           <button
@@ -254,7 +311,7 @@ const DynamicPricingManagement: React.FC<DynamicPricingManagementProps> = ({ onC
                                 loadData()
                               }
                             }}
-                            className="text-red-500 hover:text-red-700 text-sm"
+                            className="px-4 py-2 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-xl hover:from-red-600 hover:to-pink-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
                           >
                             حذف
                           </button>
