@@ -4,7 +4,7 @@ import { formatGregorianDate } from '@/lib/dateUtils'
 // ا��مقاسات الافتراضية
 const DEFAULT_SIZES: BillboardSize[] = ['5x13', '4x12', '4x10', '3x8', '3x6', '3x4']
 
-// الباقات الزمنية المتاحة
+// الباقات الز��نية المتاحة
 const DEFAULT_PACKAGES: PackageDuration[] = [
   { value: 1, unit: 'month', label: 'شهر واحد', discount: 0 },
   { value: 3, unit: 'months', label: '3 أشهر', discount: 5 },
@@ -42,7 +42,7 @@ const createDefaultABPricing = (): DurationPricing => ({
   '12': createDefaultPricesForDuration(12)
 })
 
-// قائمة البلديات الليبية الأساسية
+// ��ائمة البلديات الليبية الأساسية
 const DEFAULT_LIBYA_MUNICIPALITIES = [
   'مصراتة', 'طرابلس', 'بنغازي', 'زليتن', 'الخمس', 'سرت',
   'أبو سليم', 'تاجوراء', 'جنزور', 'الزاوية', 'صبراتة',
@@ -109,7 +109,7 @@ const DEFAULT_PRICING_NEW: PriceList = {
 
 /**
  * خدمة إدارة الأسعار المحدثة
- * تدعم المدد المختلفة والم��اسات الديناميكية
+ * تدعم المدد المختلفة والم��اسات الدينا��يكية
  */
 class NewPricingService implements SizeManagement {
   private readonly PRICING_STORAGE_KEY = 'al-fares-pricing-v2'
@@ -440,6 +440,8 @@ class NewPricingService implements SizeManagement {
    * إضافة منطقة سعرية جديدة بناءً على البلدية
    */
   addPricingZoneForMunicipality(municipality: string, baseZone: string = 'مصراتة'): boolean {
+    if (!municipality) return false
+
     const pricing = this.getPricing()
     const zoneName = municipality.trim()
 
@@ -448,25 +450,37 @@ class NewPricingService implements SizeManagement {
       return true
     }
 
-    // استخدام خدمة إدارة المناطق التلقائية إذا كانت متاحة
     try {
-      const { pricingZoneAutoManager } = require('./pricingZoneAutoManager')
-      const newZone = pricingZoneAutoManager.createDefaultPricingZone(zoneName, baseZone)
+      // إنشاء منطقة جديدة مع مراعاة معامل البلدية
+      const newZone = createDefaultZoneForMunicipality(zoneName)
       pricing.zones[zoneName] = newZone
+
+      const result = this.updatePricing(pricing)
+      console.log(`تم إنشاء منطقة سعرية جديدة: ${zoneName}`, result.success ? '✅' : '❌')
+      return result.success
     } catch (error) {
-      // الطريقة القديمة كـ fallback
-      const baseZoneData = pricing.zones[baseZone]
-      if (!baseZoneData) {
-        return false
+      console.error(`خطأ في إنشاء منطقة سعرية للبلدية ${zoneName}:`, error)
+
+      // محاولة بديلة: استخدام خدمة إدارة المناطق التلقائية
+      try {
+        const { pricingZoneAutoManager } = require('./pricingZoneAutoManager')
+        const newZone = pricingZoneAutoManager.createDefaultPricingZone(zoneName, baseZone)
+        pricing.zones[zoneName] = newZone
+      } catch (autoError) {
+        // الطريقة القديمة كـ fallback أخير
+        const baseZoneData = pricing.zones[baseZone] || Object.values(pricing.zones)[0]
+        if (!baseZoneData) {
+          return false
+        }
+
+        pricing.zones[zoneName] = {
+          ...baseZoneData,
+          name: zoneName
+        }
       }
 
-      pricing.zones[zoneName] = {
-        ...baseZoneData,
-        name: zoneName
-      }
+      return this.updatePricing(pricing).success
     }
-
-    return this.updatePricing(pricing).success
   }
 
   /**
@@ -481,7 +495,7 @@ class NewPricingService implements SizeManagement {
       const result = await pricingZoneAutoManager.syncPricingZonesWithExcel()
 
       if (result.success) {
-        console.log('[NewPricingService] تمت مزامنة المناطق السعرية بنجاح')
+        console.log('[NewPricingService] تمت مز��منة المناطق السعرية بنجاح')
         return {
           success: true,
           summary: {
