@@ -1,5 +1,5 @@
 import type { Handler } from '@netlify/functions'
-import { kv } from '@netlify/kv'
+import { kv } from '@netlify/functions'
 
 // Utility to add CORS headers
 const withCors = (res: { statusCode: number; headers?: Record<string, string>; body?: string }) => ({
