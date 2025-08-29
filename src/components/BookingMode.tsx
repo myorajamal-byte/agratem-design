@@ -313,7 +313,48 @@ export default function BookingMode({
             </Card>
           )}
 
-          {/* اللوحات ال��حددة */}
+          {/* الخصم */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-emerald-700">
+                <DollarSign className="w-5 h-5" />
+                الخصم الإضافي
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3" dir="rtl">
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  variant={discountType === 'percent' ? 'default' : 'outline'}
+                  className={discountType === 'percent' ? 'bg-emerald-600 text-white' : ''}
+                  onClick={() => setDiscountType('percent')}
+                >
+                  نسبة %
+                </Button>
+                <Button
+                  variant={discountType === 'amount' ? 'default' : 'outline'}
+                  className={discountType === 'amount' ? 'bg-emerald-600 text-white' : ''}
+                  onClick={() => setDiscountType('amount')}
+                >
+                  قيمة
+                </Button>
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-1">
+                  {discountType === 'percent' ? 'نسبة الخصم (%)' : 'قيمة الخصم (د.ل)'}
+                </label>
+                <Input
+                  type="number"
+                  min={0}
+                  max={discountType === 'percent' ? 100 : undefined}
+                  value={discountValue}
+                  onChange={(e) => setDiscountValue(Number(e.target.value))}
+                  className="text-right"
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* اللوحات المحددة */}
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-emerald-700">
@@ -410,7 +451,7 @@ export default function BookingMode({
             </Card>
           )}
 
-          {/* أزرار العمل */}
+          {/* أزرار ال��مل */}
           <div className="space-y-3">
             <Button
               onClick={handleCreateBooking}
