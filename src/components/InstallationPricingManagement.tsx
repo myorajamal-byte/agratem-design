@@ -168,7 +168,7 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
     }))
 
     setEditingCell(null)
-    showNotification('success', 'تم تحديث السعر الأساسي للمقاس ب��جاح')
+    showNotification('success', 'تم تحديث السعر الأساسي للمقاس بنجاح')
   }
 
   const cancelEdit = () => {
@@ -185,7 +185,7 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
     }
 
     if (pricing.sizes.includes(newSize)) {
-      showNotification('error', 'هذا المقاس موج��د بالفعل')
+      showNotification('error', 'هذا المقاس موجود بالفعل')
       return
     }
 
@@ -368,7 +368,7 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
               </div>
               <div>
                 <h1 className="text-2xl font-bold">إدارة أسعار التركيب</h1>
-                <p className="text-sm opacity-90">إدارة أسعار تركيب اللوحات الإعلانية حسب المقاسا�� والمناطق</p>
+                <p className="text-sm opacity-90">إدارة أسعار تركيب اللوحات الإعلانية حسب المقاسات والمناطق</p>
               </div>
             </div>
             <Button
@@ -608,7 +608,7 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
             <div className="p-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
               <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                 <Calculator className="w-6 h-6 text-orange-600" />
-                أسعار التركيب حسب المناطق وا��مقاسات
+                أسعار التركيب حسب المناطق والمقاسات
               </h3>
               <p className="text-sm text-gray-700 mt-2">جميع الأسعار شاملة تكلفة التركيب والتأسيس</p>
             </div>
@@ -842,7 +842,7 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
               {/* Quote Items */}
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h4 className="text-lg font-bold">عناصر ا��فاتورة</h4>
+                  <h4 className="text-lg font-bold">عناصر الفاتورة</h4>
                   <Button onClick={addQuoteItem} size="sm" className="bg-green-600 hover:bg-green-700 text-white">
                     <Plus className="w-4 h-4 mr-2" />
                     إضافة عنصر
@@ -914,7 +914,7 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
                   <Input
                     value={quoteNotes}
                     onChange={(e) => setQuoteNotes(e.target.value)}
-                    placeholder="ملاحظات إضافية"
+                    placeholder="ملاح��ات إضافية"
                   />
                 </div>
               </div>
@@ -926,7 +926,7 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
                   className="flex-1 bg-orange-600 hover:bg-orange-700 text-white"
                 >
                   <FileText className="w-4 h-4 mr-2" />
-                  إنشاء وطباعة ال��اتورة
+                  إنشاء وطباعة الفاتورة
                 </Button>
                 <Button
                   onClick={() => setShowQuoteModal(false)}
