@@ -60,7 +60,7 @@ async function testUrlAccess(url: string) {
     console.log(`[Service] اختبار الوصول للرابط: ${response.status} ${response.statusText}`)
     return response.ok
   } catch (error: any) {
-    console.log(`[Service] فشل اختبار الوصول للرابط: ${error.message}`)
+    console.log(`[Service] فشل اختبار الوصول ��لرابط: ${error.message}`)
     return false
   }
 }
@@ -196,7 +196,7 @@ async function readExcelFromUrl(url: string, timeoutMs = 10000, retries = 2) {
     }
   }
 
-  throw new Error("فشل في جميع المحاولات")
+  throw new Error("فشل في جميع ��لمحاولات")
 }
 
 function safeReadExcel(fileBuffer: ArrayBuffer) {
@@ -234,7 +234,7 @@ function parseExcelDate(dateValue: any): Date | null {
     return isNaN(dateValue.getTime()) ? null : dateValue
   }
   
-  // إذا كان رقم (Excel serial date)
+  // إذا كان ��قم (Excel serial date)
   if (typeof dateValue === 'number') {
     try {
       // استخدام XLSX لتحويل الرقم التسلسلي إلى تاريخ
@@ -344,7 +344,7 @@ function processBillboardData(billboard: any, index: number): Billboard {
         if (diffDays <= 30 && diffDays > 0) {
           status = "قريباً"
         } else if (diffDays <= 0) {
-          // إذا انتهت المدة، تصبح اللوحة متاحة
+          // إذا انتهت المدة، تصبح اللو��ة متاحة
           status = "متاح"
         }
       } else {
@@ -406,57 +406,79 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
     } catch (csvError: any) {
       console.warn("[Service] فشل تحميل CSV:", csvError.message)
 
-      const alternativeUrls = [
-        ONLINE_URL,
-        ONLINE_URL.replace("&gid=0", ""),
-        ONLINE_URL.replace("export?format=xlsx", "export?format=xlsx&exportFormat=xlsx"),
-        "https://docs.google.com/spreadsheets/d/1fF9BUgBcW9OW3nWT97Uke_z2Pq3y_LC0/export?format=xlsx&id=1fF9BUgBcW9OW3nWT97Uke_z2Pq3y_LC0&usp=sharing",
-        "https://docs.google.com/spreadsheets/d/1fF9BUgBcW9OW3nWT97Uke_z2Pq3y_LC0/gviz/tq?tqx=out:csv&sheet=Sheet1&usp=sharing",
-        "https://docs.google.com/spreadsheets/d/1fF9BUgBcW9OW3nWT97Uke_z2Pq3y_LC0/export?format=xlsx",
+      // جرّب روابط CSV بديلة أولاً
+      const alternativeCsvUrls = [
+        "https://docs.google.com/spreadsheets/d/1fF9BUgBcW9OW3nWT97Uke_z2Pq3y_LC0/gviz/tq?tqx=out:csv&gid=0",
+        "https://docs.google.com/spreadsheets/d/1fF9BUgBcW9OW3nWT97Uke_z2Pq3y_LC0/gviz/tq?tqx=out:csv&sheet=Sheet1",
+        "https://docs.google.com/spreadsheets/d/1fF9BUgBcW9OW3nWT97Uke_z2Pq3y_LC0/export?format=csv&gid=0",
         "https://docs.google.com/spreadsheets/d/1fF9BUgBcW9OW3nWT97Uke_z2Pq3y_LC0/export?format=csv",
       ]
 
-      let fileBuffer: ArrayBuffer | null = null
-      let lastError: Error | null = null
-
-      for (const url of alternativeUrls) {
+      for (const url of alternativeCsvUrls) {
         try {
-          console.log(`[Service] محاولة قراءة ملف الإكسل من الرابط: ${url}`)
-          fileBuffer = await readExcelFromUrl(url, 15000, 2)
-          console.log("[Service] تم تحميل ملف الإكسل من الرابط بنجاح ✅")
+          console.log(`[Service] محاولة قراءة CSV بديل: ${url}`)
+          const altWb = await readCsvFromUrl(url, 15000)
+          workbook = altWb
+          console.log("[Service] تم تحميل CSV البديل بنجاح ✅")
           break
         } catch (err: any) {
-          console.warn(`[Service] فشل قراءة الملف من ا��رابط ${url}:`, err.message)
-          lastError = err
+          console.warn(`[Service] فشل CSV البديل ${url}:`, err.message)
           continue
         }
       }
 
-      if (!fileBuffer) {
-        console.log("[Service] محاولة قراءة ملف الإكسل من الملف المحلي...")
-        try {
-          const response = await fetch('/billboards.xlsx')
-          
-          if (!response.ok) {
-            throw new Error('فشل في تحميل ملف Excel المحلي')
+      // إذا لم ننجح مع CSV، نحاول Excel
+      if (!workbook) {
+        const alternativeUrls = [
+          ONLINE_URL,
+          ONLINE_URL.replace("&gid=0", ""),
+          ONLINE_URL.replace("export?format=xlsx", "export?format=xlsx&exportFormat=xlsx"),
+          "https://docs.google.com/spreadsheets/d/1fF9BUgBcW9OW3nWT97Uke_z2Pq3y_LC0/export?format=xlsx&id=1fF9BUgBcW9OW3nWT97Uke_z2Pq3y_LC0&usp=sharing",
+          "https://docs.google.com/spreadsheets/d/1fF9BUgBcW9OW3nWT97Uke_z2Pq3y_LC0/export?format=xlsx",
+        ]
+
+        let fileBuffer: ArrayBuffer | null = null
+        let lastError: Error | null = null
+
+        for (const url of alternativeUrls) {
+          try {
+            console.log(`[Service] محاولة قراءة ملف الإكسل من الرابط: ${url}`)
+            fileBuffer = await readExcelFromUrl(url, 15000, 2)
+            console.log("[Service] تم تحميل ملف الإكسل من الرابط بنجاح ✅")
+            break
+          } catch (err: any) {
+            console.warn(`[Service] فشل قراءة الملف من الرابط ${url}:`, err.message)
+            lastError = err
+            continue
           }
-          
-          fileBuffer = await response.arrayBuffer()
-          console.log("[Service] تم تحميل ملف الإكسل المحلي ✅")
-        } catch (localError: any) {
-          console.error("[Service] فشل في قراءة الملف المحلي أيضاً:", localError.message)
-          throw new Error(
-            `فشل في قراءة الملف من الرابط ��الملف المحلي. آخر خطأ من الرابط: ${lastError?.message}. خطأ الملف المحلي: ${localError.message}`,
-          )
         }
-      }
 
-      if (!fileBuffer || fileBuffer.byteLength === 0) {
-        throw new Error("ملف الإكسل فارغ أو تالف")
-      }
+        if (!fileBuffer) {
+          console.log("[Service] محاولة قراءة ملف الإكسل من الملف المحلي...")
+          try {
+            const response = await fetch('/billboards.xlsx')
 
-      console.log("[Service] حجم الملف:", fileBuffer.byteLength, "بايت")
-      workbook = safeReadExcel(fileBuffer)
+            if (!response.ok) {
+              throw new Error('فشل في تحميل ملف Excel المحلي')
+            }
+
+            fileBuffer = await response.arrayBuffer()
+            console.log("[Service] تم تحميل ملف الإكسل المحلي ✅")
+          } catch (localError: any) {
+            console.error("[Service] فشل في قراءة الملف المحلي أيضاً:", localError.message)
+            throw new Error(
+              `فشل في قراءة الملف من الرابط والملف المحلي. آخر خطأ من الرابط: ${lastError?.message}. خطأ الملف المحلي: ${localError.message}`,
+            )
+          }
+        }
+
+        if (!fileBuffer || fileBuffer.byteLength === 0) {
+          throw new Error("ملف الإكسل فارغ أو تالف")
+        }
+
+        console.log("[Service] حجم الملف:", fileBuffer.byteLength, "بايت")
+        workbook = safeReadExcel(fileBuffer)
+      }
     }
 
     const sheetName = workbook.SheetNames[0]
@@ -571,13 +593,13 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
         {
           id: "134",
           name: "KH-SK0134",
-          location: "بجوار كوبري سوق الخميس باتجاه الشرق",
+          location: "بجوار كوبري سوق الخميس ب��تجاه الشرق",
           municipality: "الخمس",
           city: "الخمس",
           area: "الخمس",
           size: "12X4",
           level: "B",
-          status: "متاح",
+          status: "مت��ح",
           expiryDate: null,
           coordinates: "32.566533,14.344944",
           imageUrl: "https://lh3.googleusercontent.com/d/1J1D2ZEhnQZbRuSKxNVE4XTifkhvHabYs",
@@ -609,7 +631,7 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
         {
           id: "130",
           name: "KH-SK0130",
-          location: "بجوار جسر سوق الخميس باتجاه الغرب",
+          location: "بجوار جسر س��ق الخميس باتجاه الغرب",
           municipality: "الخمس",
           city: "الخمس",
           area: "الخمس",
