@@ -445,7 +445,7 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
               </h3>
               <div className="text-sm text-blue-800 space-y-1">
                 <p>• السعر الأساسي: السعر المدخل لكل مقاس</p>
-                <p>• المعامل: رقم يضرب في السعر الأساس�� حسب المنطقة</p>
+                <p>• المعامل: رقم يضرب في السعر الأساسي حسب المنطقة</p>
                 <p>• السعر النهائي: السعر الأساسي × المعامل</p>
                 <p>• مثال: سعر أساسي 1000 د.ل × معامل 1.2 = 1200 د.ل (السعر النهائي)</p>
               </div>
@@ -708,6 +708,51 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
             </div>
           </Card>
         </div>
+
+        {/* Import Zones Modal */}
+        {showImportZones && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-60">
+            <Card className="w-full max-w-lg p-6">
+              <h3 className="text-xl font-bold mb-4">إضافة مناطق من النظام</h3>
+              <div className="mb-3 text-sm text-gray-600">اختر البلديات الموجودة في نظام التسعير لإضافتها هنا (المعامل الافتراضي 1.0)</div>
+              <div className="max-h-80 overflow-y-auto border rounded-md p-3 space-y-2 bg-white">
+                {systemZones.length === 0 && (
+                  <div className="text-sm text-gray-500">لا توجد مناطق جديدة للإضافة</div>
+                )}
+                {systemZones.map(name => (
+                  <label key={name} className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={selectedSystemZones.has(name)}
+                      onChange={(e) => {
+                        const next = new Set(selectedSystemZones)
+                        if (e.target.checked) next.add(name); else next.delete(name)
+                        setSelectedSystemZones(next)
+                      }}
+                    />
+                    <span className="font-semibold">{name}</span>
+                  </label>
+                ))}
+              </div>
+              <div className="flex gap-2 mt-6">
+                <Button
+                  onClick={async () => {
+                    for (const name of Array.from(selectedSystemZones)) {
+                      installationPricingService.addZone(name, 1.0)
+                    }
+                    loadPricingData()
+                    setShowImportZones(false)
+                  }}
+                  disabled={selectedSystemZones.size === 0}
+                  className="flex-1 bg-purple-600 hover:bg-purple-700 text-white"
+                >
+                  إضافة المناطق المحددة
+                </Button>
+                <Button onClick={() => setShowImportZones(false)} variant="outline" className="flex-1">إلغاء</Button>
+              </div>
+            </Card>
+          </div>
+        )}
 
         {/* Add Zone Modal */}
         {showAddZoneModal && (
