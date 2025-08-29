@@ -49,6 +49,9 @@ export default function BookingMode({
   const [selectedDuration, setSelectedDuration] = useState<PackageDuration | null>(null)
   const [billboardDates, setBillboardDates] = useState<Record<string, string>>({})
   const [globalStartDate, setGlobalStartDate] = useState<string>('')
+  const [globalEndDate, setGlobalEndDate] = useState<string>('')
+  const [rentalMode, setRentalMode] = useState<'daily' | 'package'>('package')
+  const [globalStartDate, setGlobalStartDate] = useState<string>('')
 
   if (!isOpen) return null
 
@@ -62,26 +65,28 @@ export default function BookingMode({
     selectedBillboardsData.forEach(billboard => {
       // عد المقاسات
       sizeCounts[billboard.size] = (sizeCounts[billboard.size] || 0) + 1
-      
-      // حساب السعر
-      if (selectedDuration) {
-        const zone = pricingService.determinePricingZone(billboard.municipality, billboard.area)
-        const basePrice = pricingService.getBillboardPrice(
-          billboard.size as any, 
-          zone, 
-          clientInfo.customerType, 
-          billboard.municipality
-        )
-        
+
+      const zone = pricingService.determinePricingZone(billboard.municipality, billboard.area)
+      const basePrice = pricingService.getBillboardPrice(
+        billboard.size as any,
+        zone,
+        clientInfo.customerType,
+        billboard.municipality
+      )
+
+      if (rentalMode === 'package' && selectedDuration) {
         const priceCalc = pricingService.calculatePriceWithDiscount(basePrice, selectedDuration)
         totalPrice += priceCalc.finalPrice * selectedDuration.value
       }
+      if (rentalMode === 'daily' && daysCount > 0) {
+        totalPrice += basePrice * daysCount
+      }
     })
-    
-    const discountAmount = selectedDuration && selectedDuration.discount > 0 
+
+    const discountAmount = rentalMode === 'package' && selectedDuration && selectedDuration.discount > 0
       ? (totalPrice * selectedDuration.discount) / (100 - selectedDuration.discount)
       : 0
-    
+
     return {
       totalPrice: totalPrice + discountAmount,
       sizeCounts,
@@ -91,6 +96,13 @@ export default function BookingMode({
   }
 
   const bookingSummary = calculateBookingSummary()
+  const daysCount = (() => {
+    if (rentalMode !== 'daily' || !globalStartDate || !globalEndDate) return 0
+    const start = new Date(globalStartDate)
+    const end = new Date(globalEndDate)
+    const diff = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1
+    return Math.max(diff, 0)
+  })()
 
   const handleDateChange = (billboardId: string, date: string) => {
     setBillboardDates(prev => ({
@@ -149,24 +161,70 @@ export default function BookingMode({
         </div>
 
         <div className="p-4 space-y-6">
-          {/* عام: تاريخ بداية موحد */}
+          {/* اختيار نظام الإيجار */}
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-emerald-700">
                 <Calendar className="w-5 h-5" />
-                تاريخ بداية موحد لكل اللوحا��
+                نظام الإيجار
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <Input
-                type="date"
-                value={globalStartDate}
-                onChange={(e) => applyGlobalDate(e.target.value)}
-                className="text-right"
-                min={new Date().toISOString().split('T')[0]}
-              />
+              <div className="grid grid-cols-2 gap-2" dir="rtl">
+                <Button
+                  variant={rentalMode === 'package' ? 'default' : 'outline'}
+                  className={rentalMode === 'package' ? 'bg-emerald-600 text-white' : ''}
+                  onClick={() => setRentalMode('package')}
+                >
+                  باقات
+                </Button>
+                <Button
+                  variant={rentalMode === 'daily' ? 'default' : 'outline'}
+                  className={rentalMode === 'daily' ? 'bg-emerald-600 text-white' : ''}
+                  onClick={() => setRentalMode('daily')}
+                >
+                  يومي
+                </Button>
+              </div>
             </CardContent>
           </Card>
+
+          {/* تواريخ موحدة عند النظام اليومي */}
+          {rentalMode === 'daily' && (
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-emerald-700">
+                  <Calendar className="w-5 ه-5" />
+                  تاريخ البداية والنهاية (موحد)
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">تاريخ البداية</label>
+                  <Input
+                    type="date"
+                    value={globalStartDate}
+                    onChange={(e) => applyGlobalDate(e.target.value)}
+                    className="text-right"
+                    min={new Date().toISOString().split('T')[0]}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">تاريخ النهاية</label>
+                  <Input
+                    type="date"
+                    value={globalEndDate}
+                    onChange={(e) => setGlobalEndDate(e.target.value)}
+                    className="text-right"
+                    min={globalStartDate || new Date().toISOString().split('T')[0]}
+                  />
+                </div>
+                {daysCount > 0 && (
+                  <p className="text-xs text-gray-600">المدة: {daysCount} يوم</p>
+                )}
+              </CardContent>
+            </Card>
+          )}
 
           {/* معلومات العميل */}
           <Card>
@@ -238,21 +296,23 @@ export default function BookingMode({
             </CardContent>
           </Card>
 
-          {/* اختيار المدة */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-emerald-700">
-                <Calendar className="w-5 h-5" />
-                مدة الإيجار
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <PricingDurationSelector
-                selectedDuration={selectedDuration}
-                onDurationChange={setSelectedDuration}
-              />
-            </CardContent>
-          </Card>
+          {/* اختيار المدة للباقات */}
+          {rentalMode === 'package' && (
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-emerald-700">
+                  <Calendar className="w-5 h-5" />
+                  مدة الإيجار
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <PricingDurationSelector
+                  selectedDuration={selectedDuration}
+                  onDurationChange={setSelectedDuration}
+                />
+              </CardContent>
+            </Card>
+          )}
 
           {/* اللوحات المحددة */}
           <Card>
@@ -271,23 +331,25 @@ export default function BookingMode({
                   </div>
                   <p className="text-xs text-gray-600 mb-2">{billboard.location}</p>
                   
-                  <div>
-                    <label className="block text-xs font-bold text-gray-700 mb-1">تاريخ البداية</label>
-                    <Input
-                      type="date"
-                      value={billboardDates[billboard.id] || ''}
-                      onChange={(e) => handleDateChange(billboard.id, e.target.value)}
-                      className="text-right text-xs"
-                      min={new Date().toISOString().split('T')[0]}
-                    />
-                  </div>
+                  {rentalMode === 'package' && (
+                    <div>
+                      <label className="block text-xs font-bold text-gray-700 mb-1">تاريخ البداية (اختياري)</label>
+                      <Input
+                        type="date"
+                        value={billboardDates[billboard.id] || ''}
+                        onChange={(e) => handleDateChange(billboard.id, e.target.value)}
+                        className="text-right text-xs"
+                        min={new Date().toISOString().split('T')[0]}
+                      />
+                    </div>
+                  )}
                 </div>
               ))}
             </CardContent>
           </Card>
 
           {/* ملخص التكلفة */}
-          {selectedDuration && (
+          {((rentalMode === 'package' && selectedDuration) || (rentalMode === 'daily' && daysCount > 0)) && (
             <Card className="border-2 border-emerald-200">
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2 text-emerald-700">
@@ -334,9 +396,16 @@ export default function BookingMode({
                     <span>الإجمالي:</span>
                   </div>
                   
-                  <p className="text-xs text-gray-500 text-center">
-                    لمدة {selectedDuration.label}
-                  </p>
+                  {rentalMode === 'package' && selectedDuration && (
+                    <p className="text-xs text-gray-500 text-center">
+                      لمدة {selectedDuration.label}
+                    </p>
+                  )}
+                  {rentalMode === 'daily' && daysCount > 0 && (
+                    <p className="text-xs text-gray-500 text-center">
+                      لعدد {daysCount} يوم
+                    </p>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -347,7 +416,7 @@ export default function BookingMode({
             <Button
               onClick={handleCreateBooking}
               className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white py-3 text-base font-bold"
-              disabled={!selectedDuration || !clientInfo.name || !clientInfo.email}
+              disabled={(rentalMode === 'package' && !selectedDuration) || (rentalMode === 'daily' && daysCount <= 0) || !clientInfo.name || !clientInfo.email}
             >
               <FileText className="w-5 h-5 mr-2" />
               إنشاء فاتورة العرض
