@@ -111,7 +111,7 @@ async function readCsvFromUrl(url: string, timeoutMs = 10000) {
     const workbook = XLSX.read(csvText, { type: "string" })
     return workbook
   } catch (error: any) {
-    console.error(`[Service] خطأ في قراءة CSV: ${error.message}`)
+    console.warn(`[Service] خطأ في قراءة CSV: ${error.message}`)
     throw error
   }
 }
@@ -155,7 +155,7 @@ async function readExcelFromUrl(url: string, timeoutMs = 10000, retries = 2) {
 
       if (!res.ok) {
         if (res.status === 403) {
-          throw new Error(`الملف غير متاح للوصول العام. تأكد من أن الملف مشارك للعامة. كود الخطأ: ${res.status}`)
+          throw new Error(`الملف غير متاح للوصول العام. تأكد من أ�� الملف مشارك للعامة. كود الخطأ: ${res.status}`)
         } else if (res.status === 404) {
           throw new Error(`الملف غير موجود. تأكد من صحة رابط Google Sheets. كود الخطأ: ${res.status}`)
         } else if (res.status === 429) {
@@ -178,7 +178,7 @@ async function readExcelFromUrl(url: string, timeoutMs = 10000, retries = 2) {
 
       if (!isExcel && !isOldExcel) {
         console.log(
-          `[Service] تحذير: الملف المحم�� قد لا يكون ملف إكسل صحيح. البايتات الأولى: ${Array.from(uint8Array.slice(0, 10))
+          `[Service] تحذير: الملف المحمل قد لا يكون ملف إكسل صحيح. البايتات الأولى: ${Array.from(uint8Array.slice(0, 10))
             .map((b) => b.toString(16))
             .join(" ")}`,
         )
@@ -286,7 +286,7 @@ function processBillboardData(billboard: any, index: number): Billboard {
   const id = billboard['ر.م'] || billboard['رقم اللوحة'] || `BILLBOARD-${index + 1}`
   const name = billboard['اسم لوحة'] || billboard['اسم اللوحة'] || `لوحة-${index + 1}`
   const location = billboard['اقرب نقطة دالة'] || billboard['أقرب نقطة دالة'] || 'موقع غير محدد'
-  const municipality = billboard['البلدية'] || 'غير محدد'
+  const municipality = billboard['الب��دية'] || 'غير محدد'
   const city = billboard['مدينة'] || billboard['المدينة'] || 'غير محدد'
 
   // معالجة خاصة لحقل المنطقة للتأكد من عدم وجود تاريخ
@@ -423,7 +423,7 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
         try {
           console.log(`[Service] محاولة قراءة ملف الإكسل من الرابط: ${url}`)
           fileBuffer = await readExcelFromUrl(url, 15000, 2)
-          console.log("[Service] تم تحميل ملف الإكس�� من الرابط بنجاح ✅")
+          console.log("[Service] تم تحميل ملف الإكسل من الرابط بنجاح ✅")
           break
         } catch (err: any) {
           console.warn(`[Service] فشل قراءة الملف من ا��رابط ${url}:`, err.message)
@@ -488,7 +488,7 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
     
     // محاولة تحميل المل�� المحل�� كبديل
     try {
-      console.log('[Service] محاولة تحميل ال��لف المحلي كبديل...')
+      console.log('[Service] محاولة تحميل الملف المحلي كبديل...')
       const response = await fetch('/billboards.xlsx')
       
       if (!response.ok) {
@@ -647,7 +647,7 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
         {
           id: "150",
           name: "MS-MS0150",
-          location: "مدخل مصراتة الشرقي بجوار المطار",
+          location: "مدخل مصراتة الشرقي بجو��ر المطار",
           municipality: "مصراتة",
           city: "مصراتة",
           area: "مصراتة",
