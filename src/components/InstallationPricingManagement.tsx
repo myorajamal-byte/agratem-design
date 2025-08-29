@@ -98,7 +98,7 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
       }
     } catch (error) {
       console.error('Error saving installation pricing:', error)
-      showNotification('error', 'حدث خطأ في حفظ البيانات')
+      showNotification('error', 'حدث خطأ في ��فظ البيانات')
     } finally {
       setLoading(false)
     }
@@ -513,6 +513,14 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
                 <Plus className="w-4 h-4 mr-2" />
                 إضافة منطقة
               </Button>
+              <Button
+                onClick={() => setShowImportZones(true)}
+                variant="outline"
+                className="text-purple-600 border-purple-300"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                إضافة مناطق من النظام
+              </Button>
             </div>
             <div className="flex gap-2">
               <Button
@@ -582,7 +590,7 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
             <div className="p-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
               <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                 <Calculator className="w-6 h-6 text-orange-600" />
-                أسعار التركيب حسب المناطق وا��مقاسات
+                أسعار التركيب حسب المناط�� وا��مقاسات
               </h3>
               <p className="text-sm text-gray-700 mt-2">جميع الأسعار شاملة تكلفة التركيب والتأسيس</p>
             </div>
