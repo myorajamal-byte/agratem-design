@@ -25,12 +25,17 @@ class PricingService {
       localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(dbPricing))
     }
 
-    // محاولة التحميل من Cloud database
+    // محاولة التحميل من قاعدة بيانات Supabase / السحابة
     void (async () => {
-      const remote = await cloudDatabase.getRentalPricing()
-      if (remote) {
-        localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(remote))
-        jsonDatabase.saveRentalPricing(remote)
+      try {
+        const remote = await cloudDatabase.getRentalPricing()
+        if (remote) {
+          // إزالة أي أسعار تجريبية واستبدالها بالبيانات من القاعدة
+          localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(remote))
+          jsonDatabase.saveRentalPricing(remote)
+        }
+      } catch {
+        // تجاهل الأخطاء وابقَ على البيانات المحلية إن وجدت
       }
     })()
   }

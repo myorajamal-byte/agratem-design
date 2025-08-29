@@ -69,13 +69,15 @@ class InstallationPricingService {
     if (dbPricing) {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(dbPricing))
     } else if (!localStorage.getItem(this.STORAGE_KEY)) {
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(DEFAULT_INSTALLATION_PRICING))
+      // لا تكتب أسعار تركيب تجريبية تلقائيًا
+      // localStorage.setItem(this.STORAGE_KEY, JSON.stringify(DEFAULT_INSTALLATION_PRICING))
     }
 
     // Hydrate from cloud (Netlify KV) asynchronously
     void (async () => {
       const remote = await cloudDatabase.getInstallationPricing()
       if (remote) {
+        // استبدال أي بيانات تجريبية ببيانات القاعدة
         localStorage.setItem(this.STORAGE_KEY, JSON.stringify(remote))
         jsonDatabase.saveInstallationPricing(remote)
       }
