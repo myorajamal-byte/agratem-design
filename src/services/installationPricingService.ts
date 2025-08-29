@@ -1,6 +1,7 @@
 import { BillboardSize, InstallationPricing, InstallationPriceZone, InstallationQuote, InstallationQuoteItem } from '@/types'
 import { formatGregorianDate } from '@/lib/dateUtils'
 import { jsonDatabase } from './jsonDatabase'
+import { cloudDatabase } from './cloudDatabase'
 
 // المقاسات المتاحة لأسعار التركيب
 const DEFAULT_INSTALLATION_SIZES: BillboardSize[] = ['5x13', '4x12', '4x10', '3x8', '3x6', '3x4']
@@ -67,11 +68,18 @@ class InstallationPricingService {
     const dbPricing = jsonDatabase.getInstallationPricing()
     if (dbPricing) {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(dbPricing))
-      return
-    }
-    if (!localStorage.getItem(this.STORAGE_KEY)) {
+    } else if (!localStorage.getItem(this.STORAGE_KEY)) {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(DEFAULT_INSTALLATION_PRICING))
     }
+
+    // Hydrate from cloud (Netlify KV) asynchronously
+    void (async () => {
+      const remote = await cloudDatabase.getInstallationPricing()
+      if (remote) {
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(remote))
+        jsonDatabase.saveInstallationPricing(remote)
+      }
+    })()
   }
 
   /**
@@ -115,6 +123,8 @@ class InstallationPricingService {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(updatedPricing))
       // Persist to JSON DB cache (exportable)
       jsonDatabase.saveInstallationPricing(updatedPricing)
+      // Persist to cloud (Netlify KV), non-blocking
+      void cloudDatabase.saveInstallationPricing(updatedPricing)
       return { success: true, message: 'تم حفظ أسعار التركيب بنجاح' }
     } catch (error) {
       console.error('Error saving installation pricing:', error)
