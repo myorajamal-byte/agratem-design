@@ -363,7 +363,7 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-1">تا��يخ البداية</label>
+                        <label className="block text-sm font-bold text-gray-700 mb-1">تاريخ البداية</label>
                         <Input
                           type="date"
                           value={startDate}
@@ -400,7 +400,7 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
                           onChange={(e) => setIncludeInstallation(e.target.checked)}
                           className="w-4 h-4 text-blue-600"
                         />
-                        <span className="text-sm font-semibold">تضمين أسعار التركيب</span>
+                        <span className="text-sm font-semibold">تضمين أسعار الت��كيب</span>
                       </label>
                     </div>
                   </div>
@@ -434,7 +434,7 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
                                   </Badge>
                                 </div>
                                 <div className="flex items-center gap-1">
-                                  <span className="font-semibold">ا��بلدية:</span>
+                                  <span className="font-semibold">البلدية:</span>
                                   <span className="text-gray-700">{billboard.municipality}</span>
                                 </div>
                               </div>

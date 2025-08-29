@@ -1,0 +1,9 @@
+[build]
+  functions = "netlify/functions"
+
+# Optional redirects for convenience
+[[redirects]]
+  from = "/api/pricing"
+  to = "/.netlify/functions/kv-pricing"
+  status = 200
+  force = true

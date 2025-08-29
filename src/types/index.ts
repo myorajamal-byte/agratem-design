@@ -171,6 +171,7 @@ export interface InstallationPricing {
   sizes: BillboardSize[]
   currency: string
   lastUpdated: string
+  basePrices?: Record<BillboardSize, number>
 }
 
 export interface InstallationQuoteItem {

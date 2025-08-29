@@ -160,7 +160,7 @@ const PricingManagement: React.FC<PricingManagementProps> = ({ onClose }) => {
     return (
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
         <div className="bg-white rounded-xl p-8">
-          <div className="text-center">جا��ي تحميل البيانات...</div>
+          <div className="text-center">جاري تحميل البيانات...</div>
         </div>
       </div>
     )
@@ -299,7 +299,7 @@ const PricingManagement: React.FC<PricingManagementProps> = ({ onClose }) => {
                       </th>
                     ))}
                     <th className="border border-yellow-600 p-4 text-center font-black text-black">
-                      الإجر��ءات
+                      الإجراءات
                     </th>
                   </tr>
                 </thead>

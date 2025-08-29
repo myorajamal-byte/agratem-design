@@ -1,6 +1,8 @@
 import { PriceList, PricingZone, BillboardSize, QuoteItem, Quote, CustomerType, PackageDuration, PriceListType } from '@/types'
 import { formatGregorianDate } from '@/lib/dateUtils'
 import { dynamicPricingService } from './dynamicPricingService'
+import { jsonDatabase } from './jsonDatabase'
+import { cloudDatabase } from './cloudDatabase'
 
 // الباقات الزمنية المتاحة
 const DEFAULT_PACKAGES: PackageDuration[] = [
@@ -221,9 +223,22 @@ class PricingService {
    * تهيئة الأسعار ��لافتراضية
    */
   private initializeDefaultPricing() {
-    if (!localStorage.getItem(this.PRICING_STORAGE_KEY)) {
+    // Prefer DB cache if available (loaded from public/database.json)
+    const dbPricing = jsonDatabase.getRentalPricing()
+    if (dbPricing) {
+      localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(dbPricing))
+    } else if (!localStorage.getItem(this.PRICING_STORAGE_KEY)) {
       localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(DEFAULT_PRICING))
     }
+
+    // Try to hydrate from cloud (Netlify KV) asynchronously
+    void (async () => {
+      const remote = await cloudDatabase.getRentalPricing()
+      if (remote) {
+        localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(remote))
+        jsonDatabase.saveRentalPricing(remote)
+      }
+    })()
   }
 
   /**
@@ -243,8 +258,11 @@ class PricingService {
         return dynamicPricingService.generateDynamicPriceList()
       }
       
-      // استخدام الأسعار المحفوظة أو الافتراضية
-      return storedPricing ? JSON.parse(storedPricing) : DEFAULT_PRICING
+      // استخدام الأسعار المحفوظة أو بيانات قاعدة JSON أو الافتراضية
+      if (storedPricing) return JSON.parse(storedPricing)
+      const dbPricing = jsonDatabase.getRentalPricing()
+      if (dbPricing) return dbPricing
+      return DEFAULT_PRICING
     } catch {
       return DEFAULT_PRICING
     }
@@ -256,6 +274,10 @@ class PricingService {
   updatePricing(pricing: PriceList): { success: boolean; error?: string } {
     try {
       localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(pricing))
+      // Persist to JSON DB cache (exportable)
+      jsonDatabase.saveRentalPricing(pricing)
+      // Persist to cloud (Netlify KV), non-blocking
+      void cloudDatabase.saveRentalPricing(pricing)
       return { success: true }
     } catch (error) {
       console.error('خطأ في تحديث الأسعار:', error)
@@ -264,8 +286,8 @@ class PricingService {
   }
 
   /**
-   * الحصول على سعر لوحة معينة حسب فئة الزبون
-   * يستخدم النظام الديناميكي إذا كان مفعلاً
+   * الحصول على سعر لوحة معينة حسب فئة الزب��ن
+   * يس��خدم النظام الديناميكي إذا كان مفعلاً
    */
   getBillboardPrice(size: BillboardSize, zone: string, customerType: CustomerType = 'individuals', municipality?: string): number {
     // إذا كان النظام الديناميكي مفعل واسم البلدية متوفر
@@ -304,7 +326,7 @@ class PricingService {
   }
 
   /**
-   * ا��حصول على سعر لوحة معينة حسب قائمة الأسعار A أو B
+   * ا��ح��ول على سعر لوحة معينة حسب قائمة الأسعار A أو B
    */
   getBillboardPriceAB(size: BillboardSize, zone: string, priceList: PriceListType = 'A', municipality?: string): number {
     const pricing = this.getPricing()
@@ -377,7 +399,7 @@ class PricingService {
    * المنطقة السعرية هي نفس اسم البلدية
    */
   determinePricingZone(municipality: string, area?: string): string {
-    // استخدام اسم البلدية مباشرة كمنطقة سعرية
+    // استخدام اسم ��لبلدية مباشرة كمنطقة سعرية
     const zoneName = municipality.trim()
 
     // التأكد من وجود أسعار لهذه المنطقة
@@ -421,7 +443,7 @@ class PricingService {
       return false
     }
 
-    // إنشاء منطقة جديدة بنفس أسعار المنطقة الأساسية
+    // إنشاء م��طقة جديدة ب��فس أسعار المنطقة الأساسية
     pricing.zones[zoneName] = {
       ...baseZoneData,
       name: zoneName
@@ -557,7 +579,7 @@ class PricingService {
   }
 
   /**
-   * مقارنة الأسعار بين قائمتي A و B لمنطقة معينة
+   * مقارنة الأ��عار بين قائمت�� A و B لمنطقة معينة
    */
   comparePriceListsForZone(zone: string): {
     zone: string,
@@ -810,11 +832,11 @@ class PricingService {
           <div class="info-group">
             <h3>بيانات العميل</h3>
             <div class="info-item">
-              <span class="info-label">الاس��:</span>
+              <span class="info-label">الاسم:</span>
               ${quote.customerInfo.name}
             </div>
             <div class="info-item">
-              <span class="info-label">البريد الإلك��روني:</span>
+              <span class="info-label">البريد الإلكتروني:</span>
               ${quote.customerInfo.email}
             </div>
             <div class="info-item">
@@ -918,9 +940,19 @@ class PricingService {
             <span class="price">- ${quote.totalDiscount.toLocaleString()} ${quote.currency}</span>
           </div>
           <div class="total-row">
-            <span>المجموع بعد الخصم:</span>
+            <span>المجموع بعد خصم الباقة:</span>
             <span class="price">${(quote.subtotal - quote.totalDiscount).toLocaleString()} ${quote.currency}</span>
           </div>
+          ${(quote as any).extraDiscountAmount && (quote as any).extraDiscountAmount > 0 ? `
+          <div class="total-row" style="color: #e53e3e;">
+            <span>خصم إضافي (${(quote as any).extraDiscountType === 'percent' ? (quote as any).extraDiscountValue + '%' : 'قيمة'}):</span>
+            <span class="price">- ${((quote as any).extraDiscountAmount).toLocaleString()} ${quote.currency}</span>
+          </div>
+          <div class="total-row">
+            <span>المجموع بعد جميع الخصومات:</span>
+            <span class="price">${(quote.subtotal - quote.totalDiscount - (quote as any).extraDiscountAmount).toLocaleString()} ${quote.currency}</span>
+          </div>
+          ` : ''}
           ${quote.tax > 0 ? `
           <div class="total-row">
             <span>الضريبة (${(quote.taxRate * 100).toFixed(1)}%):</span>
@@ -933,7 +965,8 @@ class PricingService {
           </div>
           <div style="margin-top: 15px; padding: 10px; background: #e6fffa; border: 1px solid #38b2ac; border-radius: 6px;">
             <div style="text-align: center; color: #38b2ac; font-weight: bold; font-size: 12px;">
-              🎉 لقد وفرت ${quote.totalDiscount.toLocaleString()} ${quote.currency} مع باقة "${quote.packageInfo.label}"!
+              🎉 لقد و��رت ${quote.totalDiscount.toLocaleString()} ${quote.currency} مع باقة "${quote.packageInfo.label}"!
+              ${(quote as any).extraDiscountAmount && (quote as any).extraDiscountAmount > 0 ? `<div>+ خصم إضافي ${((quote as any).extraDiscountAmount).toLocaleString()} ${quote.currency}</div>` : ''}
             </div>
           </div>
         </div>
@@ -945,13 +978,13 @@ class PricingService {
             <li>الأسعار المذكورة شاملة جميع الخدمات</li>
             <li>يتم الدفع مقدماً قبل بدء الحملة الإعلانية</li>
             <li>في حالة إلغاء الحجز، يتم استرداد 50% من المبلغ المدفوع</li>
-            <li>الشركة غ��ر مسؤولة عن أي أضرار طبيعية قد تلحق باللوحة</li>
+            <li>الشركة غير مسؤولة عن أي أضرار طبيعية قد تلحق باللوحة</li>
             <li>يحق للشركة تغيير موقع اللوحة في حالات الضرورة القصوى</li>
           </ul>
         </div>
 
         <div class="footer">
-          <p>ا��فارس الذهبي للدعاية والإعلان | هاتف: 218913228908+ | البريد: g.faris.business@gmail.com</p>
+          <p>الفارس الذهبي للدعاية والإعلان | هاتف: 218913228908+ | البريد: g.faris.business@gmail.com</p>
           <p>نشكركم لثقتكم بخدماتنا ونتطلع للعمل معكم</p>
         </div>
 

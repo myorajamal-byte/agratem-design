@@ -163,15 +163,15 @@ export default function MainApp() {
     try {
       const subject = `طلب حجز لوحات إعلانية - ${customerName}`
       const body = `
-السلام ��ليكم ورحمة الله وبركاته
+السلام عليكم ورحمة الله وبركاته
 
 تفاصيل العميل:
 الاسم: ${customerName}
 البريد الإلكتروني: ${customerEmail}
-رقم ��لهاتف: ${customerPhone || "غير محدد"}
+رقم الهاتف: ${customerPhone || "غير محدد"}
 
-رس��لة العميل:
-${emailMessage || "لا توجد رسالة إ��افية"}
+رسالة العميل:
+${emailMessage || "لا توجد رسالة إضافية"}
 
 اللوحات المختارة (${selectedBillboards.size} لوحة):
 ${selectedBillboardsData
@@ -193,7 +193,7 @@ ${selectedBillboardsData
 
       window.open(mailtoLink, "_blank")
 
-      alert("تم فتح برنامج البريد الإلكتروني مع ��فاصيل اللوحات المختارة!")
+      alert("تم فتح برنامج البريد الإلكتروني مع تفاصيل اللوحات المختارة!")
       setShowEmailDialog(false)
       clearSelection()
       setCustomerEmail("")
@@ -213,7 +213,7 @@ ${selectedBillboardsData
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>المسا��ات الإعلانية المتاحة - الفارس الذهبي</title>
+        <title>المساحات الإعلانية المتاحة - الفارس الذهبي</title>
         <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
         <style>
           @page {
@@ -393,13 +393,13 @@ ${selectedBillboardsData
           <div class="logo-section">
             <img src="${window.location.origin}/logo-symbol.svg" alt="شعار الشركة" class="logo" onerror="this.style.display='none'" />
             <div class="company-info">
-              <div class="company-name-ar">الفــــارس الذ��بــــي</div>
+              <div class="company-name-ar">الفــــارس الذهبــــي</div>
               <div class="company-name-en">AL FARES AL DAHABI</div>
               <div class="company-name-ar" style="font-size: 10px;">للدعــــــاية والإعـــلان</div>
             </div>
           </div>
           <div class="title-section">
-            <div class="report-title">��لمساحات الإعلانية المتاحة</div>
+            <div class="report-title">المساحات الإعلانية المتاحة</div>
           </div>
         </div>
 
@@ -528,7 +528,7 @@ ${selectedBillboardsData
               الرائدون في عالم الدعاية والإعلان
             </h2>
             <p className="text-xl md:text-2xl mb-8 max-w-4xl mx-auto leading-relaxed font-bold">
-              نحن نقدم حلول إعلانية متكاملة ومبتكرة تضمن وصول رسالتك إلى الجمهور المناسب في الوقت ال��ناسب
+              نحن نقدم حلول إعل��نية متكاملة ومبتكرة تضمن وصول رسالتك إلى الجمهور المناسب في الوقت ال��ناسب
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mt-12">
@@ -665,7 +665,7 @@ ${selectedBillboardsData
         <div className="flex items-center justify-between mb-8">
           <p className="text-gray-700 text-lg font-semibold">
             عرض <span className="font-black text-yellow-600">{paginatedBillboards.length}</span> من أصل
-            <span className="font-black text-yellow-600">{filteredBillboards.length}</span> لوحة متاحة
+            <span className="font-black text-yellow-600">{filteredBillboards.length}</span> لوحة ��تاحة
           </p>
 
           {!showAllBillboards && filteredBillboards.length > 8 && (

@@ -48,6 +48,11 @@ export default function BookingMode({
   
   const [selectedDuration, setSelectedDuration] = useState<PackageDuration | null>(null)
   const [billboardDates, setBillboardDates] = useState<Record<string, string>>({})
+  const [globalStartDate, setGlobalStartDate] = useState<string>('')
+  const [globalEndDate, setGlobalEndDate] = useState<string>('')
+  const [rentalMode, setRentalMode] = useState<'daily' | 'package'>('package')
+  const [discountType, setDiscountType] = useState<'percent' | 'amount'>('percent')
+  const [discountValue, setDiscountValue] = useState<number>(0)
 
   if (!isOpen) return null
 
@@ -61,26 +66,28 @@ export default function BookingMode({
     selectedBillboardsData.forEach(billboard => {
       // عد المقاسات
       sizeCounts[billboard.size] = (sizeCounts[billboard.size] || 0) + 1
-      
-      // حساب السعر
-      if (selectedDuration) {
-        const zone = pricingService.determinePricingZone(billboard.municipality, billboard.area)
-        const basePrice = pricingService.getBillboardPrice(
-          billboard.size as any, 
-          zone, 
-          clientInfo.customerType, 
-          billboard.municipality
-        )
-        
+
+      const zone = pricingService.determinePricingZone(billboard.municipality, billboard.area)
+      const basePrice = pricingService.getBillboardPrice(
+        billboard.size as any,
+        zone,
+        clientInfo.customerType,
+        billboard.municipality
+      )
+
+      if (rentalMode === 'package' && selectedDuration) {
         const priceCalc = pricingService.calculatePriceWithDiscount(basePrice, selectedDuration)
         totalPrice += priceCalc.finalPrice * selectedDuration.value
       }
+      if (rentalMode === 'daily' && daysCount > 0) {
+        totalPrice += basePrice * daysCount
+      }
     })
-    
-    const discountAmount = selectedDuration && selectedDuration.discount > 0 
+
+    const discountAmount = rentalMode === 'package' && selectedDuration && selectedDuration.discount > 0
       ? (totalPrice * selectedDuration.discount) / (100 - selectedDuration.discount)
       : 0
-    
+
     return {
       totalPrice: totalPrice + discountAmount,
       sizeCounts,
@@ -89,6 +96,13 @@ export default function BookingMode({
     }
   }
 
+  const daysCount = (() => {
+    if (rentalMode !== 'daily' || !globalStartDate || !globalEndDate) return 0
+    const start = new Date(globalStartDate)
+    const end = new Date(globalEndDate)
+    const diff = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1
+    return Math.max(diff, 0)
+  })()
   const bookingSummary = calculateBookingSummary()
 
   const handleDateChange = (billboardId: string, date: string) => {
@@ -99,39 +113,52 @@ export default function BookingMode({
     onDateChange(billboardId, date)
   }
 
+  const applyGlobalDate = (date: string) => {
+    setGlobalStartDate(date)
+    const updates: Record<string, string> = {}
+    selectedBillboardsData.forEach(b => {
+      updates[b.id] = date
+    })
+    setBillboardDates(prev => ({ ...prev, ...updates }))
+    selectedBillboardsData.forEach(b => onDateChange(b.id, date))
+  }
+
   const handleCreateBooking = () => {
-    if (!selectedDuration || !clientInfo.name || !clientInfo.email) {
+    if ((rentalMode === 'package' && !selectedDuration) || !clientInfo.name || !clientInfo.email) {
       alert('يرجى ملء جميع البيانات المطلوبة')
       return
     }
 
-    // إنشاء عرض سعر
+    // إنشاء عرض سعر (الباقات فقط حالياً)
+    const pkg = selectedDuration || { value: Math.max(daysCount, 1), unit: 'month', label: `${daysCount} يوم`, discount: 0 }
     const quote = pricingService.generateQuote(
       clientInfo,
       selectedBillboardsData,
-      selectedDuration
+      pkg as any
     )
+
+    // تطبيق خصم إضافي قبل الطباعة
+    const baseAfterPackage = quote.subtotal - quote.totalDiscount
+    let extra = 0
+    if (discountType === 'percent') {
+      const pct = Math.max(0, Math.min(100, Number(discountValue || 0)))
+      extra = Math.round((baseAfterPackage * pct) / 100)
+    } else {
+      extra = Math.max(0, Math.min(baseAfterPackage, Math.round(Number(discountValue || 0))))
+    }
+    ;(quote as any).extraDiscountType = discountType
+    ;(quote as any).extraDiscountValue = discountValue
+    ;(quote as any).extraDiscountAmount = extra
+    quote.total = Math.max(0, quote.total - extra)
 
     // طباعة فاتورة العرض
     pricingService.printQuote(quote)
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex">
-      {/* المحتوى الرئيسي - يقل عرضه */}
-      <div className="flex-1 bg-white/10 backdrop-blur-sm">
-        <div className="p-4">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-            <h3 className="text-lg font-bold text-blue-800 text-center">وضع الحجز مفعل</h3>
-            <p className="text-sm text-blue-600 text-center">
-              تم تحديد {selectedBillboards.size} لوحة للحجز
-            </p>
-          </div>
-        </div>
-      </div>
-
+    <div className="fixed inset-0 z-50 flex pointer-events-none">
       {/* الشريط الجانبي الأيمن */}
-      <div className="w-96 bg-white shadow-2xl border-l-4 border-emerald-500 overflow-y-auto">
+      <div className="w-96 bg-white shadow-2xl border-l-4 border-emerald-500 overflow-y-auto pointer-events-auto">
         <div className="sticky top-0 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white p-4 z-10">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold flex items-center gap-2">
@@ -150,6 +177,71 @@ export default function BookingMode({
         </div>
 
         <div className="p-4 space-y-6">
+          {/* اختيار نظام الإيجار */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-emerald-700">
+                <Calendar className="w-5 h-5" />
+                نظام الإيجار
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-2" dir="rtl">
+                <Button
+                  variant={rentalMode === 'package' ? 'default' : 'outline'}
+                  className={rentalMode === 'package' ? 'bg-emerald-600 text-white' : ''}
+                  onClick={() => setRentalMode('package')}
+                >
+                  باقات
+                </Button>
+                <Button
+                  variant={rentalMode === 'daily' ? 'default' : 'outline'}
+                  className={rentalMode === 'daily' ? 'bg-emerald-600 text-white' : ''}
+                  onClick={() => setRentalMode('daily')}
+                >
+                  يومي
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* تواريخ موحدة عند النظام اليومي */}
+          {rentalMode === 'daily' && (
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-emerald-700">
+                  <Calendar className="w-5 h-5" />
+                  تاريخ البداية والنهاية (موحد)
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">تاريخ البداية</label>
+                  <Input
+                    type="date"
+                    value={globalStartDate}
+                    onChange={(e) => applyGlobalDate(e.target.value)}
+                    className="text-right"
+                    min={new Date().toISOString().split('T')[0]}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">تاريخ النهاية</label>
+                  <Input
+                    type="date"
+                    value={globalEndDate}
+                    onChange={(e) => setGlobalEndDate(e.target.value)}
+                    className="text-right"
+                    min={globalStartDate || new Date().toISOString().split('T')[0]}
+                  />
+                </div>
+                {daysCount > 0 && (
+                  <p className="text-xs text-gray-600">المدة: {daysCount} يوم</p>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
           {/* معلومات العميل */}
           <Card>
             <CardHeader className="pb-3">
@@ -220,19 +312,62 @@ export default function BookingMode({
             </CardContent>
           </Card>
 
-          {/* اختيار المدة */}
+          {/* اختيار المدة للباقات */}
+          {rentalMode === 'package' && (
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-emerald-700">
+                  <Calendar className="w-5 h-5" />
+                  مدة الإيجار
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <PricingDurationSelector
+                  selectedDuration={selectedDuration}
+                  onDurationChange={setSelectedDuration}
+                />
+              </CardContent>
+            </Card>
+          )}
+
+          {/* الخصم */}
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-emerald-700">
-                <Calendar className="w-5 h-5" />
-                مدة الإيجار
+                <DollarSign className="w-5 h-5" />
+                الخصم الإضافي
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <PricingDurationSelector
-                selectedDuration={selectedDuration}
-                onDurationChange={setSelectedDuration}
-              />
+            <CardContent className="space-y-3" dir="rtl">
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  variant={discountType === 'percent' ? 'default' : 'outline'}
+                  className={discountType === 'percent' ? 'bg-emerald-600 text-white' : ''}
+                  onClick={() => setDiscountType('percent')}
+                >
+                  نسبة %
+                </Button>
+                <Button
+                  variant={discountType === 'amount' ? 'default' : 'outline'}
+                  className={discountType === 'amount' ? 'bg-emerald-600 text-white' : ''}
+                  onClick={() => setDiscountType('amount')}
+                >
+                  قيمة
+                </Button>
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-1">
+                  {discountType === 'percent' ? 'نسبة الخصم (%)' : 'قيمة الخصم (د.ل)'}
+                </label>
+                <Input
+                  type="number"
+                  min={0}
+                  max={discountType === 'percent' ? 100 : undefined}
+                  value={discountValue}
+                  onChange={(e) => setDiscountValue(Number(e.target.value))}
+                  className="text-right"
+                />
+              </div>
             </CardContent>
           </Card>
 
@@ -253,23 +388,25 @@ export default function BookingMode({
                   </div>
                   <p className="text-xs text-gray-600 mb-2">{billboard.location}</p>
                   
-                  <div>
-                    <label className="block text-xs font-bold text-gray-700 mb-1">تاريخ البداية</label>
-                    <Input
-                      type="date"
-                      value={billboardDates[billboard.id] || ''}
-                      onChange={(e) => handleDateChange(billboard.id, e.target.value)}
-                      className="text-right text-xs"
-                      min={new Date().toISOString().split('T')[0]}
-                    />
-                  </div>
+                  {rentalMode === 'package' && (
+                    <div>
+                      <label className="block text-xs font-bold text-gray-700 mb-1">تاريخ البداية (اختياري)</label>
+                      <Input
+                        type="date"
+                        value={billboardDates[billboard.id] || ''}
+                        onChange={(e) => handleDateChange(billboard.id, e.target.value)}
+                        className="text-right text-xs"
+                        min={new Date().toISOString().split('T')[0]}
+                      />
+                    </div>
+                  )}
                 </div>
               ))}
             </CardContent>
           </Card>
 
           {/* ملخص التكلفة */}
-          {selectedDuration && (
+          {((rentalMode === 'package' && selectedDuration) || (rentalMode === 'daily' && daysCount > 0)) && (
             <Card className="border-2 border-emerald-200">
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2 text-emerald-700">
@@ -302,34 +439,55 @@ export default function BookingMode({
                     </div>
                   )}
                   
-                  {bookingSummary.discountAmount > 0 && (
+                  {bookingSummary.discountAmount > 0 && selectedDuration && (
                     <div className="flex justify-between text-sm text-red-600">
                       <span className="font-bold">
                         -{bookingSummary.discountAmount.toLocaleString()} د.ل
                       </span>
-                      <span>الخصم ({selectedDuration.discount}%):</span>
+                      <span>خصم الباقة ({selectedDuration.discount}%):</span>
                     </div>
                   )}
-                  
+
+                  {typeof discountValue === 'number' && discountValue > 0 && (
+                    <div className="flex justify-between text-sm text-red-600">
+                      <span className="font-bold">
+                        -{(discountType === 'percent'
+                          ? Math.round((bookingSummary.finalTotal * Math.max(0, Math.min(100, Number(discountValue)))) / 100)
+                          : Math.max(0, Math.min(bookingSummary.finalTotal, Math.round(Number(discountValue)))))
+                        .toLocaleString()} د.ل
+                      </span>
+                      <span>خصم إضافي ({discountType === 'percent' ? `${Math.max(0, Math.min(100, Number(discountValue)))}%` : 'قيمة'})</span>
+                    </div>
+                  )}
+
                   <div className="flex justify-between text-lg font-bold text-emerald-800 border-t pt-2">
-                    <span>{bookingSummary.finalTotal.toLocaleString()} د.ل</span>
-                    <span>الإجمالي:</span>
+                    <span>{(bookingSummary.finalTotal - (discountType === 'percent'
+                      ? Math.round((bookingSummary.finalTotal * Math.max(0, Math.min(100, Number(discountValue)))) / 100)
+                      : Math.max(0, Math.min(bookingSummary.finalTotal, Math.round(Number(discountValue)))))).toLocaleString()} د.ل</span>
+                    <span>الإجمالي النهائي:</span>
                   </div>
                   
-                  <p className="text-xs text-gray-500 text-center">
-                    لمدة {selectedDuration.label}
-                  </p>
+                  {rentalMode === 'package' && selectedDuration && (
+                    <p className="text-xs text-gray-500 text-center">
+                      لمدة {selectedDuration.label}
+                    </p>
+                  )}
+                  {rentalMode === 'daily' && daysCount > 0 && (
+                    <p className="text-xs text-gray-500 text-center">
+                      لعدد {daysCount} يوم
+                    </p>
+                  )}
                 </div>
               </CardContent>
             </Card>
           )}
 
-          {/* أزرار العمل */}
+          {/* أزرار ال��مل */}
           <div className="space-y-3">
             <Button
               onClick={handleCreateBooking}
               className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white py-3 text-base font-bold"
-              disabled={!selectedDuration || !clientInfo.name || !clientInfo.email}
+              disabled={(rentalMode === 'package' && !selectedDuration) || (rentalMode === 'daily' && daysCount <= 0) || !clientInfo.name || !clientInfo.email}
             >
               <FileText className="w-5 h-5 mr-2" />
               إنشاء فاتورة العرض

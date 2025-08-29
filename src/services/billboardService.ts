@@ -1,7 +1,7 @@
 import * as XLSX from 'xlsx'
 import { Billboard } from '@/types'
 
-// تطبيع أحجام اللوحات لتكون متوافقة مع مفاتيح التسعير
+// تطبيع أح��ام اللوحات لتكون متوافقة مع مفاتيح التسعير
 const normalizeBillboardSize = (size: string): string => {
   if (!size) return '4x12'
 
@@ -52,7 +52,7 @@ const normalizeBillboardSize = (size: string): string => {
 const ONLINE_URL =
   "https://docs.google.com/spreadsheets/d/1fF9BUgBcW9OW3nWT97Uke_z2Pq3y_LC0/export?format=xlsx&gid=0&usp=sharing"
 const CSV_URL =
-  "https://docs.google.com/spreadsheets/d/1fF9BUgBcW9OW3nWT97Uke_z2Pq3y_LC0/export?format=csv&gid=0&usp=sharing"
+  "https://docs.google.com/spreadsheets/d/1fF9BUgBcW9OW3nWT97Uke_z2Pq3y_LC0/gviz/tq?tqx=out:csv&gid=0&usp=sharing"
 
 async function testUrlAccess(url: string) {
   try {
@@ -111,7 +111,7 @@ async function readCsvFromUrl(url: string, timeoutMs = 10000) {
     const workbook = XLSX.read(csvText, { type: "string" })
     return workbook
   } catch (error: any) {
-    console.error(`[Service] خطأ في قراءة CSV: ${error.message}`)
+    console.warn(`[Service] خطأ في قراءة CSV: ${error.message}`)
     throw error
   }
 }
@@ -119,7 +119,7 @@ async function readCsvFromUrl(url: string, timeoutMs = 10000) {
 async function readExcelFromUrl(url: string, timeoutMs = 10000, retries = 2) {
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
-      console.log(`[Service] محاولة ${attempt} من ${retries} لتحميل الملف من الرابط...`)
+      console.log(`[Service] محا��لة ${attempt} من ${retries} لتحميل الملف من الرابط...`)
 
       const controller = new AbortController()
       const timeout = setTimeout(() => controller.abort(), timeoutMs)
@@ -155,7 +155,7 @@ async function readExcelFromUrl(url: string, timeoutMs = 10000, retries = 2) {
 
       if (!res.ok) {
         if (res.status === 403) {
-          throw new Error(`الملف غير متاح للوصول العام. تأكد من أن الملف مشارك للعامة. كود الخطأ: ${res.status}`)
+          throw new Error(`الملف غير متاح للوصول العام. تأكد من أ�� الملف مشارك للعامة. كود الخطأ: ${res.status}`)
         } else if (res.status === 404) {
           throw new Error(`الملف غير موجود. تأكد من صحة رابط Google Sheets. كود الخطأ: ${res.status}`)
         } else if (res.status === 429) {
@@ -326,7 +326,7 @@ function processBillboardData(billboard: any, index: number): Billboard {
 
   // تحديد الحالة بناءً على وجود عقد
   if (contractNumber && contractNumber.trim() !== '' && contractNumber !== '#N/A') {
-    status = 'محج��ز'
+    status = 'محجوز'
 
     // إذا كان هناك تاريخ انتهاء، تحقق من اقرب من الانتهاء
     if (expiryDateValue) {
@@ -402,61 +402,83 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
     try {
       console.log("[Service] محاولة قراءة البيانات بصيغة CSV...")
       workbook = await readCsvFromUrl(CSV_URL, 15000)
-      console.log("[Service] تم تحميل البيانات بصيغة CSV بنجاح ✅ - سيتم المحاولة مع Excel")
+      console.log("[Service] تم تحميل البيانات بصيغة CSV بنجاح ✅")
     } catch (csvError: any) {
       console.warn("[Service] فشل تحميل CSV:", csvError.message)
 
-      const alternativeUrls = [
-        ONLINE_URL,
-        ONLINE_URL.replace("&gid=0", ""),
-        ONLINE_URL.replace("export?format=xlsx", "export?format=xlsx&exportFormat=xlsx"),
-        "https://docs.google.com/spreadsheets/d/1fF9BUgBcW9OW3nWT97Uke_z2Pq3y_LC0/export?format=xlsx&id=1fF9BUgBcW9OW3nWT97Uke_z2Pq3y_LC0&usp=sharing",
-        "https://docs.google.com/spreadsheets/d/1fF9BUgBcW9OW3nWT97Uke_z2Pq3y_LC0/gviz/tq?tqx=out:csv&sheet=Sheet1&usp=sharing",
-        "https://docs.google.com/spreadsheets/d/1fF9BUgBcW9OW3nWT97Uke_z2Pq3y_LC0/export?format=xlsx",
+      // جرّب روابط CSV بديلة أولاً
+      const alternativeCsvUrls = [
+        "https://docs.google.com/spreadsheets/d/1fF9BUgBcW9OW3nWT97Uke_z2Pq3y_LC0/gviz/tq?tqx=out:csv&gid=0",
+        "https://docs.google.com/spreadsheets/d/1fF9BUgBcW9OW3nWT97Uke_z2Pq3y_LC0/gviz/tq?tqx=out:csv&sheet=Sheet1",
+        "https://docs.google.com/spreadsheets/d/1fF9BUgBcW9OW3nWT97Uke_z2Pq3y_LC0/export?format=csv&gid=0",
         "https://docs.google.com/spreadsheets/d/1fF9BUgBcW9OW3nWT97Uke_z2Pq3y_LC0/export?format=csv",
       ]
 
-      let fileBuffer: ArrayBuffer | null = null
-      let lastError: Error | null = null
-
-      for (const url of alternativeUrls) {
+      for (const url of alternativeCsvUrls) {
         try {
-          console.log(`[Service] محاولة قراءة ملف الإكسل من الرابط: ${url}`)
-          fileBuffer = await readExcelFromUrl(url, 15000, 2)
-          console.log("[Service] تم تحميل ملف الإكسل من الرابط بنجاح ✅")
+          console.log(`[Service] محاولة قراءة CSV بديل: ${url}`)
+          const altWb = await readCsvFromUrl(url, 15000)
+          workbook = altWb
+          console.log("[Service] تم تحميل CSV البديل بنجاح ✅")
           break
         } catch (err: any) {
-          console.warn(`[Service] فشل قراءة الملف من ا��رابط ${url}:`, err.message)
-          lastError = err
+          console.warn(`[Service] فشل CSV البديل ${url}:`, err.message)
           continue
         }
       }
 
-      if (!fileBuffer) {
-        console.log("[Service] محاولة قراءة ملف الإكسل من الملف المحلي...")
-        try {
-          const response = await fetch('/billboards.xlsx')
-          
-          if (!response.ok) {
-            throw new Error('فشل في تحميل ملف Excel المحلي')
+      // إذا لم ننجح مع CSV، نحاول Excel
+      if (!workbook) {
+        const alternativeUrls = [
+          ONLINE_URL,
+          ONLINE_URL.replace("&gid=0", ""),
+          ONLINE_URL.replace("export?format=xlsx", "export?format=xlsx&exportFormat=xlsx"),
+          "https://docs.google.com/spreadsheets/d/1fF9BUgBcW9OW3nWT97Uke_z2Pq3y_LC0/export?format=xlsx&id=1fF9BUgBcW9OW3nWT97Uke_z2Pq3y_LC0&usp=sharing",
+          "https://docs.google.com/spreadsheets/d/1fF9BUgBcW9OW3nWT97Uke_z2Pq3y_LC0/export?format=xlsx",
+        ]
+
+        let fileBuffer: ArrayBuffer | null = null
+        let lastError: Error | null = null
+
+        for (const url of alternativeUrls) {
+          try {
+            console.log(`[Service] محاولة قراءة ملف الإكسل من الرابط: ${url}`)
+            fileBuffer = await readExcelFromUrl(url, 15000, 2)
+            console.log("[Service] تم تحميل ملف الإكسل من الرابط بنجاح ✅")
+            break
+          } catch (err: any) {
+            console.warn(`[Service] فشل قراءة الملف من الرابط ${url}:`, err.message)
+            lastError = err
+            continue
           }
-          
-          fileBuffer = await response.arrayBuffer()
-          console.log("[Service] تم تحميل ملف الإكسل المحلي ✅")
-        } catch (localError: any) {
-          console.error("[Service] فشل في قراءة الملف المحلي أيضاً:", localError.message)
-          throw new Error(
-            `فشل في قراءة الملف من الرابط ��الملف المحلي. آخر خطأ من الرابط: ${lastError?.message}. خطأ الملف المحلي: ${localError.message}`,
-          )
         }
-      }
 
-      if (!fileBuffer || fileBuffer.byteLength === 0) {
-        throw new Error("ملف الإكسل فارغ أو تالف")
-      }
+        if (!fileBuffer) {
+          console.log("[Service] محاولة قراءة ملف الإكسل من الملف المحلي...")
+          try {
+            const response = await fetch('/billboards.xlsx')
 
-      console.log("[Service] حجم الملف:", fileBuffer.byteLength, "بايت")
-      workbook = safeReadExcel(fileBuffer)
+            if (!response.ok) {
+              throw new Error('فشل في تحميل ملف Excel المحلي')
+            }
+
+            fileBuffer = await response.arrayBuffer()
+            console.log("[Service] تم تحميل ملف الإكسل المحلي ✅")
+          } catch (localError: any) {
+            console.error("[Service] فشل في قراءة الملف المحلي أيضاً:", localError.message)
+            throw new Error(
+              `فشل في قراءة الملف من الرابط والملف المحلي. آخر خطأ من الرابط: ${lastError?.message}. خطأ الملف المحلي: ${localError.message}`,
+            )
+          }
+        }
+
+        if (!fileBuffer || fileBuffer.byteLength === 0) {
+          throw new Error("ملف الإكسل فارغ أو تالف")
+        }
+
+        console.log("[Service] حجم الملف:", fileBuffer.byteLength, "بايت")
+        workbook = safeReadExcel(fileBuffer)
+      }
     }
 
     const sheetName = workbook.SheetNames[0]
@@ -647,7 +669,7 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
         {
           id: "150",
           name: "MS-MS0150",
-          location: "مدخل مصراتة الشرقي بجوار المطار",
+          location: "مدخل مصراتة الشرقي بجو��ر المطار",
           municipality: "مصراتة",
           city: "مصراتة",
           area: "مصراتة",

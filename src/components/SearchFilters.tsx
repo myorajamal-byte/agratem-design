@@ -82,7 +82,7 @@ export default function SearchFilters({
           </label>
           <Input
             type="text"
-            placeholder="أدخل رقم الع��د (مثال: 1108)"
+            placeholder="أدخل رقم العقد (مثال: 1108)"
             value={contractFilter}
             onChange={(e) => setContractFilter(e.target.value)}
             className="text-center border-2 border-blue-300 focus:border-blue-500 rounded-full py-3 text-lg shadow-lg font-sans"

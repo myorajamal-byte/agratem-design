@@ -370,7 +370,7 @@ const CategoryManagementModal: React.FC<CategoryManagementModalProps> = ({
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-1">��ضاعف السعر</label>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">مضاعف السعر</label>
                   <Input
                     type="number"
                     value={newCategory.multiplier}
@@ -384,7 +384,7 @@ const CategoryManagementModal: React.FC<CategoryManagementModalProps> = ({
                     max="10"
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    1.0 = السعر الأساسي، أقل من 1.0 = خصم، أكبر من 1.0 = زي��دة
+                    1.0 = السعر الأساسي، أقل من 1.0 = خصم، أكبر من 1.0 = زيادة
                   </p>
                 </div>
               </div>

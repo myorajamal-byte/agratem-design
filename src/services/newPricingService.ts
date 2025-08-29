@@ -1,5 +1,7 @@
 import { PriceList, BillboardSize, QuoteItem, Quote, CustomerType, PackageDuration, PriceListType, SizeManagement, DurationPricing, PricingZone, CustomerTypePricing, ABPricing } from '@/types'
 import { formatGregorianDate } from '@/lib/dateUtils'
+import { jsonDatabase } from './jsonDatabase'
+import { cloudDatabase } from './cloudDatabase'
 
 // ا��مقاسات الافتراضية
 const DEFAULT_SIZES: BillboardSize[] = ['5x13', '4x12', '4x10', '3x8', '3x6', '3x4']
@@ -125,16 +127,29 @@ class NewPricingService implements SizeManagement {
    * تهيئة البيانات الافتراضية
    */
   private initializeDefaults() {
-    if (!localStorage.getItem(this.PRICING_STORAGE_KEY)) {
+    // Prefer rental pricing from JSON DB if available
+    const dbPricing = jsonDatabase.getRentalPricing()
+    if (dbPricing) {
+      localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(dbPricing))
+    } else if (!localStorage.getItem(this.PRICING_STORAGE_KEY)) {
       localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(DEFAULT_PRICING_NEW))
     }
     if (!localStorage.getItem(this.SIZES_STORAGE_KEY)) {
       localStorage.setItem(this.SIZES_STORAGE_KEY, JSON.stringify(DEFAULT_SIZES))
     }
+
+    // Try hydrate from cloud asynchronously
+    void (async () => {
+      const remote = await cloudDatabase.getRentalPricing()
+      if (remote) {
+        localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(remote))
+        jsonDatabase.saveRentalPricing(remote)
+      }
+    })()
   }
 
   /**
-   * تحميل المقاسات من التخزين
+   * تحميل المقاسا�� من التخزين
    */
   private loadSizes() {
     try {
@@ -153,7 +168,7 @@ class NewPricingService implements SizeManagement {
   }
 
   /**
-   * إضا��ة مقاس جديد
+   * إضا��ة م��اس جديد
    */
   addSize(size: BillboardSize): boolean {
     if (!this.validateSize(size) || this.sizes.includes(size)) {
@@ -204,6 +219,10 @@ class NewPricingService implements SizeManagement {
   updatePricing(pricing: PriceList): { success: boolean; error?: string } {
     try {
       localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(pricing))
+      // Persist to JSON DB cache (exportable)
+      jsonDatabase.saveRentalPricing(pricing)
+      // Persist to cloud (Netlify KV), non-blocking
+      void cloudDatabase.saveRentalPricing(pricing)
       return { success: true }
     } catch (error) {
       console.error('خطأ في تحديث الأسعار:', error)
@@ -404,7 +423,7 @@ class NewPricingService implements SizeManagement {
   }
 
   /**
-   * تحديد المنطقة السعرية ب��اءً على البلدية مباشرة
+   * تحديد المنطقة الس��رية ب��اءً على البلدية مباشرة
    * المنطقة السعرية هي نفس اسم البلدية
    */
   determinePricingZone(municipality: string, area?: string): string {
@@ -489,7 +508,7 @@ class NewPricingService implements SizeManagement {
    */
   async syncWithExcelData(): Promise<{ success: boolean; summary?: any; error?: string }> {
     try {
-      // استيراد خدمة إدارة المناطق التلقائية
+      // ��ستيراد خدمة إدارة المناطق التلقائية
       const { pricingZoneAutoManager } = await import('./pricingZoneAutoManager')
 
       // تنفيذ المزامنة
@@ -913,7 +932,7 @@ class NewPricingService implements SizeManagement {
               <th>المقاس</th>
               <th>قائمة السعر</th>
               <th>ا��سعر الأساسي</th>
-              <th>الخصم</th>
+              <th>ا��خصم</th>
               <th>الإجمالي</th>
             </tr>
           </thead>

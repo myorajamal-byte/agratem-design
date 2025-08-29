@@ -24,6 +24,7 @@ import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { installationPricingService } from '@/services/installationPricingService'
+import { newPricingService } from '@/services/newPricingService'
 import { InstallationPricing, InstallationPriceZone, BillboardSize, InstallationQuote } from '@/types'
 
 interface InstallationPricingManagementProps {
@@ -57,11 +58,28 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
   const [customerInfo, setCustomerInfo] = useState({ name: '', email: '', phone: '', company: '' })
   const [discount, setDiscount] = useState(0)
   const [quoteNotes, setQuoteNotes] = useState('')
+  const [showImportZones, setShowImportZones] = useState(false)
+  const [systemZones, setSystemZones] = useState<string[]>([])
+  const [selectedSystemZones, setSelectedSystemZones] = useState<Set<string>>(new Set())
 
   // Load pricing data on component mount
   useEffect(() => {
     loadPricingData()
   }, [])
+
+  // Load zones from system pricing when opening import modal
+  useEffect(() => {
+    if (showImportZones) {
+      try {
+        const zones = newPricingService.getPricingZones()
+        const existing = new Set(Object.keys(pricing.zones))
+        setSystemZones(zones.filter(z => !existing.has(z)))
+        setSelectedSystemZones(new Set())
+      } catch (e) {
+        setSystemZones([])
+      }
+    }
+  }, [showImportZones])
 
   // Show notification temporarily
   const showNotification = (type: 'success' | 'error', message: string) => {
@@ -113,36 +131,36 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
   }
 
   // Handle cell editing
-  const startEdit = (zone: string, size: BillboardSize) => {
-    const cellKey = `${zone}-${size}`
+  const startEdit = (_zone: string, size: BillboardSize) => {
+    const cellKey = `base-${size}`
     setEditingCell(cellKey)
-    setEditingValue(pricing.zones[zone]?.prices[size]?.toString() || '')
+    const base = (pricing as InstallationPricing).basePrices?.[size] ?? pricing.zones[Object.keys(pricing.zones)[0]]?.prices[size] ?? ''
+    setEditingValue(base.toString())
   }
 
   const saveEdit = () => {
     if (!editingCell) return
-    
-    const [zone, size] = editingCell.split('-')
+    const [, size] = editingCell.split('-')
     const value = parseInt(editingValue) || 0
-    
     if (value < 0) {
       showNotification('error', 'لا يمكن أن يكون السعر أقل من صفر')
       return
     }
 
-    setPricing(prev => ({
-      ...prev,
-      zones: {
-        ...prev.zones,
-        [zone]: {
-          ...prev.zones[zone],
-          prices: {
-            ...prev.zones[zone].prices,
-            [size]: value
-          }
-        }
+    setPricing(prev => {
+      const updated: InstallationPricing = {
+        ...prev,
+        basePrices: { ...(prev.basePrices || {}), [size as BillboardSize]: value },
+        zones: { ...prev.zones }
       }
-    }))
+      Object.keys(updated.zones).forEach(z => {
+        updated.zones[z] = {
+          ...updated.zones[z],
+          prices: { ...updated.zones[z].prices, [size as BillboardSize]: value }
+        }
+      })
+      return updated
+    })
 
     setUnsavedChanges(prev => ({
       hasChanges: true,
@@ -150,7 +168,7 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
     }))
 
     setEditingCell(null)
-    showNotification('success', 'تم تحديث السعر بنجاح')
+    showNotification('success', 'تم تحديث السعر الأساسي للمقاس بنجاح')
   }
 
   const cancelEdit = () => {
@@ -167,7 +185,7 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
     }
 
     if (pricing.sizes.includes(newSize)) {
-      showNotification('error', 'هذا المقاس موج��د بالفعل')
+      showNotification('error', 'هذا المقاس موجود بالفعل')
       return
     }
 
@@ -350,7 +368,7 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
               </div>
               <div>
                 <h1 className="text-2xl font-bold">إدارة أسعار التركيب</h1>
-                <p className="text-sm opacity-90">إدارة أسعار تركيب اللوحات الإعلانية حسب المقاسا�� والمناطق</p>
+                <p className="text-sm opacity-90">إدارة أسعار تركيب اللوحات الإعلانية حسب المقاسات والمناطق</p>
               </div>
             </div>
             <Button
@@ -513,6 +531,14 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
                 <Plus className="w-4 h-4 mr-2" />
                 إضافة منطقة
               </Button>
+              <Button
+                onClick={() => setShowImportZones(true)}
+                variant="outline"
+                className="text-purple-600 border-purple-300"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                إضافة مناطق من النظام
+              </Button>
             </div>
             <div className="flex gap-2">
               <Button
@@ -524,6 +550,58 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
               </Button>
             </div>
           </div>
+
+          {/* Base Prices (sizes only) */}
+          <Card className="mb-6 shadow-lg rounded-lg overflow-hidden">
+            <div className="p-4 bg-gradient-to-r from-emerald-50 to-emerald-100 border-b border-emerald-200">
+              <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                <Wrench className="w-6 h-6 text-emerald-600" />
+                الأسعار الأساسية حسب المقاسات
+              </h3>
+              <p className="text-sm text-gray-700 mt-2">هذه الأسعار موحدة لكل المناطق. يمكن تعديلها بالنقر على أي مقاس.</p>
+            </div>
+            <div className="overflow-x-auto bg-white">
+              <table className="w-full border-collapse">
+                <thead className="sticky top-0 bg-white shadow-sm">
+                  <tr>
+                    {pricing.sizes.map(size => (
+                      <th key={size} className="border border-gray-200 p-3 text-center font-bold text-white min-w-[120px] bg-emerald-500">
+                        <div className="leading-tight">
+                          {size}
+                          <div className="text-xs opacity-80 mt-1">سعر أساسي</div>
+                        </div>
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    {pricing.sizes.map(size => {
+                      const cellKey = `base-${size}`
+                      const basePrice = (pricing as InstallationPricing).basePrices?.[size] ?? 0
+                      const isEditing = editingCell === cellKey
+                      const hasChanges = unsavedChanges.changedCells.has(cellKey)
+                      return (
+                        <td key={size} className={`border border-gray-200 p-2 text-center ${hasChanges ? 'bg-yellow-100' : ''}`}>
+                          {isEditing ? (
+                            <div className="flex items-center gap-1 justify-center">
+                              <Input type="number" value={editingValue} onChange={(e) => setEditingValue(e.target.value)} className="w-24 text-center font-bold text-sm" min="0" autoFocus />
+                              <Button onClick={saveEdit} size="sm" className="bg-green-600 hover:bg-green-700 text-white p-1"><Check className="w-3 h-3" /></Button>
+                              <Button onClick={cancelEdit} size="sm" variant="outline" className="text-red-600 border-red-300 p-1"><X className="w-3 h-3" /></Button>
+                            </div>
+                          ) : (
+                            <div className="cursor-pointer group py-2 px-3 hover:bg-emerald-50 rounded-lg transition-all" onClick={() => startEdit('base', size)} title={`السعر الأساسي: ${formatPrice(basePrice)}`}>
+                              <span className="font-bold text-gray-800 text-sm bg-gray-100 px-2 py-1 rounded">{formatPrice(basePrice)}</span>
+                            </div>
+                          )}
+                        </td>
+                      )
+                    })}
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </Card>
 
           {/* Pricing Table */}
           <Card className="mb-6 shadow-lg rounded-lg overflow-hidden">
@@ -544,17 +622,6 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
                     <th className="border border-gray-200 p-3 text-center font-bold bg-orange-50 text-gray-800 min-w-[100px]">
                       المعامل
                     </th>
-                    {filteredSizes.map(size => (
-                      <th
-                        key={size}
-                        className="border border-gray-200 p-3 text-center font-bold text-white min-w-[120px] bg-orange-500"
-                      >
-                        <div className="leading-tight">
-                          {size}
-                          <div className="text-xs opacity-80 mt-1">تركيب</div>
-                        </div>
-                      </th>
-                    ))}
                     <th className="border border-gray-200 p-3 text-center font-bold bg-red-500 text-white min-w-[100px]">
                       الإجراءات
                     </th>
@@ -589,73 +656,6 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
                           placeholder="1.0"
                         />
                       </td>
-                      {filteredSizes.map(size => {
-                        const cellKey = `${zone.name}-${size}`
-                        const basePrice = zone.prices[size] || 0
-                        const finalPrice = getFinalPrice(basePrice, zone.multiplier)
-                        const isEditing = editingCell === cellKey
-                        const hasChanges = unsavedChanges.changedCells.has(cellKey)
-
-                        return (
-                          <td
-                            key={size}
-                            className={`border border-gray-200 p-2 text-center relative ${
-                              hasChanges ? 'bg-yellow-100' : ''
-                            }`}
-                          >
-                            {isEditing ? (
-                              <div className="flex items-center gap-1 justify-center">
-                                <Input
-                                  type="number"
-                                  value={editingValue}
-                                  onChange={(e) => setEditingValue(e.target.value)}
-                                  className="w-20 text-center font-bold text-sm"
-                                  min="0"
-                                  autoFocus
-                                />
-                                <Button
-                                  onClick={saveEdit}
-                                  size="sm"
-                                  className="bg-green-600 hover:bg-green-700 text-white p-1"
-                                >
-                                  <Check className="w-3 h-3" />
-                                </Button>
-                                <Button
-                                  onClick={cancelEdit}
-                                  size="sm"
-                                  variant="outline"
-                                  className="text-red-600 border-red-300 p-1"
-                                >
-                                  <X className="w-3 h-3" />
-                                </Button>
-                              </div>
-                            ) : (
-                              <div
-                                className="cursor-pointer group py-2 px-3 hover:bg-orange-50 rounded-lg transition-all"
-                                onClick={() => startEdit(zone.name, size)}
-                                title={`السعر الأساسي: ${formatPrice(basePrice)}\nالمعامل: ×${zone.multiplier}\nالسعر النهائي: ${formatPrice(finalPrice)}`}
-                              >
-                                <div className="flex flex-col items-center justify-center gap-1">
-                                  <div className="flex items-center gap-1">
-                                    <span className="font-bold text-gray-800 text-sm bg-gray-100 px-2 py-1 rounded">
-                                      {formatPrice(basePrice)}
-                                    </span>
-                                    <Edit3 className="w-3 h-3 text-gray-400 opacity-0 group-hover:opacity-100 group-hover:text-orange-600 transition-all duration-200" />
-                                  </div>
-                                  {zone.multiplier !== 1.0 && (
-                                    <div className="text-xs text-purple-600 font-semibold bg-purple-50 px-1 py-0.5 rounded">
-                                      معامل: ×{zone.multiplier}
-                                    </div>
-                                  )}
-                                  <div className="text-sm text-orange-600 font-bold bg-orange-100 px-2 py-1 rounded">
-                                    النهائي: {formatPrice(finalPrice)}
-                                  </div>
-                                </div>
-                              </div>
-                            )}
-                          </td>
-                        )
-                      })}
                       <td className="border border-gray-200 p-2 text-center">
                         <Button
                           onClick={() => removeZone(zone.name)}
@@ -708,6 +708,51 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
             </div>
           </Card>
         </div>
+
+        {/* Import Zones Modal */}
+        {showImportZones && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-60">
+            <Card className="w-full max-w-lg p-6">
+              <h3 className="text-xl font-bold mb-4">إضافة مناطق من النظام</h3>
+              <div className="mb-3 text-sm text-gray-600">اختر البلديات الموجودة في نظام التسعير لإضافتها هنا (المعامل الافتراضي 1.0)</div>
+              <div className="max-h-80 overflow-y-auto border rounded-md p-3 space-y-2 bg-white">
+                {systemZones.length === 0 && (
+                  <div className="text-sm text-gray-500">لا توجد مناطق جديدة للإضافة</div>
+                )}
+                {systemZones.map(name => (
+                  <label key={name} className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={selectedSystemZones.has(name)}
+                      onChange={(e) => {
+                        const next = new Set(selectedSystemZones)
+                        if (e.target.checked) next.add(name); else next.delete(name)
+                        setSelectedSystemZones(next)
+                      }}
+                    />
+                    <span className="font-semibold">{name}</span>
+                  </label>
+                ))}
+              </div>
+              <div className="flex gap-2 mt-6">
+                <Button
+                  onClick={async () => {
+                    for (const name of Array.from(selectedSystemZones)) {
+                      installationPricingService.addZone(name, 1.0)
+                    }
+                    loadPricingData()
+                    setShowImportZones(false)
+                  }}
+                  disabled={selectedSystemZones.size === 0}
+                  className="flex-1 bg-purple-600 hover:bg-purple-700 text-white"
+                >
+                  إضافة المناطق المحددة
+                </Button>
+                <Button onClick={() => setShowImportZones(false)} variant="outline" className="flex-1">إلغاء</Button>
+              </div>
+            </Card>
+          </div>
+        )}
 
         {/* Add Zone Modal */}
         {showAddZoneModal && (
@@ -869,7 +914,7 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
                   <Input
                     value={quoteNotes}
                     onChange={(e) => setQuoteNotes(e.target.value)}
-                    placeholder="ملاحظات إضافية"
+                    placeholder="ملاح��ات إضافية"
                   />
                 </div>
               </div>
@@ -881,7 +926,7 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
                   className="flex-1 bg-orange-600 hover:bg-orange-700 text-white"
                 >
                   <FileText className="w-4 h-4 mr-2" />
-                  إنشاء وطباعة ال��اتورة
+                  إنشاء وطباعة الفاتورة
                 </Button>
                 <Button
                   onClick={() => setShowQuoteModal(false)}

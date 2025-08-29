@@ -108,7 +108,7 @@ export default function Header({ onOpenSettings, onOpenPricing, onOpenInstallati
                             <Wrench className="w-5 h-5 text-orange-600" />
                             <div>
                               <p className="font-semibold">أسعار التركيب</p>
-                              <p className="text-sm text-gray-500">إدارة أسعار ��ركيب اللوحات</p>
+                              <p className="text-sm text-gray-500">إدارة أسعار تركيب اللوحات</p>
                             </div>
                           </button>
                         </>

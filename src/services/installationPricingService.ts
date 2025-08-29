@@ -1,5 +1,7 @@
 import { BillboardSize, InstallationPricing, InstallationPriceZone, InstallationQuote, InstallationQuoteItem } from '@/types'
 import { formatGregorianDate } from '@/lib/dateUtils'
+import { jsonDatabase } from './jsonDatabase'
+import { cloudDatabase } from './cloudDatabase'
 
 // المقاسات المتاحة لأسعار التركيب
 const DEFAULT_INSTALLATION_SIZES: BillboardSize[] = ['5x13', '4x12', '4x10', '3x8', '3x6', '3x4']
@@ -20,31 +22,32 @@ const DEFAULT_INSTALLATION_PRICING: InstallationPricing = {
     'مصراتة': {
       name: 'مصراتة',
       prices: createDefaultInstallationPrices(),
-      multiplier: 1.0, // معامل إضافي للمنطقة
-      description: 'أسعار التركيب لمنطقة مصراتة'
+      multiplier: 1.0,
+      description: 'أسعار التركيب ��منطقة مصراتة'
     },
     'أبو سليم': {
       name: 'أبو سليم',
       prices: createDefaultInstallationPrices(),
-      multiplier: 1.1, // زيادة 10% لأبو سليم
+      multiplier: 1.1,
       description: 'أسعار التركيب لمنطقة أبو سليم'
     },
     'زليتن': {
       name: 'زليتن',
       prices: createDefaultInstallationPrices(),
-      multiplier: 0.9, // خصم 10% لزليتن
+      multiplier: 0.9,
       description: 'أسعار التركيب لمنطقة زليتن'
     },
     'بنغازي': {
       name: 'بنغازي',
       prices: createDefaultInstallationPrices(),
-      multiplier: 1.2, // زيادة 20% لبنغازي
+      multiplier: 1.2,
       description: 'أسعار التركيب لمنطقة بنغازي'
     }
   },
   sizes: DEFAULT_INSTALLATION_SIZES,
   currency: 'د.ل',
-  lastUpdated: new Date().toISOString()
+  lastUpdated: new Date().toISOString(),
+  basePrices: createDefaultInstallationPrices()
 }
 
 /**
@@ -62,9 +65,21 @@ class InstallationPricingService {
    * تهيئة البيانات الافتراضية
    */
   private initializeDefaults() {
-    if (!localStorage.getItem(this.STORAGE_KEY)) {
+    const dbPricing = jsonDatabase.getInstallationPricing()
+    if (dbPricing) {
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(dbPricing))
+    } else if (!localStorage.getItem(this.STORAGE_KEY)) {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(DEFAULT_INSTALLATION_PRICING))
     }
+
+    // Hydrate from cloud (Netlify KV) asynchronously
+    void (async () => {
+      const remote = await cloudDatabase.getInstallationPricing()
+      if (remote) {
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(remote))
+        jsonDatabase.saveInstallationPricing(remote)
+      }
+    })()
   }
 
   /**
@@ -73,19 +88,26 @@ class InstallationPricingService {
   getInstallationPricing(): InstallationPricing {
     try {
       const data = localStorage.getItem(this.STORAGE_KEY)
-      if (data) {
-        const parsed = JSON.parse(data)
-        // التأكد من وجود جميع الحقول المطلوبة
-        return {
-          ...DEFAULT_INSTALLATION_PRICING,
-          ...parsed,
-          zones: { ...DEFAULT_INSTALLATION_PRICING.zones, ...parsed.zones }
-        }
+      const parsed = data ? JSON.parse(data) : null
+      const merged: InstallationPricing = {
+        ...DEFAULT_INSTALLATION_PRICING,
+        ...(parsed || {}),
+        zones: { ...DEFAULT_INSTALLATION_PRICING.zones, ...(parsed?.zones || {}) },
+        basePrices: parsed?.basePrices || DEFAULT_INSTALLATION_PRICING.basePrices
       }
-      return DEFAULT_INSTALLATION_PRICING
+      const base = merged.basePrices || createDefaultInstallationPrices()
+      Object.keys(merged.zones).forEach(zone => {
+        merged.zones[zone].prices = { ...base }
+      })
+      return merged
     } catch (error) {
       console.error('Error loading installation pricing:', error)
-      return DEFAULT_INSTALLATION_PRICING
+      const fallback = { ...DEFAULT_INSTALLATION_PRICING }
+      const base = fallback.basePrices || createDefaultInstallationPrices()
+      Object.keys(fallback.zones).forEach(zone => {
+        fallback.zones[zone].prices = { ...base }
+      })
+      return fallback
     }
   }
 
@@ -99,6 +121,10 @@ class InstallationPricingService {
         lastUpdated: new Date().toISOString()
       }
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(updatedPricing))
+      // Persist to JSON DB cache (exportable)
+      jsonDatabase.saveInstallationPricing(updatedPricing)
+      // Persist to cloud (Netlify KV), non-blocking
+      void cloudDatabase.saveInstallationPricing(updatedPricing)
       return { success: true, message: 'تم حفظ أسعار التركيب بنجاح' }
     } catch (error) {
       console.error('Error saving installation pricing:', error)
@@ -112,15 +138,10 @@ class InstallationPricingService {
   getInstallationPrice(size: BillboardSize, zone: string): number {
     const pricing = this.getInstallationPricing()
     const zoneData = pricing.zones[zone]
-    
-    if (!zoneData) {
-      console.warn(`Zone '${zone}' not found, using default zone`)
-      const defaultZone = Object.values(pricing.zones)[0]
-      return defaultZone?.prices[size] || 0
-    }
-
-    const basePrice = zoneData.prices[size] || 0
-    return Math.round(basePrice * zoneData.multiplier)
+    const base = pricing.basePrices || createDefaultInstallationPrices()
+    const basePrice = base[size] || 0
+    const multiplier = zoneData?.multiplier ?? 1.0
+    return Math.round(basePrice * multiplier)
   }
 
   /**
@@ -146,20 +167,14 @@ class InstallationPricingService {
   addSizeToAllZones(size: BillboardSize, defaultPrice: number): { success: boolean; message: string } {
     try {
       const pricing = this.getInstallationPricing()
-      
-      // التحقق من عدم وجود المقاس مسبقاً
       if (pricing.sizes.includes(size)) {
         return { success: false, message: 'هذا المقاس موجود بالفعل' }
       }
-
-      // إضافة المقاس إلى قائمة المقاسات
       pricing.sizes.push(size)
-
-      // إضافة سعر افتراضي لجميع المناطق
+      pricing.basePrices = { ...(pricing.basePrices || {}), [size]: defaultPrice }
       Object.keys(pricing.zones).forEach(zoneName => {
         pricing.zones[zoneName].prices[size] = defaultPrice
       })
-
       const result = this.updateInstallationPricing(pricing)
       if (result.success) {
         return { success: true, message: `تم إضافة مقاس "${size}" بنجاح` }
@@ -177,20 +192,17 @@ class InstallationPricingService {
   removeSizeFromAllZones(size: BillboardSize): { success: boolean; message: string } {
     try {
       const pricing = this.getInstallationPricing()
-      
-      // التحقق من وجود مقاسات أخرى
       if (pricing.sizes.length <= 1) {
         return { success: false, message: 'لا يمكن حذف آخر مقاس' }
       }
-
-      // حذف المقاس من قائمة المقاسات
       pricing.sizes = pricing.sizes.filter(s => s !== size)
-
-      // حذف أسعار المقاس من جميع المناطق
+      if (pricing.basePrices) {
+        const { [size]: _, ...rest } = pricing.basePrices
+        pricing.basePrices = rest
+      }
       Object.keys(pricing.zones).forEach(zoneName => {
         delete pricing.zones[zoneName].prices[size]
       })
-
       const result = this.updateInstallationPricing(pricing)
       if (result.success) {
         return { success: true, message: `تم حذف مقاس "${size}" بنجاح` }
@@ -208,28 +220,17 @@ class InstallationPricingService {
   addZone(zoneName: string, multiplier: number = 1.0, description?: string): { success: boolean; message: string } {
     try {
       const pricing = this.getInstallationPricing()
-      
       if (pricing.zones[zoneName]) {
         return { success: false, message: 'هذه المنطقة موجودة بالفعل' }
       }
-
-      // إنشاء منطقة جديدة بأسعار افتراضية
+      const base = pricing.basePrices || createDefaultInstallationPrices()
       const newZone: InstallationPriceZone = {
         name: zoneName,
-        prices: createDefaultInstallationPrices(),
+        prices: { ...base },
         multiplier,
         description: description || `أسعار التركيب لمنطقة ${zoneName}`
       }
-
-      // إضافة أي مقاسات جديدة موجودة في النظام
-      pricing.sizes.forEach(size => {
-        if (!newZone.prices[size]) {
-          newZone.prices[size] = createDefaultInstallationPrices()[size] || 500
-        }
-      })
-
       pricing.zones[zoneName] = newZone
-      
       const result = this.updateInstallationPricing(pricing)
       if (result.success) {
         return { success: true, message: `تم إضافة منطقة "${zoneName}" بنجاح` }
@@ -237,7 +238,7 @@ class InstallationPricingService {
       return result
     } catch (error) {
       console.error('Error adding zone:', error)
-      return { success: false, message: 'ح��ث خطأ في إضافة المنطقة' }
+      return { success: false, message: 'حدث خطأ في إضافة المنطقة' }
     }
   }
 
@@ -578,6 +579,6 @@ class InstallationPricingService {
   }
 }
 
-// إنشاء مثيل واحد من الخدمة
+// إنشاء مثيل واحد ��ن الخدمة
 export const installationPricingService = new InstallationPricingService()
 export default installationPricingService
