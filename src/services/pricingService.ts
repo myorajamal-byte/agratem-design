@@ -2,6 +2,7 @@ import { PriceList, PricingZone, BillboardSize, QuoteItem, Quote, CustomerType, 
 import { formatGregorianDate } from '@/lib/dateUtils'
 import { dynamicPricingService } from './dynamicPricingService'
 import { jsonDatabase } from './jsonDatabase'
+import { cloudDatabase } from './cloudDatabase'
 
 // الباقات الزمنية المتاحة
 const DEFAULT_PACKAGES: PackageDuration[] = [
@@ -226,11 +227,18 @@ class PricingService {
     const dbPricing = jsonDatabase.getRentalPricing()
     if (dbPricing) {
       localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(dbPricing))
-      return
-    }
-    if (!localStorage.getItem(this.PRICING_STORAGE_KEY)) {
+    } else if (!localStorage.getItem(this.PRICING_STORAGE_KEY)) {
       localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(DEFAULT_PRICING))
     }
+
+    // Try to hydrate from cloud (Netlify KV) asynchronously
+    void (async () => {
+      const remote = await cloudDatabase.getRentalPricing()
+      if (remote) {
+        localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(remote))
+        jsonDatabase.saveRentalPricing(remote)
+      }
+    })()
   }
 
   /**
@@ -268,6 +276,8 @@ class PricingService {
       localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(pricing))
       // Persist to JSON DB cache (exportable)
       jsonDatabase.saveRentalPricing(pricing)
+      // Persist to cloud (Netlify KV), non-blocking
+      void cloudDatabase.saveRentalPricing(pricing)
       return { success: true }
     } catch (error) {
       console.error('خطأ في تحديث الأسعار:', error)
@@ -316,7 +326,7 @@ class PricingService {
   }
 
   /**
-   * ا��حصول على سعر لوحة معينة حسب قائمة الأسعار A أو B
+   * ا��ح��ول على سعر لوحة معينة حسب قائمة الأسعار A أو B
    */
   getBillboardPriceAB(size: BillboardSize, zone: string, priceList: PriceListType = 'A', municipality?: string): number {
     const pricing = this.getPricing()
@@ -802,7 +812,7 @@ class PricingService {
       <body>
         <div class="header">
           <div class="logo-section">
-            <img src="${window.location.origin}/logo-symbol.svg" alt="شعار الشركة" class="logo" />
+            <img src="${window.location.origin}/logo-symbol.svg" alt="ش��ار الشركة" class="logo" />
             <div class="company-info">
               <div class="company-name-ar">الفــــارس الذهبــــي</div>
               <div class="company-name-en">AL FARES AL DAHABI</div>
