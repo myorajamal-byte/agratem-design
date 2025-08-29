@@ -1,0 +1,23 @@
+name: Dependabot auto-merge
+
+on:
+  pull_request_target:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-merge:
+    name: Auto-merge Dependabot PR
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]' || github.actor == 'dependabot-preview[bot]'
+    steps:
+      - name: Dependabot Auto Merge
+        uses: ahmadnassri/action-dependabot-auto-merge@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          # Allow patch and minor updates to be auto-merged. Change to 'major' to include majors too.
+          target: minor
+          approve: true

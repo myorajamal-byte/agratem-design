@@ -69,13 +69,15 @@ class InstallationPricingService {
     if (dbPricing) {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(dbPricing))
     } else if (!localStorage.getItem(this.STORAGE_KEY)) {
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(DEFAULT_INSTALLATION_PRICING))
+      // لا تكتب أسعار تركيب تجريبية تلقائيًا
+      // localStorage.setItem(this.STORAGE_KEY, JSON.stringify(DEFAULT_INSTALLATION_PRICING))
     }
 
     // Hydrate from cloud (Netlify KV) asynchronously
     void (async () => {
       const remote = await cloudDatabase.getInstallationPricing()
       if (remote) {
+        // استبدال أي بيانات تجريبية ببيانات القاعدة
         localStorage.setItem(this.STORAGE_KEY, JSON.stringify(remote))
         jsonDatabase.saveInstallationPricing(remote)
       }
@@ -88,26 +90,22 @@ class InstallationPricingService {
   getInstallationPricing(): InstallationPricing {
     try {
       const data = localStorage.getItem(this.STORAGE_KEY)
-      const parsed = data ? JSON.parse(data) : null
-      const merged: InstallationPricing = {
-        ...DEFAULT_INSTALLATION_PRICING,
-        ...(parsed || {}),
-        zones: { ...DEFAULT_INSTALLATION_PRICING.zones, ...(parsed?.zones || {}) },
-        basePrices: parsed?.basePrices || DEFAULT_INSTALLATION_PRICING.basePrices
+      const parsed = data ? (JSON.parse(data) as InstallationPricing) : null
+      if (parsed) {
+        // تأكد من وجود الحقول الأساسية
+        return {
+          zones: parsed.zones || {},
+          sizes: parsed.sizes || [],
+          currency: parsed.currency || 'د.ل',
+          lastUpdated: parsed.lastUpdated || new Date().toISOString(),
+          basePrices: parsed.basePrices || {}
+        }
       }
-      const base = merged.basePrices || createDefaultInstallationPrices()
-      Object.keys(merged.zones).forEach(zone => {
-        merged.zones[zone].prices = { ...base }
-      })
-      return merged
+      // لا تعُد إلى بيانات تجريبية
+      return { zones: {}, sizes: [], currency: 'د.ل', lastUpdated: new Date().toISOString(), basePrices: {} }
     } catch (error) {
       console.error('Error loading installation pricing:', error)
-      const fallback = { ...DEFAULT_INSTALLATION_PRICING }
-      const base = fallback.basePrices || createDefaultInstallationPrices()
-      Object.keys(fallback.zones).forEach(zone => {
-        fallback.zones[zone].prices = { ...base }
-      })
-      return fallback
+      return { zones: {}, sizes: [], currency: 'د.ل', lastUpdated: new Date().toISOString(), basePrices: {} }
     }
   }
 

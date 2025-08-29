@@ -132,7 +132,9 @@ class NewPricingService implements SizeManagement {
     if (dbPricing) {
       localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(dbPricing))
     } else if (!localStorage.getItem(this.PRICING_STORAGE_KEY)) {
-      localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(DEFAULT_PRICING_NEW))
+      // لا تقم بكتابة أسعار تجريبية إذا لم تكن موجودة بيانات حقيقية
+      // اتركه فارغاً ليتم جلبه من Supabase أو يقوم المستخدم بإدخاله
+      // localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(DEFAULT_PRICING_NEW))
     }
     if (!localStorage.getItem(this.SIZES_STORAGE_KEY)) {
       localStorage.setItem(this.SIZES_STORAGE_KEY, JSON.stringify(DEFAULT_SIZES))
@@ -140,10 +142,14 @@ class NewPricingService implements SizeManagement {
 
     // Try hydrate from cloud asynchronously
     void (async () => {
-      const remote = await cloudDatabase.getRentalPricing()
-      if (remote) {
-        localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(remote))
-        jsonDatabase.saveRentalPricing(remote)
+      try {
+        const remote = await cloudDatabase.getRentalPricing()
+        if (remote) {
+          localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(remote))
+          jsonDatabase.saveRentalPricing(remote)
+        }
+      } catch {
+        // ignore
       }
     })()
   }
@@ -207,9 +213,9 @@ class NewPricingService implements SizeManagement {
   getPricing(): PriceList {
     try {
       const pricing = localStorage.getItem(this.PRICING_STORAGE_KEY)
-      return pricing ? JSON.parse(pricing) : DEFAULT_PRICING_NEW
+      return pricing ? JSON.parse(pricing) : { zones: {}, packages: [], currency: 'د.ل' }
     } catch {
-      return DEFAULT_PRICING_NEW
+      return { zones: {}, packages: [], currency: 'د.ل' }
     }
   }
 
