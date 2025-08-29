@@ -24,6 +24,7 @@ import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { installationPricingService } from '@/services/installationPricingService'
+import { newPricingService } from '@/services/newPricingService'
 import { InstallationPricing, InstallationPriceZone, BillboardSize, InstallationQuote } from '@/types'
 
 interface InstallationPricingManagementProps {
@@ -98,7 +99,7 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
       }
     } catch (error) {
       console.error('Error saving installation pricing:', error)
-      showNotification('error', 'حدث خطأ في ��فظ البيانات')
+      showNotification('error', 'حدث خطأ في حفظ البيانات')
     } finally {
       setLoading(false)
     }
@@ -572,7 +573,7 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
                               <Button onClick={cancelEdit} size="sm" variant="outline" className="text-red-600 border-red-300 p-1"><X className="w-3 h-3" /></Button>
                             </div>
                           ) : (
-                            <div className="cursor-pointer group py-2 px-3 hover:bg-emerald-50 rounded-lg transition-all" onClick={() => startEdit('base', size)} title={`السعر الأساسي: ${formatPrice(basePrice)}`}>
+                            <div className="cursor-pointer group py-2 px-3 hover:bg-emerald-50 rounded-lg transition-all" onClick={() => startEdit('base', size)} title={`��لسعر الأساسي: ${formatPrice(basePrice)}`}>
                               <span className="font-bold text-gray-800 text-sm bg-gray-100 px-2 py-1 rounded">{formatPrice(basePrice)}</span>
                             </div>
                           )}
@@ -590,7 +591,7 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
             <div className="p-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
               <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                 <Calculator className="w-6 h-6 text-orange-600" />
-                أسعار التركيب حسب المناط�� وا��مقاسات
+                أسعار التركيب حسب المناطق وا��مقاسات
               </h3>
               <p className="text-sm text-gray-700 mt-2">جميع الأسعار شاملة تكلفة التركيب والتأسيس</p>
             </div>
