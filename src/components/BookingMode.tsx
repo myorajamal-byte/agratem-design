@@ -51,7 +51,6 @@ export default function BookingMode({
   const [globalStartDate, setGlobalStartDate] = useState<string>('')
   const [globalEndDate, setGlobalEndDate] = useState<string>('')
   const [rentalMode, setRentalMode] = useState<'daily' | 'package'>('package')
-  const [globalStartDate, setGlobalStartDate] = useState<string>('')
 
   if (!isOpen) return null
 
