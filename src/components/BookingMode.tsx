@@ -199,7 +199,7 @@ export default function BookingMode({
               </CardHeader>
               <CardContent className="space-y-3">
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-1">تاريخ البداية</label>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">تاريخ البد��ية</label>
                   <Input
                     type="date"
                     value={globalStartDate}
@@ -422,18 +422,32 @@ export default function BookingMode({
                     </div>
                   )}
                   
-                  {bookingSummary.discountAmount > 0 && (
+                  {bookingSummary.discountAmount > 0 && selectedDuration && (
                     <div className="flex justify-between text-sm text-red-600">
                       <span className="font-bold">
                         -{bookingSummary.discountAmount.toLocaleString()} د.ل
                       </span>
-                      <span>الخصم ({selectedDuration.discount}%):</span>
+                      <span>خصم الباقة ({selectedDuration.discount}%):</span>
                     </div>
                   )}
-                  
+
+                  {typeof discountValue === 'number' && discountValue > 0 && (
+                    <div className="flex justify-between text-sm text-red-600">
+                      <span className="font-bold">
+                        -{(discountType === 'percent'
+                          ? Math.round((bookingSummary.finalTotal * Math.max(0, Math.min(100, Number(discountValue)))) / 100)
+                          : Math.max(0, Math.min(bookingSummary.finalTotal, Math.round(Number(discountValue)))))
+                        .toLocaleString()} د.ل
+                      </span>
+                      <span>خصم إضافي ({discountType === 'percent' ? `${Math.max(0, Math.min(100, Number(discountValue)))}%` : 'قيمة'})</span>
+                    </div>
+                  )}
+
                   <div className="flex justify-between text-lg font-bold text-emerald-800 border-t pt-2">
-                    <span>{bookingSummary.finalTotal.toLocaleString()} د.ل</span>
-                    <span>الإجمال��:</span>
+                    <span>{(bookingSummary.finalTotal - (discountType === 'percent'
+                      ? Math.round((bookingSummary.finalTotal * Math.max(0, Math.min(100, Number(discountValue)))) / 100)
+                      : Math.max(0, Math.min(bookingSummary.finalTotal, Math.round(Number(discountValue)))))).toLocaleString()} د.ل</span>
+                    <span>الإجمالي النهائي:</span>
                   </div>
                   
                   {rentalMode === 'package' && selectedDuration && (
