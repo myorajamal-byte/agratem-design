@@ -812,7 +812,7 @@ class PricingService {
         </div>
 
         <div class="quote-header">
-          <div class="quote-title">عرض سعر إعلاني</div>
+          <div class="quote-title">عرض ��عر إعلاني</div>
           <div style="color: #666; font-size: 14px;">رقم العرض: ${quote.id}</div>
           <div style="color: #666; font-size: 12px;">تاريخ العرض: ${formatGregorianDate(quote.createdAt)}</div>
           <div style="color: #666; font-size: 12px;">صالح حتى: ${formatGregorianDate(quote.validUntil)}</div>
@@ -930,9 +930,19 @@ class PricingService {
             <span class="price">- ${quote.totalDiscount.toLocaleString()} ${quote.currency}</span>
           </div>
           <div class="total-row">
-            <span>المجموع بعد الخصم:</span>
+            <span>المجموع بعد خصم الباقة:</span>
             <span class="price">${(quote.subtotal - quote.totalDiscount).toLocaleString()} ${quote.currency}</span>
           </div>
+          ${(quote as any).extraDiscountAmount && (quote as any).extraDiscountAmount > 0 ? `
+          <div class="total-row" style="color: #e53e3e;">
+            <span>خصم إضافي (${(quote as any).extraDiscountType === 'percent' ? (quote as any).extraDiscountValue + '%' : 'قيمة'}):</span>
+            <span class="price">- ${((quote as any).extraDiscountAmount).toLocaleString()} ${quote.currency}</span>
+          </div>
+          <div class="total-row">
+            <span>المجموع بعد جميع الخصومات:</span>
+            <span class="price">${(quote.subtotal - quote.totalDiscount - (quote as any).extraDiscountAmount).toLocaleString()} ${quote.currency}</span>
+          </div>
+          ` : ''}
           ${quote.tax > 0 ? `
           <div class="total-row">
             <span>الضريبة (${(quote.taxRate * 100).toFixed(1)}%):</span>
@@ -946,6 +956,7 @@ class PricingService {
           <div style="margin-top: 15px; padding: 10px; background: #e6fffa; border: 1px solid #38b2ac; border-radius: 6px;">
             <div style="text-align: center; color: #38b2ac; font-weight: bold; font-size: 12px;">
               🎉 لقد وفرت ${quote.totalDiscount.toLocaleString()} ${quote.currency} مع باقة "${quote.packageInfo.label}"!
+              ${(quote as any).extraDiscountAmount && (quote as any).extraDiscountAmount > 0 ? `<div>+ خصم إضافي ${((quote as any).extraDiscountAmount).toLocaleString()} ${quote.currency}</div>` : ''}
             </div>
           </div>
         </div>
