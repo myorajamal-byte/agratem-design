@@ -2,6 +2,7 @@ import * as React from "react"
 import { ChevronDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
+import { createPortal } from "react-dom"
 
 // Context
 const SelectContext = React.createContext<{
@@ -124,7 +125,7 @@ const SelectContent = ({ children, className }: { children: React.ReactNode; cla
     return true
   })
 
-  return ReactDOM.createPortal(
+  return createPortal(
     <div
       className={cn(
         "fixed z-[100010] max-h-64 overflow-y-auto overscroll-contain",
