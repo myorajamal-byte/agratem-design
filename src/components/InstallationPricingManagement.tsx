@@ -544,17 +544,6 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
                     <th className="border border-gray-200 p-3 text-center font-bold bg-orange-50 text-gray-800 min-w-[100px]">
                       المعامل
                     </th>
-                    {filteredSizes.map(size => (
-                      <th
-                        key={size}
-                        className="border border-gray-200 p-3 text-center font-bold text-white min-w-[120px] bg-orange-500"
-                      >
-                        <div className="leading-tight">
-                          {size}
-                          <div className="text-xs opacity-80 mt-1">تركيب</div>
-                        </div>
-                      </th>
-                    ))}
                     <th className="border border-gray-200 p-3 text-center font-bold bg-red-500 text-white min-w-[100px]">
                       الإجراءات
                     </th>
