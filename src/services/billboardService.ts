@@ -60,7 +60,7 @@ async function testUrlAccess(url: string) {
     console.log(`[Service] اختبار الوصول للرابط: ${response.status} ${response.statusText}`)
     return response.ok
   } catch (error: any) {
-    console.log(`[Service] فشل اختبار الوصول ��لرابط: ${error.message}`)
+    console.log(`[Service] فشل اختبار الوصول للرابط: ${error.message}`)
     return false
   }
 }
@@ -196,7 +196,7 @@ async function readExcelFromUrl(url: string, timeoutMs = 10000, retries = 2) {
     }
   }
 
-  throw new Error("فشل في جميع ��لمحاولات")
+  throw new Error("فشل في جميع المحاولات")
 }
 
 function safeReadExcel(fileBuffer: ArrayBuffer) {
@@ -234,7 +234,7 @@ function parseExcelDate(dateValue: any): Date | null {
     return isNaN(dateValue.getTime()) ? null : dateValue
   }
   
-  // إذا كان ��قم (Excel serial date)
+  // إذا كان رقم (Excel serial date)
   if (typeof dateValue === 'number') {
     try {
       // استخدام XLSX لتحويل الرقم التسلسلي إلى تاريخ
@@ -344,7 +344,7 @@ function processBillboardData(billboard: any, index: number): Billboard {
         if (diffDays <= 30 && diffDays > 0) {
           status = "قريباً"
         } else if (diffDays <= 0) {
-          // إذا انتهت المدة، تصبح اللو��ة متاحة
+          // إذا انتهت المدة، تصبح اللوحة متاحة
           status = "متاح"
         }
       } else {
@@ -402,7 +402,7 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
     try {
       console.log("[Service] محاولة قراءة البيانات بصيغة CSV...")
       workbook = await readCsvFromUrl(CSV_URL, 15000)
-      console.log("[Service] تم تحميل البيانات بصيغة CSV بنجاح ✅ - سيتم المحاولة مع Excel")
+      console.log("[Service] تم تحميل البيانات بصيغة CSV بنجاح ✅")
     } catch (csvError: any) {
       console.warn("[Service] فشل تحميل CSV:", csvError.message)
 
@@ -508,7 +508,7 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
   } catch (error) {
     console.error('[Service] خطأ في تحميل ملف Excel من Google Sheets:', error)
     
-    // محاولة تحميل المل�� المحل�� كبديل
+    // محاولة ت��ميل المل�� المحل�� كبديل
     try {
       console.log('[Service] محاولة تحميل الملف المحلي كبديل...')
       const response = await fetch('/billboards.xlsx')
@@ -593,13 +593,13 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
         {
           id: "134",
           name: "KH-SK0134",
-          location: "بجوار كوبري سوق الخميس ب��تجاه الشرق",
+          location: "بجوار كوبري سوق الخميس باتجاه الشرق",
           municipality: "الخمس",
           city: "الخمس",
           area: "الخمس",
           size: "12X4",
           level: "B",
-          status: "مت��ح",
+          status: "متاح",
           expiryDate: null,
           coordinates: "32.566533,14.344944",
           imageUrl: "https://lh3.googleusercontent.com/d/1J1D2ZEhnQZbRuSKxNVE4XTifkhvHabYs",
@@ -631,7 +631,7 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
         {
           id: "130",
           name: "KH-SK0130",
-          location: "بجوار جسر س��ق الخميس باتجاه الغرب",
+          location: "بجوار جسر سوق الخميس باتجاه الغرب",
           municipality: "الخمس",
           city: "الخمس",
           area: "الخمس",
