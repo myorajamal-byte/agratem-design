@@ -287,7 +287,7 @@ class PricingService {
 
   /**
    * الحصول على سعر لوحة معينة حسب فئة الزب��ن
-   * يستخدم النظام الديناميكي إذا كان مفعلاً
+   * يس��خدم النظام الديناميكي إذا كان مفعلاً
    */
   getBillboardPrice(size: BillboardSize, zone: string, customerType: CustomerType = 'individuals', municipality?: string): number {
     // إذا كان النظام الديناميكي مفعل واسم البلدية متوفر
@@ -443,7 +443,7 @@ class PricingService {
       return false
     }
 
-    // إنشاء منطقة جديدة ب��فس أسعار المنطقة الأساسية
+    // إنشاء م��طقة جديدة ب��فس أسعار المنطقة الأساسية
     pricing.zones[zoneName] = {
       ...baseZoneData,
       name: zoneName
@@ -579,7 +579,7 @@ class PricingService {
   }
 
   /**
-   * مقارنة الأسعار بين قائمت�� A و B لمنطقة معينة
+   * مقارنة الأ��عار بين قائمت�� A و B لمنطقة معينة
    */
   comparePriceListsForZone(zone: string): {
     zone: string,
@@ -812,7 +812,7 @@ class PricingService {
       <body>
         <div class="header">
           <div class="logo-section">
-            <img src="${window.location.origin}/logo-symbol.svg" alt="ش��ار الشركة" class="logo" />
+            <img src="${window.location.origin}/logo-symbol.svg" alt="شعار الشركة" class="logo" />
             <div class="company-info">
               <div class="company-name-ar">الفــــارس الذهبــــي</div>
               <div class="company-name-en">AL FARES AL DAHABI</div>
@@ -822,7 +822,7 @@ class PricingService {
         </div>
 
         <div class="quote-header">
-          <div class="quote-title">عرض ��عر إعلاني</div>
+          <div class="quote-title">عرض سعر إعلاني</div>
           <div style="color: #666; font-size: 14px;">رقم العرض: ${quote.id}</div>
           <div style="color: #666; font-size: 12px;">تاريخ العرض: ${formatGregorianDate(quote.createdAt)}</div>
           <div style="color: #666; font-size: 12px;">صالح حتى: ${formatGregorianDate(quote.validUntil)}</div>
@@ -832,11 +832,11 @@ class PricingService {
           <div class="info-group">
             <h3>بيانات العميل</h3>
             <div class="info-item">
-              <span class="info-label">الاس��:</span>
+              <span class="info-label">الاسم:</span>
               ${quote.customerInfo.name}
             </div>
             <div class="info-item">
-              <span class="info-label">البر��د الإلك��روني:</span>
+              <span class="info-label">البريد الإلكتروني:</span>
               ${quote.customerInfo.email}
             </div>
             <div class="info-item">
@@ -915,7 +915,7 @@ class PricingService {
                 <td class="price" style="font-size: 9px;">
                   ${item.basePrice.toLocaleString()} ${quote.currency}
                   <br>
-                  <span style="font-size: 8px; color: #666;">ش��رياً</span>
+                  <span style="font-size: 8px; color: #666;">شهرياً</span>
                 </td>
                 <td style="font-size: 9px; color: #e53e3e;">
                   ${item.discount > 0 ? `${item.discount}%` : 'لا يوجد'}
@@ -965,7 +965,7 @@ class PricingService {
           </div>
           <div style="margin-top: 15px; padding: 10px; background: #e6fffa; border: 1px solid #38b2ac; border-radius: 6px;">
             <div style="text-align: center; color: #38b2ac; font-weight: bold; font-size: 12px;">
-              🎉 لقد وفرت ${quote.totalDiscount.toLocaleString()} ${quote.currency} مع باقة "${quote.packageInfo.label}"!
+              🎉 لقد و��رت ${quote.totalDiscount.toLocaleString()} ${quote.currency} مع باقة "${quote.packageInfo.label}"!
               ${(quote as any).extraDiscountAmount && (quote as any).extraDiscountAmount > 0 ? `<div>+ خصم إضافي ${((quote as any).extraDiscountAmount).toLocaleString()} ${quote.currency}</div>` : ''}
             </div>
           </div>
@@ -978,13 +978,13 @@ class PricingService {
             <li>الأسعار المذكورة شاملة جميع الخدمات</li>
             <li>يتم الدفع مقدماً قبل بدء الحملة الإعلانية</li>
             <li>في حالة إلغاء الحجز، يتم استرداد 50% من المبلغ المدفوع</li>
-            <li>الشركة غ��ر مسؤولة عن أي أضرار طبيعية قد تلحق بال��وحة</li>
+            <li>الشركة غير مسؤولة عن أي أضرار طبيعية قد تلحق باللوحة</li>
             <li>يحق للشركة تغيير موقع اللوحة في حالات الضرورة القصوى</li>
           </ul>
         </div>
 
         <div class="footer">
-          <p>ا��فارس الذهبي للدعاية والإعلان | هاتف: 218913228908+ | البريد: g.faris.business@gmail.com</p>
+          <p>الفارس الذهبي للدعاية والإعلان | هاتف: 218913228908+ | البريد: g.faris.business@gmail.com</p>
           <p>نشكركم لثقتكم بخدماتنا ونتطلع للعمل معكم</p>
         </div>
 
