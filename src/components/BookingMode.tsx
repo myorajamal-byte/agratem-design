@@ -48,7 +48,6 @@ export default function BookingMode({
   
   const [selectedDuration, setSelectedDuration] = useState<PackageDuration | null>(null)
   const [billboardDates, setBillboardDates] = useState<Record<string, string>>({})
-  const [globalStartDate, setGlobalStartDate] = useState<string>('')
   const [globalEndDate, setGlobalEndDate] = useState<string>('')
   const [rentalMode, setRentalMode] = useState<'daily' | 'package'>('package')
 
@@ -127,7 +126,7 @@ export default function BookingMode({
       return
     }
 
-    // إنشاء عرض سعر
+    // ��نشاء عرض سعر
     const quote = pricingService.generateQuote(
       clientInfo,
       selectedBillboardsData,
