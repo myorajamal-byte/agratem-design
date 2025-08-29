@@ -67,6 +67,20 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
     loadPricingData()
   }, [])
 
+  // Load zones from system pricing when opening import modal
+  useEffect(() => {
+    if (showImportZones) {
+      try {
+        const zones = newPricingService.getPricingZones()
+        const existing = new Set(Object.keys(pricing.zones))
+        setSystemZones(zones.filter(z => !existing.has(z)))
+        setSelectedSystemZones(new Set())
+      } catch (e) {
+        setSystemZones([])
+      }
+    }
+  }, [showImportZones])
+
   // Show notification temporarily
   const showNotification = (type: 'success' | 'error', message: string) => {
     setNotification({ type, message })
@@ -154,7 +168,7 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
     }))
 
     setEditingCell(null)
-    showNotification('success', 'تم تحديث السعر الأساسي للمقاس ب��جا��')
+    showNotification('success', 'تم تحديث السعر الأساسي للمقاس ب��جاح')
   }
 
   const cancelEdit = () => {
@@ -415,7 +429,7 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
                     className="text-yellow-800 border-yellow-300"
                   >
                     <RotateCcw className="w-4 h-4 mr-2" />
-                    تراجع الك��
+                    تراجع الكل
                   </Button>
                 </div>
               </div>
@@ -431,7 +445,7 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
               </h3>
               <div className="text-sm text-blue-800 space-y-1">
                 <p>• السعر الأساسي: السعر المدخل لكل مقاس</p>
-                <p>• المعامل: رقم يضرب في السعر الأساسي حسب المنطقة</p>
+                <p>• المعامل: رقم يضرب في السعر الأساس�� حسب المنطقة</p>
                 <p>• السعر النهائي: السعر الأساسي × المعامل</p>
                 <p>• مثال: سعر أساسي 1000 د.ل × معامل 1.2 = 1200 د.ل (السعر النهائي)</p>
               </div>
