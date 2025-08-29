@@ -51,6 +51,8 @@ export default function BookingMode({
   const [globalStartDate, setGlobalStartDate] = useState<string>('')
   const [globalEndDate, setGlobalEndDate] = useState<string>('')
   const [rentalMode, setRentalMode] = useState<'daily' | 'package'>('package')
+  const [discountType, setDiscountType] = useState<'percent' | 'amount'>('percent')
+  const [discountValue, setDiscountValue] = useState<number>(0)
 
   if (!isOpen) return null
 
@@ -245,7 +247,7 @@ export default function BookingMode({
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-emerald-700">
                 <User className="w-5 h-5" />
-                بيانات ا��عميل
+                بيانات العميل
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
