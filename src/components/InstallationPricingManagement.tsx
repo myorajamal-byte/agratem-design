@@ -113,36 +113,36 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
   }
 
   // Handle cell editing
-  const startEdit = (zone: string, size: BillboardSize) => {
-    const cellKey = `${zone}-${size}`
+  const startEdit = (_zone: string, size: BillboardSize) => {
+    const cellKey = `base-${size}`
     setEditingCell(cellKey)
-    setEditingValue(pricing.zones[zone]?.prices[size]?.toString() || '')
+    const base = (pricing as InstallationPricing).basePrices?.[size] ?? pricing.zones[Object.keys(pricing.zones)[0]]?.prices[size] ?? ''
+    setEditingValue(base.toString())
   }
 
   const saveEdit = () => {
     if (!editingCell) return
-    
-    const [zone, size] = editingCell.split('-')
+    const [, size] = editingCell.split('-')
     const value = parseInt(editingValue) || 0
-    
     if (value < 0) {
       showNotification('error', 'لا يمكن أن يكون السعر أقل من صفر')
       return
     }
 
-    setPricing(prev => ({
-      ...prev,
-      zones: {
-        ...prev.zones,
-        [zone]: {
-          ...prev.zones[zone],
-          prices: {
-            ...prev.zones[zone].prices,
-            [size]: value
-          }
-        }
+    setPricing(prev => {
+      const updated: InstallationPricing = {
+        ...prev,
+        basePrices: { ...(prev.basePrices || {}), [size as BillboardSize]: value },
+        zones: { ...prev.zones }
       }
-    }))
+      Object.keys(updated.zones).forEach(z => {
+        updated.zones[z] = {
+          ...updated.zones[z],
+          prices: { ...updated.zones[z].prices, [size as BillboardSize]: value }
+        }
+      })
+      return updated
+    })
 
     setUnsavedChanges(prev => ({
       hasChanges: true,
@@ -150,7 +150,7 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
     }))
 
     setEditingCell(null)
-    showNotification('success', 'تم تحديث السعر بنجاح')
+    showNotification('success', 'تم تحديث السعر الأساسي للمقاس ب��جاح')
   }
 
   const cancelEdit = () => {
@@ -530,7 +530,7 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
             <div className="p-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
               <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                 <Calculator className="w-6 h-6 text-orange-600" />
-                أسعار التركيب حسب المناطق والمقاسات
+                أسعار التركيب حسب المناطق وا��مقاسات
               </h3>
               <p className="text-sm text-gray-700 mt-2">جميع الأسعار شاملة تكلفة التركيب والتأسيس</p>
             </div>
@@ -590,8 +590,8 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
                         />
                       </td>
                       {filteredSizes.map(size => {
-                        const cellKey = `${zone.name}-${size}`
-                        const basePrice = zone.prices[size] || 0
+                        const cellKey = `base-${size}`
+                        const basePrice = (pricing as InstallationPricing).basePrices?.[size] ?? zone.prices[size] ?? 0
                         const finalPrice = getFinalPrice(basePrice, zone.multiplier)
                         const isEditing = editingCell === cellKey
                         const hasChanges = unsavedChanges.changedCells.has(cellKey)
@@ -633,7 +633,7 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
                               <div
                                 className="cursor-pointer group py-2 px-3 hover:bg-orange-50 rounded-lg transition-all"
                                 onClick={() => startEdit(zone.name, size)}
-                                title={`السعر الأساسي: ${formatPrice(basePrice)}\nالمعامل: ×${zone.multiplier}\nالسعر النهائي: ${formatPrice(finalPrice)}`}
+                                title={`السعر الأساسي الموحد: ${formatPrice(basePrice)}\nالمعامل للمنطقة: ×${zone.multiplier}\nالسعر النهائي: ${formatPrice(finalPrice)}`}
                               >
                                 <div className="flex flex-col items-center justify-center gap-1">
                                   <div className="flex items-center gap-1">
@@ -797,7 +797,7 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
               {/* Quote Items */}
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h4 className="text-lg font-bold">عناصر الفاتورة</h4>
+                  <h4 className="text-lg font-bold">عناصر ا��فاتورة</h4>
                   <Button onClick={addQuoteItem} size="sm" className="bg-green-600 hover:bg-green-700 text-white">
                     <Plus className="w-4 h-4 mr-2" />
                     إضافة عنصر
