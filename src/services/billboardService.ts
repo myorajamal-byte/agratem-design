@@ -1,7 +1,7 @@
 import * as XLSX from 'xlsx'
 import { Billboard } from '@/types'
 
-// تطبيع أحجام اللوحات لتكون متوافقة مع مفاتيح التسعير
+// تطبيع أح��ام اللوحات لتكون متوافقة مع مفاتيح التسعير
 const normalizeBillboardSize = (size: string): string => {
   if (!size) return '4x12'
 
@@ -119,7 +119,7 @@ async function readCsvFromUrl(url: string, timeoutMs = 10000) {
 async function readExcelFromUrl(url: string, timeoutMs = 10000, retries = 2) {
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
-      console.log(`[Service] محاولة ${attempt} من ${retries} لتحميل الملف من الرابط...`)
+      console.log(`[Service] محا��لة ${attempt} من ${retries} لتحميل الملف من الرابط...`)
 
       const controller = new AbortController()
       const timeout = setTimeout(() => controller.abort(), timeoutMs)
@@ -286,7 +286,7 @@ function processBillboardData(billboard: any, index: number): Billboard {
   const id = billboard['ر.م'] || billboard['رقم اللوحة'] || `BILLBOARD-${index + 1}`
   const name = billboard['اسم لوحة'] || billboard['اسم اللوحة'] || `لوحة-${index + 1}`
   const location = billboard['اقرب نقطة دالة'] || billboard['أقرب نقطة دالة'] || 'موقع غير محدد'
-  const municipality = billboard['الب��دية'] || 'غير محدد'
+  const municipality = billboard['البلدية'] || 'غير محدد'
   const city = billboard['مدينة'] || billboard['المدينة'] || 'غير محدد'
 
   // معالجة خاصة لحقل المنطقة للتأكد من عدم وجود تاريخ
@@ -326,7 +326,7 @@ function processBillboardData(billboard: any, index: number): Billboard {
 
   // تحديد الحالة بناءً على وجود عقد
   if (contractNumber && contractNumber.trim() !== '' && contractNumber !== '#N/A') {
-    status = 'محج��ز'
+    status = 'محجوز'
 
     // إذا كان هناك تاريخ انتهاء، تحقق من اقرب من الانتهاء
     if (expiryDateValue) {
@@ -508,7 +508,7 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
   } catch (error) {
     console.error('[Service] خطأ في تحميل ملف Excel من Google Sheets:', error)
     
-    // محاولة ت��ميل المل�� المحل�� كبديل
+    // محاولة تحميل المل�� المحل�� كبديل
     try {
       console.log('[Service] محاولة تحميل الملف المحلي كبديل...')
       const response = await fetch('/billboards.xlsx')
