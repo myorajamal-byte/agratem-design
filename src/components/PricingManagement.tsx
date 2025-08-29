@@ -152,7 +152,7 @@ const PricingManagement: React.FC<PricingManagementProps> = ({ onClose }) => {
   const resetPricing = () => {
     if (window.confirm('هل أنت متأكد من إعادة تعيين جميع الأسعار للقيم الافتراضية؟')) {
       loadPricing()
-      setSuccess('تم إعادة ��عيين الأسعار للقيم الافتراضية')
+      setSuccess('تم إعادة تعيين الأسعار للقيم الافتراضية')
     }
   }
 
@@ -299,7 +299,7 @@ const PricingManagement: React.FC<PricingManagementProps> = ({ onClose }) => {
                       </th>
                     ))}
                     <th className="border border-yellow-600 p-4 text-center font-black text-black">
-                      الإجر��ءات
+                      الإجراءات
                     </th>
                   </tr>
                 </thead>
