@@ -578,73 +578,6 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
                           placeholder="1.0"
                         />
                       </td>
-                      {filteredSizes.map(size => {
-                        const cellKey = `base-${size}`
-                        const basePrice = (pricing as InstallationPricing).basePrices?.[size] ?? zone.prices[size] ?? 0
-                        const finalPrice = getFinalPrice(basePrice, zone.multiplier)
-                        const isEditing = editingCell === cellKey
-                        const hasChanges = unsavedChanges.changedCells.has(cellKey)
-
-                        return (
-                          <td
-                            key={size}
-                            className={`border border-gray-200 p-2 text-center relative ${
-                              hasChanges ? 'bg-yellow-100' : ''
-                            }`}
-                          >
-                            {isEditing ? (
-                              <div className="flex items-center gap-1 justify-center">
-                                <Input
-                                  type="number"
-                                  value={editingValue}
-                                  onChange={(e) => setEditingValue(e.target.value)}
-                                  className="w-20 text-center font-bold text-sm"
-                                  min="0"
-                                  autoFocus
-                                />
-                                <Button
-                                  onClick={saveEdit}
-                                  size="sm"
-                                  className="bg-green-600 hover:bg-green-700 text-white p-1"
-                                >
-                                  <Check className="w-3 h-3" />
-                                </Button>
-                                <Button
-                                  onClick={cancelEdit}
-                                  size="sm"
-                                  variant="outline"
-                                  className="text-red-600 border-red-300 p-1"
-                                >
-                                  <X className="w-3 h-3" />
-                                </Button>
-                              </div>
-                            ) : (
-                              <div
-                                className="cursor-pointer group py-2 px-3 hover:bg-orange-50 rounded-lg transition-all"
-                                onClick={() => startEdit(zone.name, size)}
-                                title={`السعر الأساسي الموحد: ${formatPrice(basePrice)}\nالمعامل للمنطقة: ×${zone.multiplier}\nالسعر النهائي: ${formatPrice(finalPrice)}`}
-                              >
-                                <div className="flex flex-col items-center justify-center gap-1">
-                                  <div className="flex items-center gap-1">
-                                    <span className="font-bold text-gray-800 text-sm bg-gray-100 px-2 py-1 rounded">
-                                      {formatPrice(basePrice)}
-                                    </span>
-                                    <Edit3 className="w-3 h-3 text-gray-400 opacity-0 group-hover:opacity-100 group-hover:text-orange-600 transition-all duration-200" />
-                                  </div>
-                                  {zone.multiplier !== 1.0 && (
-                                    <div className="text-xs text-purple-600 font-semibold bg-purple-50 px-1 py-0.5 rounded">
-                                      معامل: ×{zone.multiplier}
-                                    </div>
-                                  )}
-                                  <div className="text-sm text-orange-600 font-bold bg-orange-100 px-2 py-1 rounded">
-                                    النهائي: {formatPrice(finalPrice)}
-                                  </div>
-                                </div>
-                              </div>
-                            )}
-                          </td>
-                        )
-                      })}
                       <td className="border border-gray-200 p-2 text-center">
                         <Button
                           onClick={() => removeZone(zone.name)}
@@ -709,7 +642,7 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
                   <Input
                     value={newZone.name}
                     onChange={(e) => setNewZone(prev => ({ ...prev, name: e.target.value }))}
-                    placeholder="أدخل اسم المنطقة"
+                    placeholder="أدخل اسم الم��طقة"
                   />
                 </div>
                 <div>
