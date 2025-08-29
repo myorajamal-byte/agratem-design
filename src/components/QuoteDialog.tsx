@@ -363,7 +363,7 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-1">تا��يخ البداية</label>
+                        <label className="block text-sm font-bold text-gray-700 mb-1">تاريخ البداية</label>
                         <Input
                           type="date"
                           value={startDate}
