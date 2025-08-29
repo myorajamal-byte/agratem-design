@@ -122,17 +122,32 @@ export default function BookingMode({
   }
 
   const handleCreateBooking = () => {
-    if (!selectedDuration || !clientInfo.name || !clientInfo.email) {
+    if ((rentalMode === 'package' && !selectedDuration) || !clientInfo.name || !clientInfo.email) {
       alert('يرجى ملء جميع البيانات المطلوبة')
       return
     }
 
-    // ��نشاء عرض سعر
+    // إنشاء عرض سعر (الباقات فقط حالياً)
+    const pkg = selectedDuration || { value: Math.max(daysCount, 1), unit: 'month', label: `${daysCount} يوم`, discount: 0 }
     const quote = pricingService.generateQuote(
       clientInfo,
       selectedBillboardsData,
-      selectedDuration
+      pkg as any
     )
+
+    // تطبيق خصم إضافي قبل الطباعة
+    const baseAfterPackage = quote.subtotal - quote.totalDiscount
+    let extra = 0
+    if (discountType === 'percent') {
+      const pct = Math.max(0, Math.min(100, Number(discountValue || 0)))
+      extra = Math.round((baseAfterPackage * pct) / 100)
+    } else {
+      extra = Math.max(0, Math.min(baseAfterPackage, Math.round(Number(discountValue || 0))))
+    }
+    ;(quote as any).extraDiscountType = discountType
+    ;(quote as any).extraDiscountValue = discountValue
+    ;(quote as any).extraDiscountAmount = extra
+    quote.total = Math.max(0, quote.total - extra)
 
     // طباعة فاتورة العرض
     pricingService.printQuote(quote)
@@ -199,7 +214,7 @@ export default function BookingMode({
               </CardHeader>
               <CardContent className="space-y-3">
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-1">تاريخ البد��ية</label>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">تاريخ البداية</label>
                   <Input
                     type="date"
                     value={globalStartDate}
@@ -230,7 +245,7 @@ export default function BookingMode({
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-emerald-700">
                 <User className="w-5 h-5" />
-                بيانات العميل
+                بيانات ا��عميل
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
