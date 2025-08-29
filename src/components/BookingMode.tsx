@@ -48,6 +48,7 @@ export default function BookingMode({
   
   const [selectedDuration, setSelectedDuration] = useState<PackageDuration | null>(null)
   const [billboardDates, setBillboardDates] = useState<Record<string, string>>({})
+  const [globalStartDate, setGlobalStartDate] = useState<string>('')
   const [globalEndDate, setGlobalEndDate] = useState<string>('')
   const [rentalMode, setRentalMode] = useState<'daily' | 'package'>('package')
 
@@ -192,7 +193,7 @@ export default function BookingMode({
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2 text-emerald-700">
-                  <Calendar className="w-5 ه-5" />
+                  <Calendar className="w-5 h-5" />
                   تاريخ البداية والنهاية (موحد)
                 </CardTitle>
               </CardHeader>
