@@ -372,7 +372,7 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
     </head>
     <body>
       <div class="header">
-        <div class="company-name">الفارس الذهبي للدعاية والإعلان</div>
+        <div class="company-name">الفا��س الذهبي للدعاية والإعلان</div>
         <div>AL FARES AL DAHABI</div>
       </div>
 
@@ -395,7 +395,7 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
             data.pricing.customerType === 'individuals' ? 'فرد' :
             data.pricing.customerType === 'companies' ? 'شركة' : 'مسوق'
           }</span></div>
-          <div class="info-row"><span>ن��ع التسعير:</span><span>${data.pricing.mode === 'daily' ? 'يومي' : 'باقة'}</span></div>
+          <div class="info-row"><span>نوع التسعير:</span><span>${data.pricing.mode === 'daily' ? 'يومي' : 'باقة'}</span></div>
           ${data.pricing.days ? `<div class="info-row"><span>عدد الأيام:</span><span>${data.pricing.days} يوم</span></div>` : ''}
           ${data.pricing.package ? `<div class="info-row"><span>مدة الباقة:</span><span>${data.pricing.package} يوم</span></div>` : ''}
           ${data.pricing.needInstallation ? `<div class="info-row"><span>تكلفة التركيب:</span><span>${formatPrice(data.pricing.installationCost)} لكل لوحة</span></div>` : ''}
@@ -521,7 +521,7 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
                   onClick={() => setCalculationMode('single')}
                   className="bg-yellow-600 hover:bg-yellow-700 text-white"
                 >
-                  ال��بديل إلى الحساب المنفرد
+                  التبديل إلى الحساب المنفرد
                 </Button>
               </div>
             </Card>
@@ -646,7 +646,7 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
                     <div className="text-center">
                       <Clock className="w-6 h-6 mx-auto mb-2" />
                       <div className="font-bold">تسعير يومي</div>
-                      <div className="text-xs opacity-75">حساب حسب عدد الأيام</div>
+                      <div className="text-xs opacity-75">حساب حسب عدد ��لأيام</div>
                     </div>
                   </Button>
                   <Button
@@ -674,7 +674,7 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
                 </h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">المقاس</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1">الم��اس</label>
                     <select
                       value={selectedSize}
                       onChange={(e) => setSelectedSize(e.target.value as BillboardSize)}
