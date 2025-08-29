@@ -52,7 +52,7 @@ const normalizeBillboardSize = (size: string): string => {
 const ONLINE_URL =
   "https://docs.google.com/spreadsheets/d/1fF9BUgBcW9OW3nWT97Uke_z2Pq3y_LC0/export?format=xlsx&gid=0&usp=sharing"
 const CSV_URL =
-  "https://docs.google.com/spreadsheets/d/1fF9BUgBcW9OW3nWT97Uke_z2Pq3y_LC0/export?format=csv&gid=0&usp=sharing"
+  "https://docs.google.com/spreadsheets/d/1fF9BUgBcW9OW3nWT97Uke_z2Pq3y_LC0/gviz/tq?tqx=out:csv&gid=0&usp=sharing"
 
 async function testUrlAccess(url: string) {
   try {
@@ -178,7 +178,7 @@ async function readExcelFromUrl(url: string, timeoutMs = 10000, retries = 2) {
 
       if (!isExcel && !isOldExcel) {
         console.log(
-          `[Service] تحذير: الملف المحمل قد لا يكون ملف إكسل صحيح. البايتات الأولى: ${Array.from(uint8Array.slice(0, 10))
+          `[Service] تحذير: الملف المحم�� قد لا يكون ملف إكسل صحيح. البايتات الأولى: ${Array.from(uint8Array.slice(0, 10))
             .map((b) => b.toString(16))
             .join(" ")}`,
         )
@@ -423,7 +423,7 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
         try {
           console.log(`[Service] محاولة قراءة ملف الإكسل من الرابط: ${url}`)
           fileBuffer = await readExcelFromUrl(url, 15000, 2)
-          console.log("[Service] تم تحميل ملف الإكسل من الرابط بنجاح ✅")
+          console.log("[Service] تم تحميل ملف الإكس�� من الرابط بنجاح ✅")
           break
         } catch (err: any) {
           console.warn(`[Service] فشل قراءة الملف من ا��رابط ${url}:`, err.message)
@@ -488,7 +488,7 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
     
     // محاولة تحميل المل�� المحل�� كبديل
     try {
-      console.log('[Service] محاولة تحميل الملف المحلي كبديل...')
+      console.log('[Service] محاولة تحميل ال��لف المحلي كبديل...')
       const response = await fetch('/billboards.xlsx')
       
       if (!response.ok) {
