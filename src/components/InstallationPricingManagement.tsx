@@ -58,6 +58,9 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
   const [customerInfo, setCustomerInfo] = useState({ name: '', email: '', phone: '', company: '' })
   const [discount, setDiscount] = useState(0)
   const [quoteNotes, setQuoteNotes] = useState('')
+  const [showImportZones, setShowImportZones] = useState(false)
+  const [systemZones, setSystemZones] = useState<string[]>([])
+  const [selectedSystemZones, setSelectedSystemZones] = useState<Set<string>>(new Set())
 
   // Load pricing data on component mount
   useEffect(() => {
@@ -151,7 +154,7 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
     }))
 
     setEditingCell(null)
-    showNotification('success', 'تم تحديث السعر الأساسي للمقاس ب��جاح')
+    showNotification('success', 'تم تحديث السعر الأساسي للمقاس ب��جا��')
   }
 
   const cancelEdit = () => {
@@ -412,7 +415,7 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
                     className="text-yellow-800 border-yellow-300"
                   >
                     <RotateCcw className="w-4 h-4 mr-2" />
-                    تراجع الكل
+                    تراجع الك��
                   </Button>
                 </div>
               </div>
@@ -573,7 +576,7 @@ const InstallationPricingManagement: React.FC<InstallationPricingManagementProps
                               <Button onClick={cancelEdit} size="sm" variant="outline" className="text-red-600 border-red-300 p-1"><X className="w-3 h-3" /></Button>
                             </div>
                           ) : (
-                            <div className="cursor-pointer group py-2 px-3 hover:bg-emerald-50 rounded-lg transition-all" onClick={() => startEdit('base', size)} title={`��لسعر الأساسي: ${formatPrice(basePrice)}`}>
+                            <div className="cursor-pointer group py-2 px-3 hover:bg-emerald-50 rounded-lg transition-all" onClick={() => startEdit('base', size)} title={`السعر الأساسي: ${formatPrice(basePrice)}`}>
                               <span className="font-bold text-gray-800 text-sm bg-gray-100 px-2 py-1 rounded">{formatPrice(basePrice)}</span>
                             </div>
                           )}
