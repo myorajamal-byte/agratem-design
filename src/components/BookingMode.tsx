@@ -94,7 +94,6 @@ export default function BookingMode({
     }
   }
 
-  const bookingSummary = calculateBookingSummary()
   const daysCount = (() => {
     if (rentalMode !== 'daily' || !globalStartDate || !globalEndDate) return 0
     const start = new Date(globalStartDate)
@@ -102,6 +101,7 @@ export default function BookingMode({
     const diff = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1
     return Math.max(diff, 0)
   })()
+  const bookingSummary = calculateBookingSummary()
 
   const handleDateChange = (billboardId: string, date: string) => {
     setBillboardDates(prev => ({
@@ -313,7 +313,7 @@ export default function BookingMode({
             </Card>
           )}
 
-          {/* اللوحات المحددة */}
+          {/* اللوحات ال��حددة */}
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-emerald-700">
@@ -392,7 +392,7 @@ export default function BookingMode({
                   
                   <div className="flex justify-between text-lg font-bold text-emerald-800 border-t pt-2">
                     <span>{bookingSummary.finalTotal.toLocaleString()} د.ل</span>
-                    <span>الإجمالي:</span>
+                    <span>الإجمال��:</span>
                   </div>
                   
                   {rentalMode === 'package' && selectedDuration && (
