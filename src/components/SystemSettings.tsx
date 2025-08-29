@@ -124,7 +124,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
     }, newUser.password)
 
     if (result.success) {
-      setSuccess('تم إضافة المستخدم ��نجاح')
+      setSuccess('تم إضافة المستخدم بنجاح')
       setShowAddUser(false)
       resetForms()
       loadData()
@@ -252,7 +252,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
             </div>
           )}
 
-          {/* إضا��ة مستخدم جديد */}
+          {/* إضافة مستخدم جديد */}
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
@@ -423,7 +423,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
                       <option value="B">قائمة أسعار B</option>
                     </select>
                     <p className="text-xs text-gray-500 mt-1">
-                      تحدد هذه الفئة الأسعار التي ستظهر للمستخدم عند عرض اللوحات الإعلانية
+                      تحدد ��ذه الفئة الأسعار التي ستظهر للمستخدم عند عرض اللوحات الإعلانية
                     </p>
                   </div>
 
@@ -466,7 +466,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
                             ))}
                           </select>
                           <p className="text-xs text-gray-500 mt-1">
-                            هذا المستخدم سيرى العقود الخاصة بالزبون المحدد + جمي�� اللوحات المتاحة
+                            هذا المستخدم سيرى العقود الخاصة بالزبون المحدد + جميع اللوحات المتاحة
                           </p>
                         </div>
                       )}
@@ -560,7 +560,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
                     <>
                       <div>
                         <label className="block text-sm font-bold text-gray-700 mb-2">
-                          الص��احيات
+                          الصلاحيات
                         </label>
                         <div className="space-y-2">
                           {permissions.map((permission) => (
@@ -595,7 +595,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
                             ))}
                           </select>
                           <p className="text-xs text-gray-500 mt-1">
-                            هذا المستخدم ��يرى العقود الخاصة بالزبون المحدد + جميع اللوحات المتاحة
+                            هذا المستخدم يرى العقود الخاصة بالزبون المحدد + جميع اللوحات المتاحة
                           </p>
                         </div>
                       )}
