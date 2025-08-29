@@ -400,7 +400,7 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
                           onChange={(e) => setIncludeInstallation(e.target.checked)}
                           className="w-4 h-4 text-blue-600"
                         />
-                        <span className="text-sm font-semibold">تضمين أسعار التركيب</span>
+                        <span className="text-sm font-semibold">تضمين أسعار الت��كيب</span>
                       </label>
                     </div>
                   </div>
@@ -434,7 +434,7 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
                                   </Badge>
                                 </div>
                                 <div className="flex items-center gap-1">
-                                  <span className="font-semibold">ا��بلدية:</span>
+                                  <span className="font-semibold">البلدية:</span>
                                   <span className="text-gray-700">{billboard.municipality}</span>
                                 </div>
                               </div>
