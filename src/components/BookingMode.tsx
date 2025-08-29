@@ -48,6 +48,7 @@ export default function BookingMode({
   
   const [selectedDuration, setSelectedDuration] = useState<PackageDuration | null>(null)
   const [billboardDates, setBillboardDates] = useState<Record<string, string>>({})
+  const [globalStartDate, setGlobalStartDate] = useState<string>('')
 
   if (!isOpen) return null
 
@@ -99,6 +100,16 @@ export default function BookingMode({
     onDateChange(billboardId, date)
   }
 
+  const applyGlobalDate = (date: string) => {
+    setGlobalStartDate(date)
+    const updates: Record<string, string> = {}
+    selectedBillboardsData.forEach(b => {
+      updates[b.id] = date
+    })
+    setBillboardDates(prev => ({ ...prev, ...updates }))
+    selectedBillboardsData.forEach(b => onDateChange(b.id, date))
+  }
+
   const handleCreateBooking = () => {
     if (!selectedDuration || !clientInfo.name || !clientInfo.email) {
       alert('يرجى ملء جميع البيانات المطلوبة')
@@ -117,7 +128,7 @@ export default function BookingMode({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex">
+    <div className="fixed inset-0 z-50 flex pointer-events-none">
       {/* المحتوى الرئيسي - يقل عرضه */}
       <div className="flex-1 bg-white/10 backdrop-blur-sm">
         <div className="p-4">
@@ -131,7 +142,7 @@ export default function BookingMode({
       </div>
 
       {/* الشريط الجانبي الأيمن */}
-      <div className="w-96 bg-white shadow-2xl border-l-4 border-emerald-500 overflow-y-auto">
+      <div className="w-96 bg-white shadow-2xl border-l-4 border-emerald-500 overflow-y-auto pointer-events-auto">
         <div className="sticky top-0 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white p-4 z-10">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold flex items-center gap-2">
@@ -150,6 +161,25 @@ export default function BookingMode({
         </div>
 
         <div className="p-4 space-y-6">
+          {/* عام: تاريخ بداية موحد */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-emerald-700">
+                <Calendar className="w-5 h-5" />
+                تاريخ بداية موحد لكل اللوحات
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Input
+                type="date"
+                value={globalStartDate}
+                onChange={(e) => applyGlobalDate(e.target.value)}
+                className="text-right"
+                min={new Date().toISOString().split('T')[0]}
+              />
+            </CardContent>
+          </Card>
+
           {/* معلومات العميل */}
           <Card>
             <CardHeader className="pb-3">
