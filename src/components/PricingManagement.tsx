@@ -152,7 +152,7 @@ const PricingManagement: React.FC<PricingManagementProps> = ({ onClose }) => {
   const resetPricing = () => {
     if (window.confirm('هل أنت متأكد من إعادة تعيين جميع الأسعار للقيم الافتراضية؟')) {
       loadPricing()
-      setSuccess('تم إعادة تعيين الأسعار للقيم الافتراضية')
+      setSuccess('تم إعادة ��عيين الأسعار للقيم الافتراضية')
     }
   }
 
@@ -160,7 +160,7 @@ const PricingManagement: React.FC<PricingManagementProps> = ({ onClose }) => {
     return (
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
         <div className="bg-white rounded-xl p-8">
-          <div className="text-center">جا��ي تحميل البيانات...</div>
+          <div className="text-center">جاري تحميل البيانات...</div>
         </div>
       </div>
     )
