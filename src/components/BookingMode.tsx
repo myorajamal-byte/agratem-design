@@ -129,18 +129,6 @@ export default function BookingMode({
 
   return (
     <div className="fixed inset-0 z-50 flex pointer-events-none">
-      {/* المحتوى الرئيسي - يقل عرضه */}
-      <div className="flex-1 bg-white/10 backdrop-blur-sm">
-        <div className="p-4">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-            <h3 className="text-lg font-bold text-blue-800 text-center">وضع الحجز مفعل</h3>
-            <p className="text-sm text-blue-600 text-center">
-              تم تحديد {selectedBillboards.size} لوحة للحجز
-            </p>
-          </div>
-        </div>
-      </div>
-
       {/* الشريط الجانبي الأيمن */}
       <div className="w-96 bg-white shadow-2xl border-l-4 border-emerald-500 overflow-y-auto pointer-events-auto">
         <div className="sticky top-0 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white p-4 z-10">
@@ -166,7 +154,7 @@ export default function BookingMode({
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-emerald-700">
                 <Calendar className="w-5 h-5" />
-                تاريخ بداية موحد لكل اللوحات
+                تاريخ بداية موحد لكل اللوحا��
               </CardTitle>
             </CardHeader>
             <CardContent>
