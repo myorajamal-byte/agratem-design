@@ -142,18 +142,6 @@ private initializeDefaults() {
   })()
 }
 
-    // Try hydrate from cloud asynchronously
-    ;(async () => {
-      try {
-        const remote = await cloudDatabase.getRentalPricing()
-        if (remote) {
-          localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(remote))
-        }
-      } catch {
-        // ignore
-      }
-    })()
-  }
 
   /**
    * تحميل المقاسا�� من التخزين
@@ -437,7 +425,7 @@ private initializeDefaults() {
     // استخدام اسم البلدية مباشرة كمنطقة سعرية
     const zoneName = municipality.trim()
 
-    // التأكد من وجود أسعار لهذه المنطقة
+    // التأكد من وج��د أسعار لهذه المنطقة
     const pricing = this.getPricing()
     if (pricing.zones[zoneName]) {
       return zoneName
@@ -705,7 +693,7 @@ private initializeDefaults() {
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>عرض سعر - الفارس الذهبي</title>
+        <title>عرض سعر - الفارس ا��ذهبي</title>
         <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
         <style>
           @page { size: A4; margin: 15mm; }

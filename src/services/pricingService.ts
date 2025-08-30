@@ -1,80 +1,57 @@
 import { PriceList, PricingZone, BillboardSize, QuoteItem, Quote, CustomerType, PackageDuration, PriceListType } from '@/types'
 import { formatGregorianDate } from '@/lib/dateUtils'
 import { cloudDatabase } from './cloudDatabase'
+import { jsonDatabase } from './jsonDatabase'
+import { dynamicPricingService } from './dynamicPricingService'
 
-/**
- * خدمة إدارة الأسعار والفواتير
- * تعتمد كليًا على البيانات المحفوظة في JSON أو Cloud
- */
 class PricingService {
   private readonly PRICING_STORAGE_KEY = 'al-fares-pricing'
+  private readonly DYNAMIC_FLAG_KEY = 'al-fares-dynamic-enabled'
 
   constructor() {
     this.initializePricingFromDB()
   }
 
-  /**
-   * تهيئة الأسعار من قاعدة البيانات فقط
-   */
-  
-private initializePricingFromDB() {
-  // Clear any local/demo data; hydrate only from Supabase
-  try { localStorage.removeItem(this.PRICING_STORAGE_KEY) } catch {}
-  ;(async () => {
+  private async hydrateFromCloud() {
     try {
       const remote = await cloudDatabase.getRentalPricing()
       if (remote) {
         localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(remote))
+        jsonDatabase.saveRentalPricing(remote)
       }
-    } catch {}
-  })()
-}
-
-    // محاولة التحميل من قاعدة بيانات Supabase / السحابة
-    ;(async () => {
-      try {
-        const remote = await cloudDatabase.getRentalPricing()
-        if (remote) {
-          // إزالة أي أسعار تجريبية واستبدالها بالبيانات من القاعدة
-          localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(remote))
-          jsonDatabase.saveRentalPricing(remote)
-        }
-      } catch {
-        // تجاهل الأخطاء وابقَ على البيانات المحلية إن وجدت
-      }
-    })()
-  }
-
-  /**
-   * الحصول على قائمة الأسعار
-   */
-  
-
-getPricing(): PriceList | null {
-  try {
-    const storedPricing = localStorage.getItem(this.PRICING_STORAGE_KEY)
-    return storedPricing ? JSON.parse(storedPricing) : null
-  } catch {
-    return null
-  }
-}
-
-      if (storedPricing) return JSON.parse(storedPricing)
-      const dbPricing = jsonDatabase.getRentalPricing()
-      if (dbPricing) return dbPricing
-      return null
     } catch {
-      return null
+      // ignore
     }
   }
 
-  /**
-   * تحديث قائمة الأسعار في DB وCloud
-   */
+  private initializePricingFromDB() {
+    try {
+      void jsonDatabase.ensurePreloaded()
+    } catch {}
+    if (!localStorage.getItem(this.PRICING_STORAGE_KEY)) {
+      const cached = jsonDatabase.getRentalPricing()
+      if (cached) {
+        try { localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(cached)) } catch {}
+      }
+    }
+    void this.hydrateFromCloud()
+  }
+
+  getPricing(): PriceList {
+    try {
+      const stored = localStorage.getItem(this.PRICING_STORAGE_KEY)
+      if (stored) return JSON.parse(stored)
+      const cached = jsonDatabase.getRentalPricing()
+      if (cached) return cached
+    } catch {}
+    return { zones: {}, packages: this.getDefaultPackages(), currency: 'د.ل' }
+  }
+
   updatePricing(pricing: PriceList): { success: boolean; error?: string } {
     try {
       localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(pricing))
-      void cloudDatabase.saveRentalPricing(pricing)
+      try { jsonDatabase.saveRentalPricing(pricing) } catch {}
+      try { void cloudDatabase.saveRentalPricing(pricing) } catch {}
       return { success: true }
     } catch (error) {
       console.error('خطأ في تحديث الأسعار:', error)
@@ -82,35 +59,30 @@ getPricing(): PriceList | null {
     }
   }
 
-  /**
-   * الحصول على سعر لوحة معينة حسب فئة الزبون
-   */
   getBillboardPrice(size: BillboardSize, zone: string, customerType: CustomerType = 'individuals', municipality?: string): number {
     const pricing = this.getPricing()
-    if (!pricing) return 0
     const zoneData = pricing.zones[zone]
-    if (!zoneData || !zoneData.prices[customerType] || !zoneData.prices[customerType][size]) return 0
-
+    if (!zoneData || !zoneData.prices?.[customerType]) return 0
     const basePrice = zoneData.prices[customerType][size]
-
+    if (!basePrice) return 0
     if (municipality) {
-      const multiplier = this.getMunicipalityMultiplier(municipality)
-      return Math.round(basePrice * multiplier)
+      const m = this.getMunicipalityMultiplier(municipality)
+      return Math.round(basePrice * m)
     }
-
     return basePrice
   }
 
   getBillboardPriceAB(size: BillboardSize, zone: string, priceList: PriceListType = 'A', municipality?: string): number {
     const pricing = this.getPricing()
-    if (!pricing) return 0
     const zoneData = pricing.zones[zone]
-    if (!zoneData || !zoneData.abPrices || !zoneData.abPrices[priceList] || !zoneData.abPrices[priceList][size]) return 0
-
-    const basePrice = zoneData.abPrices[priceList][size]
+    if (!zoneData || !zoneData.abPrices?.[priceList]) return 0
+    // default to 1-month pricing if durations exist
+    const durationPrices = (zoneData.abPrices[priceList] as any)['1'] || (zoneData.abPrices as any)[priceList]
+    const basePrice = durationPrices?.[size]
+    if (!basePrice) return 0
     if (municipality) {
-      const multiplier = this.getMunicipalityMultiplier(municipality)
-      return Math.round(basePrice * multiplier)
+      const m = this.getMunicipalityMultiplier(municipality)
+      return Math.round(basePrice * m)
     }
     return basePrice
   }
@@ -120,7 +92,7 @@ getPricing(): PriceList | null {
       const municipalityService = (window as any)?.municipalityService
       if (municipalityService) {
         const data = municipalityService.getMunicipalityByName(municipality)
-        if (data && data.multiplier) return data.multiplier
+        if (data && typeof data.multiplier === 'number') return data.multiplier
       }
     } catch {}
     return 1.0
@@ -128,7 +100,16 @@ getPricing(): PriceList | null {
 
   getPackages(): PackageDuration[] {
     const pricing = this.getPricing()
-    return pricing?.packages || []
+    return pricing.packages?.length ? pricing.packages : this.getDefaultPackages()
+  }
+
+  private getDefaultPackages(): PackageDuration[] {
+    return [
+      { value: 1, unit: 'month', label: 'شهر واحد', discount: 0 },
+      { value: 3, unit: 'months', label: '3 أشهر', discount: 5 },
+      { value: 6, unit: 'months', label: '6 أشهر', discount: 10 },
+      { value: 12, unit: 'year', label: 'سنة كاملة', discount: 20 }
+    ]
   }
 
   calculatePriceWithDiscount(basePrice: number, packageDuration: PackageDuration) {
@@ -139,31 +120,28 @@ getPricing(): PriceList | null {
 
   determinePricingZone(municipality: string, area?: string): string | null {
     const pricing = this.getPricing()
-    if (!pricing) return null
-
-    const zoneName = municipality.trim()
+    const zoneName = (municipality || '').trim()
+    if (!zoneName) return null
     if (pricing.zones[zoneName]) return zoneName
-
-    const availableZones = Object.keys(pricing.zones)
-    const municipalityLower = municipality.toLowerCase().trim()
-    for (const zone of availableZones) {
-      if (zone.toLowerCase().includes(municipalityLower) || municipalityLower.includes(zone.toLowerCase())) return zone
+    const available = Object.keys(pricing.zones)
+    const lower = zoneName.toLowerCase()
+    for (const z of available) {
+      if (z.toLowerCase().includes(lower) || lower.includes(z.toLowerCase())) return z
     }
-
-    this.addPricingZoneForMunicipality(municipality)
-    return municipality.trim()
+    this.addPricingZoneForMunicipality(zoneName)
+    return zoneName
   }
 
-  addPricingZoneForMunicipality(municipality: string, baseZone: string): boolean {
+  addPricingZoneForMunicipality(municipality: string, baseZone?: string): boolean {
     const pricing = this.getPricing()
-    if (!pricing) return false
     const zoneName = municipality.trim()
+    if (!zoneName) return false
     if (pricing.zones[zoneName]) return true
-
-    const baseZoneData = pricing.zones[baseZone]
-    if (!baseZoneData) return false
-
-    pricing.zones[zoneName] = { ...baseZoneData, name: zoneName }
+    let base: PricingZone | undefined
+    if (baseZone && pricing.zones[baseZone]) base = pricing.zones[baseZone]
+    else if (Object.keys(pricing.zones).length) base = pricing.zones[Object.keys(pricing.zones)[0]]
+    if (!base) return false
+    pricing.zones[zoneName] = { ...base, name: zoneName }
     return this.updatePricing(pricing).success
   }
 
@@ -173,14 +151,17 @@ getPricing(): PriceList | null {
 
   getCustomerTypeLabel(type: CustomerType): string {
     const labels = { marketers: 'المسوقين', individuals: 'العاديين', companies: 'الشركات' }
-    return labels[type] || 'غير محدد'
+    return (labels as any)[type] || 'غير محدد'
   }
 
-  generateQuote(customerInfo: { name: string; email: string; phone: string; company?: string; type: CustomerType }, billboards: Array<{ id: string; name: string; location: string; municipality: string; area: string; size: BillboardSize; status: string; imageUrl?: string }>, packageDuration: PackageDuration): Quote {
+  generateQuote(
+    customerInfo: { name: string; email: string; phone: string; company?: string; type: CustomerType },
+    billboards: Array<{ id: string; name: string; location: string; municipality: string; area: string; size: BillboardSize; status: string; imageUrl?: string }>,
+    packageDuration: PackageDuration
+  ): Quote {
     const pricing = this.getPricing()
-    if (!pricing) throw new Error('لا توجد بيانات أسعار متاحة.')
 
-    const items: QuoteItem[] = billboards.map(b => {
+    const items: QuoteItem[] = billboards.map((b) => {
       const zone = this.determinePricingZone(b.municipality, b.area) || ''
       const basePrice = this.getBillboardPrice(b.size, zone, customerInfo.type, b.municipality)
       const priceCalc = this.calculatePriceWithDiscount(basePrice, packageDuration)
@@ -195,12 +176,12 @@ getPricing(): PriceList | null {
         duration: packageDuration.value,
         discount: priceCalc.discount,
         total: priceCalc.finalPrice * packageDuration.value,
-        imageUrl: b.imageUrl
+        imageUrl: b.imageUrl,
       }
     })
 
-    const subtotal = items.reduce((sum, item) => sum + (item.basePrice * item.duration), 0)
-    const totalDiscount = items.reduce((sum, item) => sum + ((item.basePrice - item.finalPrice) * item.duration), 0)
+    const subtotal = items.reduce((sum, item) => sum + item.basePrice * item.duration, 0)
+    const totalDiscount = items.reduce((sum, item) => sum + (item.basePrice - item.finalPrice) * item.duration, 0)
     const taxRate = 0.0
     const tax = (subtotal - totalDiscount) * taxRate
     const total = subtotal - totalDiscount + tax
@@ -217,11 +198,121 @@ getPricing(): PriceList | null {
       total,
       currency: pricing.currency,
       createdAt: new Date().toISOString(),
-      validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+      validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
     }
   }
 
-  // بقية الدوال مثل printQuote، exportQuoteToPDF، enableDynamicPricing، disableDynamicPricing تبقى كما هي
+  printQuote(quote: Quote): void {
+    const html = this.exportQuoteToPDF(quote)
+    const win = window.open('', '_blank')
+    if (!win) return
+    win.document.write(html)
+    win.document.close()
+  }
+
+  exportQuoteToPDF(quote: Quote): string {
+    return `<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>عرض سعر - الفارس الذهبي</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  body{font-family:'Tajawal','Cairo','Arial',sans-serif;direction:rtl;color:#000}
+  .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding:10px 0;border-bottom:3px solid #D4AF37}
+  table{width:100%;border-collapse:collapse;margin-top:12px}
+  th,td{border:1px solid #D4AF37;padding:6px 8px;text-align:center}
+  th{background:linear-gradient(135deg,#D4AF37,#F4E04D)}
+  .price{font-weight:700;color:#D4AF37}
+</style>
+</head>
+<body>
+  <div class="header">
+    <div style="display:flex;align-items:center;gap:12px">
+      <img src="${window.location.origin}/logo-symbol.svg" width="64" height="64" />
+      <div>
+        <div style="font-size:18px;font-weight:700">الفارس الذهبي</div>
+        <div style="font-size:12px;color:#666">عرض سعر</div>
+      </div>
+    </div>
+    <div style="text-align:left">
+      <div>رقم العرض: ${quote.id}</div>
+      <div>تاريخ: ${formatGregorianDate(quote.createdAt)}</div>
+      <div>صالح حتى: ${formatGregorianDate(quote.validUntil)}</div>
+    </div>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>م</th><th>اسم اللوحة</th><th>الموقع</th><th>المقاس</th><th>المنطقة</th><th>السعر/شهر</th><th>المدة</th><th>الإجمالي</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${quote.items.map((it, i)=>`<tr>
+        <td>${i+1}</td>
+        <td style="text-align:right">${it.name}</td>
+        <td style="text-align:right">${it.location}</td>
+        <td>${it.size}</td>
+        <td>${it.zone}</td>
+        <td class="price">${it.finalPrice.toLocaleString()} ${quote.currency}</td>
+        <td>${it.duration} شهر</td>
+        <td class="price">${it.total.toLocaleString()} ${quote.currency}</td>
+      </tr>`).join('')}
+    </tbody>
+  </table>
+  <div style="margin-top:12px">
+    <div>المجموع قبل الخصم: <span class="price">${quote.subtotal.toLocaleString()} ${quote.currency}</span></div>
+    <div>إجمالي الخصم (${quote.packageInfo.discount}%): <span class="price">-${quote.totalDiscount.toLocaleString()} ${quote.currency}</span></div>
+    <div>الإجمالي النهائي: <strong>${quote.total.toLocaleString()} ${quote.currency}</strong></div>
+  </div>
+  <script>window.onload=function(){setTimeout(function(){window.print(); setTimeout(function(){window.close()}, 600)}, 300)};<\/script>
+</body>
+</html>`
+  }
+
+  getPriceListTypes(): Array<{ value: PriceListType; label: string }> {
+    return [
+      { value: 'A', label: 'مستوى 1 - سيتي A' },
+      { value: 'B', label: 'مستوى 2 - مسو��ين' },
+    ]
+  }
+
+  comparePriceListsForZone(zoneName: string): {
+    sizes: Array<{ size: BillboardSize; priceA: number; priceB: number; difference: number; percentDifference: number }>
+  } | null {
+    const pricing = this.getPricing()
+    const zone = pricing.zones[zoneName]
+    if (!zone || !zone.abPrices) return null
+    // use 1-month duration if available
+    const pricesA = (zone.abPrices.A as any)['1'] || (zone.abPrices as any).A
+    const pricesB = (zone.abPrices.B as any)['1'] || (zone.abPrices as any).B
+    const sizes = Array.from(new Set([...(Object.keys(pricesA||{})), ...(Object.keys(pricesB||{}))])) as BillboardSize[]
+    const result = sizes.map((size) => {
+      const a = (pricesA?.[size] as number) || 0
+      const b = (pricesB?.[size] as number) || 0
+      const diff = b - a
+      const percent = a === 0 ? 0 : Math.round((diff / a) * 100)
+      return { size, priceA: a, priceB: b, difference: diff, percentDifference: percent }
+    })
+    return { sizes: result }
+  }
+
+  isDynamicPricingEnabled(): boolean {
+    try { return localStorage.getItem(this.DYNAMIC_FLAG_KEY) === '1' } catch { return false }
+  }
+
+  enableDynamicPricing(): void {
+    try {
+      localStorage.setItem(this.DYNAMIC_FLAG_KEY, '1')
+      const generated = dynamicPricingService.generateDynamicPriceList()
+      this.updatePricing(generated)
+    } catch {}
+  }
+
+  disableDynamicPricing(): void {
+    try { localStorage.setItem(this.DYNAMIC_FLAG_KEY, '0') } catch {}
+  }
 }
 
 export const pricingService = new PricingService()
