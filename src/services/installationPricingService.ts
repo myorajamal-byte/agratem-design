@@ -1,6 +1,5 @@
 import { BillboardSize, InstallationPricing, InstallationPriceZone, InstallationQuote, InstallationQuoteItem } from '@/types'
 import { formatGregorianDate } from '@/lib/dateUtils'
-import { jsonDatabase } from './jsonDatabase'
 import { cloudDatabase } from './cloudDatabase'
 
 // المقاسات المتاحة لأسعار التركيب
@@ -64,14 +63,17 @@ class InstallationPricingService {
   /**
    * تهيئة البيانات الافتراضية
    */
-  private initializeDefaults() {
-    const dbPricing = jsonDatabase.getInstallationPricing()
-    if (dbPricing) {
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(dbPricing))
-    } else if (!localStorage.getItem(this.STORAGE_KEY)) {
-      // لا تكتب أسعار تركيب تجريبية تلقائيًا
-      // localStorage.setItem(this.STORAGE_KEY, JSON.stringify(DEFAULT_INSTALLATION_PRICING))
+  
+private initializeDefaults() {
+  // Clear any local/demo installation pricing; hydrate only from Supabase
+  try { localStorage.removeItem(this.STORAGE_KEY) } catch {}
+  void (async () => {
+    const remote = await cloudDatabase.getInstallationPricing()
+    if (remote) {
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(remote))
     }
+  })()
+}
 
     // Hydrate from cloud (Netlify KV) asynchronously
     void (async () => {
@@ -119,9 +121,7 @@ class InstallationPricingService {
         lastUpdated: new Date().toISOString()
       }
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(updatedPricing))
-      // Persist to JSON DB cache (exportable)
-      jsonDatabase.saveInstallationPricing(updatedPricing)
-      // Persist to cloud (Netlify KV), non-blocking
+      // Persist to cloud (Supabase), non-blocking
       void cloudDatabase.saveInstallationPricing(updatedPricing)
       return { success: true, message: 'تم حفظ أسعار التركيب بنجاح' }
     } catch (error) {
@@ -136,7 +136,7 @@ class InstallationPricingService {
   getInstallationPrice(size: BillboardSize, zone: string): number {
     const pricing = this.getInstallationPricing()
     const zoneData = pricing.zones[zone]
-    const base = pricing.basePrices || createDefaultInstallationPrices()
+    const base = pricing.basePrices || {}
     const basePrice = base[size] || 0
     const multiplier = zoneData?.multiplier ?? 1.0
     return Math.round(basePrice * multiplier)
@@ -221,7 +221,7 @@ class InstallationPricingService {
       if (pricing.zones[zoneName]) {
         return { success: false, message: 'هذه المنطقة موجودة بالفعل' }
       }
-      const base = pricing.basePrices || createDefaultInstallationPrices()
+      const base = pricing.basePrices || {}
       const newZone: InstallationPriceZone = {
         name: zoneName,
         prices: { ...base },
