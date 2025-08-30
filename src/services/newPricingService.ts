@@ -259,7 +259,7 @@ private initializeDefaults() {
   }
 
   /**
-   * الحصول على سعر لوحة حسب فئة الزبون (للنظام القديم)
+   * الحصول على سعر لوحة حسب فئة الزبون (للنظام الق��يم)
    */
   getBillboardPrice(size: BillboardSize, zone: string, customerType: CustomerType = 'individuals', municipality?: string): number {
     const pricing = this.getPricing()
@@ -420,80 +420,26 @@ private initializeDefaults() {
    * المنطقة السعرية هي نفس اسم البلدية
    */
   determinePricingZone(municipality: string, area?: string): string {
-    if (!municipality) return 'مصراتة' // افتراضي
-
-    // استخدام اسم البلدية مباشرة كمنطقة سعرية
+    if (!municipality) return ''
     const zoneName = municipality.trim()
-
-    // التأكد من وج��د أسعار لهذه المنطقة
     const pricing = this.getPricing()
-    if (pricing.zones[zoneName]) {
-      return zoneName
-    }
-
-    // إذا لم توجد أسعار لهذه البلدية، البحث عن أقرب تطابق
+    if (pricing.zones[zoneName]) return zoneName
     const availableZones = Object.keys(pricing.zones)
     const municipalityLower = municipality.toLowerCase().trim()
-
     for (const zone of availableZones) {
       if (zone.toLowerCase().includes(municipalityLower) || municipalityLower.includes(zone.toLowerCase())) {
         return zone
       }
     }
-
-    // إنشاء منطقة جديدة تلقائياً للبلدية
-    console.log(`إنشاء منطقة سعرية جديدة للبلدية: ${municipality}`)
-    const trimmedZoneName = municipality.trim()
-    this.addPricingZoneForMunicipality(municipality)
-
-    return trimmedZoneName
+    return zoneName
   }
 
   /**
-   * إضافة منطقة سعرية جديدة بناءً على البلدية
+   * إضافة منطقة سعر��ة جديدة بناءً على البلدية
    */
   addPricingZoneForMunicipality(municipality: string, baseZone: string = 'مصراتة'): boolean {
-    if (!municipality) return false
-
-    const pricing = this.getPricing()
-    const zoneName = municipality.trim()
-
-    // إذا كانت المنطقة موجودة، لا تفعل شيء
-    if (pricing.zones[zoneName]) {
-      return true
-    }
-
-    try {
-      // إنشاء منطقة جديدة مع مراعاة معامل البلدية
-      const newZone = createDefaultZoneForMunicipality(zoneName)
-      pricing.zones[zoneName] = newZone
-
-      const result = this.updatePricing(pricing)
-      console.log(`تم إنشاء منطقة سعرية جديدة: ${zoneName}`, result.success ? '✅' : '❌')
-      return result.success
-    } catch (error) {
-      console.error(`خطأ في إنشاء منطقة سعرية للبلدية ${zoneName}:`, error)
-
-      // محاولة بديلة: استخدام خدمة إدارة المناطق التلقائية
-      try {
-        const { pricingZoneAutoManager } = require('./pricingZoneAutoManager')
-        const newZone = pricingZoneAutoManager.createDefaultPricingZone(zoneName, baseZone)
-        pricing.zones[zoneName] = newZone
-      } catch (autoError) {
-        // الطريقة القديمة كـ fallback أخير
-        const baseZoneData = pricing.zones[baseZone] || Object.values(pricing.zones)[0]
-        if (!baseZoneData) {
-          return false
-        }
-
-        pricing.zones[zoneName] = {
-          ...baseZoneData,
-          name: zoneName
-        }
-      }
-
-      return this.updatePricing(pricing).success
-    }
+    // ممنوع إنشاء بيانات تجريبية تلقائياً
+    return false
   }
 
   /**
@@ -693,7 +639,7 @@ private initializeDefaults() {
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>عرض سعر - الفارس ا��ذهبي</title>
+        <title>عرض سعر - الفارس الذهبي</title>
         <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
         <style>
           @page { size: A4; margin: 15mm; }
