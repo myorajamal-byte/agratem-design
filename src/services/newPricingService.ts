@@ -132,7 +132,7 @@ private initializeDefaults() {
   if (!localStorage.getItem(this.SIZES_STORAGE_KEY)) {
     localStorage.setItem(this.SIZES_STORAGE_KEY, JSON.stringify(DEFAULT_SIZES))
   }
-  void (async () => {
+  ;(async () => {
     try {
       const remote = await cloudDatabase.getRentalPricing()
       if (remote) {
@@ -143,7 +143,7 @@ private initializeDefaults() {
 }
 
     // Try hydrate from cloud asynchronously
-    void (async () => {
+    ;(async () => {
       try {
         const remote = await cloudDatabase.getRentalPricing()
         if (remote) {
