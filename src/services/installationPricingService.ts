@@ -65,20 +65,20 @@ class InstallationPricingService {
    */
   
 
+
 private initializeDefaults() {
   try { localStorage.removeItem(this.STORAGE_KEY) } catch {}
+  cloudDatabase.getInstallationPricing()
+    .then(remote => { if (remote) { localStorage.setItem(this.STORAGE_KEY, JSON.stringify(remote)) } })
+    .catch(() => {})
+}
+catch {}
   cloudDatabase.getInstallationPricing()
     .then((remote) => { if (remote) { localStorage.setItem(this.STORAGE_KEY, JSON.stringify(remote)) } })
     .catch(() => {})
 }
 
-  /* init async moved to promise chain */
-    const remote = await cloudDatabase.getInstallationPricing()
-    if (remote) {
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(remote))
-    }
-  })()
-}
+  }
   /**
    * الحصول على أسعار التركيب
    */
