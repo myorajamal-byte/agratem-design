@@ -49,6 +49,7 @@ private initializePricingFromDB() {
    * الحصول على قائمة الأسعار
    */
   
+
 getPricing(): PriceList | null {
   try {
     const storedPricing = localStorage.getItem(this.PRICING_STORAGE_KEY)

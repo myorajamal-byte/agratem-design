@@ -74,18 +74,6 @@ private initializeDefaults() {
     }
   })()
 }
-
-    // Hydrate from cloud (Netlify KV) asynchronously
-    ;(async () => {
-      const remote = await cloudDatabase.getInstallationPricing()
-      if (remote) {
-        // استبدال أي بيانات تجريبية ببيانات القاعدة
-        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(remote))
-        jsonDatabase.saveInstallationPricing(remote)
-      }
-    })()
-  }
-
   /**
    * الحصول على أسعار التركيب
    */

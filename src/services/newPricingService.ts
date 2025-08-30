@@ -148,7 +148,6 @@ private initializeDefaults() {
         const remote = await cloudDatabase.getRentalPricing()
         if (remote) {
           localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(remote))
-          jsonDatabase.saveRentalPricing(remote)
         }
       } catch {
         // ignore
