@@ -68,7 +68,8 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
   }, [])
 
   const loadData = async () => {
-    setUsers(authService.getUsers())
+    const fetchedUsers = await authService.fetchUsers()
+    setUsers(fetchedUsers.length ? fetchedUsers : authService.getUsers())
     setPermissions(authService.getPermissions())
 
     try {
@@ -113,7 +114,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
     }
 
     setLoading(true)
-    const result = authService.addUser({
+    const result = await authService.addUser({
       username: newUser.username,
       email: newUser.email,
       role: newUser.role,
@@ -138,7 +139,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
     if (!editingUser) return
 
     setLoading(true)
-    const result = authService.updateUser(editingUser)
+    const result = await authService.updateUser(editingUser)
 
     if (result.success) {
       setSuccess('تم تحديث المستخدم بنجاح')
@@ -167,7 +168,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
     }
 
     setLoading(true)
-    const result = authService.updatePassword(username, passwordForm.newPassword)
+    const result = await authService.updatePassword(username, passwordForm.newPassword)
 
     if (result.success) {
       setSuccess('تم تحديث كلمة المرور بنجاح')
@@ -183,7 +184,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
     if (!window.confirm('هل أنت متأكد من حذف هذا المستخدم؟')) return
 
     setLoading(true)
-    const result = authService.deleteUser(userId)
+    const result = await authService.deleteUser(userId)
 
     if (result.success) {
       setSuccess('تم حذف المستخدم بنجاح')

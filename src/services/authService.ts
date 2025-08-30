@@ -160,14 +160,17 @@ class AuthService {
     }
   }
 
-  async fetchUsers(): Promise<User[]> {
-    if (!supabaseClient) return this.getUsers()
-    const { data, error } = await supabaseClient.from('users').select('*').order('created_at', { ascending: false })
-    if (error || !data) return []
-    const users = (data as unknown as UserRow[]).map(mapRowToUser)
-    localStorage.setItem(this.USERS_KEY, JSON.stringify(users))
-    return users
-  }
+  
+async fetchUsers(): Promise<User[]> {
+  if (!supabaseClient) return this.getUsers()
+  const { data, error } = await supabaseClient.from('users').select('*')
+  if (error || !data) return []
+  const rows = data as unknown as UserRow[]
+  rows.sort((a, b) => new Date(b.created_at || '').getTime() - new Date(a.created_at || '').getTime())
+  const users = rows.map(mapRowToUser)
+  localStorage.setItem(this.USERS_KEY, JSON.stringify(users))
+  return users
+}
 
   getPasswords(): Record<string, string> {
     try {
