@@ -25,5 +25,12 @@ export const sizesDatabase = {
     const rows = sizes.map((size) => ({ size }))
     const { error } = await supabase.from('sizes').insert(rows as any)
     return !error
+  },
+  async saveSize(size: string): Promise<boolean> {
+    if (!supabase) return false
+    const { error } = await supabase.from('sizes').upsert([{ size }], { onConflict: 'size' } as any)
+    // ignore unique violation
+    if (error && (error as any).code !== '23505') return false
+    return true
   }
 }
