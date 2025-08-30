@@ -1,7 +1,6 @@
 import { PriceList, PricingZone, BillboardSize, QuoteItem, Quote, CustomerType, PackageDuration, PriceListType } from '@/types'
 import { formatGregorianDate } from '@/lib/dateUtils'
 import { cloudDatabase } from './cloudDatabase'
-import { jsonDatabase } from './jsonDatabase'
 import { dynamicPricingService } from './dynamicPricingService'
 
 class PricingService {
@@ -216,7 +215,7 @@ class PricingService {
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>عرض سعر - الفارس الذهبي</title>
+<title>��رض سعر - الفارس الذهبي</title>
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   body{font-family:'Tajawal','Cairo','Arial',sans-serif;direction:rtl;color:#000}
@@ -245,7 +244,7 @@ class PricingService {
   <table>
     <thead>
       <tr>
-        <th>م</th><th>اسم اللوحة</th><th>الموقع</th><th>المقاس</th><th>المنطقة</th><th>السعر/شهر</th><th>المدة</th><th>الإجمالي</th>
+        <th>م</th><th>ا��م اللوحة</th><th>الموقع</th><th>المقاس</th><th>المنطقة</th><th>السعر/شهر</th><th>المدة</th><th>الإجمالي</th>
       </tr>
     </thead>
     <tbody>
