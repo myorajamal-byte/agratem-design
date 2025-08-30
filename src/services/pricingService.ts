@@ -24,15 +24,7 @@ class PricingService {
   }
 
   private initializePricingFromDB() {
-    try {
-      void jsonDatabase.ensurePreloaded()
-    } catch {}
-    if (!localStorage.getItem(this.PRICING_STORAGE_KEY)) {
-      const cached = jsonDatabase.getRentalPricing()
-      if (cached) {
-        try { localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(cached)) } catch {}
-      }
-    }
+    try { localStorage.removeItem(this.PRICING_STORAGE_KEY) } catch {}
     void this.hydrateFromCloud()
   }
 
@@ -40,10 +32,8 @@ class PricingService {
     try {
       const stored = localStorage.getItem(this.PRICING_STORAGE_KEY)
       if (stored) return JSON.parse(stored)
-      const cached = jsonDatabase.getRentalPricing()
-      if (cached) return cached
     } catch {}
-    return { zones: {}, packages: this.getDefaultPackages(), currency: 'د.ل' }
+    return { zones: {}, packages: [], currency: 'د.ل' }
   }
 
   updatePricing(pricing: PriceList): { success: boolean; error?: string } {
@@ -99,17 +89,10 @@ class PricingService {
 
   getPackages(): PackageDuration[] {
     const pricing = this.getPricing()
-    return pricing.packages?.length ? pricing.packages : this.getDefaultPackages()
+    return pricing.packages || []
   }
 
-  private getDefaultPackages(): PackageDuration[] {
-    return [
-      { value: 1, unit: 'month', label: 'شهر واحد', discount: 0 },
-      { value: 3, unit: 'months', label: '3 أشهر', discount: 5 },
-      { value: 6, unit: 'months', label: '6 أشهر', discount: 10 },
-      { value: 12, unit: 'year', label: 'سنة كاملة', discount: 20 }
-    ]
-  }
+  private getDefaultPackages(): PackageDuration[] { return [] }
 
   calculatePriceWithDiscount(basePrice: number, packageDuration: PackageDuration) {
     const discountAmount = (basePrice * packageDuration.discount) / 100
@@ -215,7 +198,7 @@ class PricingService {
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>��رض سعر - الفارس الذهبي</title>
+<title>عرض سعر - الفارس الذهبي</title>
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   body{font-family:'Tajawal','Cairo','Arial',sans-serif;direction:rtl;color:#000}
@@ -244,7 +227,7 @@ class PricingService {
   <table>
     <thead>
       <tr>
-        <th>م</th><th>ا��م اللوحة</th><th>الموقع</th><th>المقاس</th><th>المنطقة</th><th>السعر/شهر</th><th>المدة</th><th>الإجمالي</th>
+        <th>م</th><th>اسم اللوحة</th><th>الموقع</th><th>المقاس</th><th>المنطقة</th><th>السعر/شهر</th><th>المدة</th><th>الإجمالي</th>
       </tr>
     </thead>
     <tbody>
