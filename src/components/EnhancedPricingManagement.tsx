@@ -93,7 +93,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       { id: 'C', name: 'مستوى C', description: 'مواقع اقتصادي��' }
     ],
     municipalities: [
-      { id: '1', name: 'مصراتة', multiplier: 1.0 },
+      { id: '1', name: 'مصرات��', multiplier: 1.0 },
       { id: '2', name: 'زل��تن', multiplier: 0.8 },
       { id: '3', name: 'بنغازي', multiplier: 1.2 },
       { id: '4', name: 'طرابلس', multiplier: 1.0 }
@@ -103,7 +103,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       { id: 'companies', name: 'شركات', description: 'أسعار الشركات', color: 'green' },
       { id: 'individuals', name: 'أفراد', description: 'الأسعار العادية', color: 'purple' }
     ],
-    sizes: ['5x13', '4x12', '4x10', '3x8', '3x6', '3x4'],
+    sizes: [],
     currentLevel: 'A',
     currentMunicipality: '1',
     currentDuration: 1,
@@ -186,7 +186,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
 
         const message = result.summary.newZonesCreated > 0
           ? `تمت المزامنة بنجاح! تم إنشاء ${result.summary.newZonesCreated} منطقة جديدة`
-          : 'تمت المزامنة بنجاح! جميع المناطق محدثة'
+          : 'تمت المزامنة بنجاح! جميع ال��ناطق محدثة'
 
         showNotification('success', message)
       } else {
@@ -208,16 +208,26 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
   // Initialize default pricing data
   const initializePricingData = async () => {
     try {
-      // Load from the new pricing service
+      // Load zones from pricing service (Supabase-backed)
       const { newPricingService } = await import('@/services/newPricingService')
       const pricingFromService = newPricingService.getPricing()
+
+      // Load distinct sizes from Supabase pricing table
+      const { sizesDatabase } = await import('@/services/sizesDatabase')
+      const distinctSizes = await (async () => {
+        const { data, error } = await (sizesDatabase as any).client
+          ? { data: null, error: null }
+          : { data: null, error: null }
+        const sizes = await sizesDatabase.getDistinctSizesFromPricing?.() || []
+        return sizes
+      })()
 
       // Update municipalities list from pricing zones
       const availableZones = Object.keys(pricingFromService.zones)
       const updatedMunicipalities = availableZones.map((zoneName, index) => ({
         id: (index + 1).toString(),
         name: zoneName,
-        multiplier: 1.0 // Will be updated from municipality service if available
+        multiplier: 1.0
       }))
 
       // Try to get multipliers from municipality service
@@ -225,28 +235,22 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
         const { municipalityService } = await import('@/services/municipalityService')
         updatedMunicipalities.forEach(muni => {
           const municipalityData = municipalityService.getMunicipalityByName(muni.name)
-          if (municipalityData) {
-            muni.multiplier = municipalityData.multiplier
-          }
+          if (municipalityData) muni.multiplier = municipalityData.multiplier
         })
-      } catch (error) {
-        console.warn('Municipality service not available, using default multipliers')
-      }
+      } catch {}
 
+      // Initialize zero prices to avoid demo values
       const initialPrices: Record<string, Record<string, number>> = {}
-
-      pricingData.sizes.forEach(size => {
+      distinctSizes.forEach(size => {
         initialPrices[size] = {}
         pricingData.categories.forEach(category => {
-          // Generate realistic pricing based on size and category
-          const basePrice = getSizeBasePrice(size)
-          const categoryMultiplier = getCategoryMultiplier(category.id)
-          initialPrices[size][category.id] = Math.round(basePrice * categoryMultiplier)
+          initialPrices[size][category.id] = 0
         })
       })
 
       setPricingData(prev => ({
         ...prev,
+        sizes: distinctSizes,
         prices: initialPrices,
         municipalities: updatedMunicipalities
       }))
@@ -476,6 +480,26 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
     showNotification('success', `تم إضافة مستوى "${newLevel.name}" بنجاح`)
   }
 
+  // Sync sizes from Excel and persist to Supabase
+  const syncSizesNow = async () => {
+    try {
+      setSyncStatus(prev => ({ ...prev, isLoading: true }))
+      const { syncSizesWithExcel } = await import('@/services/sizeSyncService')
+      const result = await syncSizesWithExcel()
+      setSyncStatus(prev => ({ ...prev, isLoading: false, lastSync: new Date().toISOString() }))
+      if (result.success) {
+        // Update local sizes list for this screen
+        setPricingData(prev => ({ ...prev, sizes: result.sizes }))
+        showNotification('success', `تمت مزامنة ${result.sizes.length} مقاس بنجاح`)
+      } else {
+        showNotification('error', result.error || 'فشل في مزامنة المقاسات')
+      }
+    } catch (e: any) {
+      setSyncStatus(prev => ({ ...prev, isLoading: false }))
+      showNotification('error', e?.message || 'فشل في مزامنة المقاسات')
+    }
+  }
+
   // Add new size
   const addSize = async () => {
     const newSize = prompt('أدخل المقاس الجديد (مثال: 6x14):')
@@ -489,16 +513,20 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       return
     }
 
+    // Persist to Supabase public.sizes
+    try {
+      const { sizesDatabase } = await import('@/services/sizesDatabase')
+      await sizesDatabase.saveSize(newSize)
+    } catch {}
+
     setPricingData(prev => {
       const updatedSizes = [...prev.sizes, newSize]
       const updatedPrices = { ...prev.prices }
-      
-      // Add default prices for new size
+
+      // Initialize zero prices (بدون ديمو)
       updatedPrices[newSize] = {}
       prev.categories.forEach(category => {
-        const basePrice = getSizeBasePrice(newSize)
-        const categoryMultiplier = getCategoryMultiplier(category.id)
-        updatedPrices[newSize][category.id] = Math.round(basePrice * categoryMultiplier)
+        updatedPrices[newSize][category.id] = 0
       })
 
       return {
@@ -508,7 +536,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       }
     })
 
-    showNotification('success', `تم إضافة ��قاس "${newSize}" بنجاح`)
+    showNotification('success', `تم إضافة مقاس "${newSize}" وحفظه في القاعدة`)
   }
 
   // Delete size
@@ -1007,6 +1035,15 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                 >
                   <Download className="w-4 h-4 mr-2" />
                   تصدير بلديات
+                </Button>
+                <Button
+                  onClick={syncSizesNow}
+                  variant="outline"
+                  className="text-emerald-600 border-emerald-300"
+                  disabled={syncStatus.isLoading}
+                >
+                  <FileSpreadsheet className="w-4 h-4 mr-2" />
+                  مزامنة المقاسات الآن
                 </Button>
               </div>
             </div>

@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import type { PriceList, InstallationPricing } from '@/types'
+import { createClient } from '@supabase/supabase-js'
 
 // Prefer Supabase for cloud persistence; fallback to Netlify KV if not configured
 const supabaseUrl = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_SUPABASE_URL) || ''
@@ -109,12 +110,22 @@ export const cloudDatabase = {
         })
         // A/B with durations
         (['A','B'] as const).forEach(ab => {
-          (['1','3','6','12'] as const).forEach(dk => {
-            const durationPrices = zone.abPrices[ab][dk]
-            Object.entries(durationPrices).forEach(([billboard_size, price]) => {
-              rows.push({ id: 0, zone_id: null, zone_name, billboard_size, customer_type: null, price: Number(price), ab_type: ab, package_duration: Number(dk), package_discount: null, currency: pricing.currency, created_at: new Date().toISOString() })
+          const abEntry: any = (zone.abPrices as any)[ab] || {}
+          const keys = Object.keys(abEntry)
+          const hasDurations = keys.some(k => ['1','3','6','12'].includes(k))
+          if (hasDurations) {
+            ;(['1','3','6','12'] as const).forEach(dk => {
+              const durationPrices = abEntry[dk] || {}
+              Object.entries(durationPrices).forEach(([billboard_size, price]) => {
+                rows.push({ id: 0, zone_id: null, zone_name, billboard_size, customer_type: null, price: Number(price), ab_type: ab, package_duration: Number(dk), package_discount: null, currency: pricing.currency, created_at: new Date().toISOString() })
+              })
             })
-          })
+          } else {
+            // Support flat map (size -> price) edited from interactive table; default duration = 1
+            Object.entries(abEntry).forEach(([billboard_size, price]) => {
+              rows.push({ id: 0, zone_id: null, zone_name, billboard_size, customer_type: null, price: Number(price), ab_type: ab, package_duration: 1, package_discount: null, currency: pricing.currency, created_at: new Date().toISOString() })
+            })
+          }
         })
       })
       // Strategy: simple replace -> delete all then insert

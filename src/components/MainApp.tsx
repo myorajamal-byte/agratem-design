@@ -20,6 +20,7 @@ import BookingMode from "@/components/BookingMode"
 import PricingDurationSelector from "@/components/PricingDurationSelector"
 import { loadBillboardsFromExcel } from "@/services/billboardService"
 import { clientService } from "@/services/clientService"
+import { sizesDatabase } from "@/services/sizesDatabase"
 import { Billboard, PackageDuration } from "@/types"
 import { useAuth } from "@/contexts/AuthContext"
 import { hybridSystemTest } from "@/utils/hybridSystemTest"
@@ -39,6 +40,7 @@ export default function MainApp() {
   const [showMap, setShowMap] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const [loading, setLoading] = useState(true)
+  const [sizeOptions, setSizeOptions] = useState<string[]>([])
   const [selectedBillboards, setSelectedBillboards] = useState<Set<string>>(new Set())
   const [showEmailDialog, setShowEmailDialog] = useState(false)
   const [customerEmail, setCustomerEmail] = useState("")
@@ -81,6 +83,23 @@ export default function MainApp() {
 
     loadData()
   }, [user])
+
+  useEffect(() => {
+    const loadSizes = async () => {
+      try {
+        let sizes: string[] = []
+        try { sizes = await sizesDatabase.getSizes() } catch {}
+        if (!sizes || sizes.length === 0) {
+          try { sizes = await sizesDatabase.getDistinctSizesFromPricing() } catch {}
+        }
+        if (!sizes || sizes.length === 0) {
+          sizes = Array.from(new Set(billboards.map((b) => (b.size || '').toString().trim()).filter(Boolean)))
+        }
+        setSizeOptions(sizes)
+      } catch {}
+    }
+    loadSizes()
+  }, [billboards])
 
   useEffect(() => {
     let filtered = billboards
@@ -134,6 +153,7 @@ export default function MainApp() {
 
   const municipalities = Array.from(new Set(billboards.map((b) => b.municipality)))
   const sizes = Array.from(new Set(billboards.map((b) => b.size)))
+  const sizesForFilters = sizeOptions.length ? sizeOptions : sizes
   const contracts = clientService.getUniqueContracts(billboards)
 
   const totalPages = Math.ceil(filteredBillboards.length / itemsPerPage)
@@ -590,7 +610,7 @@ ${selectedBillboardsData
           showMap={showMap}
           setShowMap={setShowMap}
           municipalities={municipalities}
-          sizes={sizes}
+          sizes={sizesForFilters}
           contracts={contracts}
           onPrint={handlePrint}
         />
@@ -882,7 +902,7 @@ ${selectedBillboardsData
         <EnhancedPricingManagement onClose={() => setShowPricingManagement(false)} />
       )}
 
-      {/* نافذة إدارة أسعار التركيب */}
+      {/* نافذة إدارة ��سعار التركيب */}
       {showInstallationPricing && user?.permissions.some(p => p.name === 'admin_access') && (
         <InstallationPricingManagement onClose={() => setShowInstallationPricing(false)} />
       )}
