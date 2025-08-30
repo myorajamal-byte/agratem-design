@@ -20,7 +20,7 @@ class PricingService {
 private initializePricingFromDB() {
   // Clear any local/demo data; hydrate only from Supabase
   try { localStorage.removeItem(this.PRICING_STORAGE_KEY) } catch {}
-  void (async () => {
+  ;(async () => {
     try {
       const remote = await cloudDatabase.getRentalPricing()
       if (remote) {
@@ -31,7 +31,7 @@ private initializePricingFromDB() {
 }
 
     // محاولة التحميل من قاعدة بيانات Supabase / السحابة
-    void (async () => {
+    ;(async () => {
       try {
         const remote = await cloudDatabase.getRentalPricing()
         if (remote) {
