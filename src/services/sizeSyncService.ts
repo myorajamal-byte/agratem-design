@@ -18,13 +18,26 @@ export async function extractUniqueSizesFromExcel(): Promise<string[]> {
 
 export async function syncSizesWithExcel(): Promise<{ success: boolean; sizes: string[]; error?: string }> {
   try {
-    const sizes = await extractUniqueSizesFromExcel()
-    if (sizes.length === 0) {
-      return { success: false, sizes, error: 'لم يتم العثور على مقاسات صحيحة في ملف الإكسل' }
+    // حاول أولاً القراءة مباشرة من جدول pricing (DISTINCT)
+    let sizes: string[] = []
+    try {
+      const { sizesDatabase } = await import('./sizesDatabase')
+      sizes = await sizesDatabase.getDistinctSizesFromPricing()
+    } catch {}
+
+    // إن لم توجد بيانات، استخدم ملف الإكسل كبديل
+    if (!sizes || sizes.length === 0) {
+      sizes = await extractUniqueSizesFromExcel()
+      if (!sizes || sizes.length === 0) {
+        return { success: false, sizes: [], error: 'لا توجد مقاسات في قاعدة البيانات أو ملف الإكسل' }
+      }
     }
 
     // Save to Supabase (sizes table)
-    try { await sizesDatabase.saveSizes(sizes) } catch {}
+    try {
+      const { sizesDatabase } = await import('./sizesDatabase')
+      await sizesDatabase.saveSizes(sizes)
+    } catch {}
 
     // Update local service list
     newPricingService.setSizes(sizes as any)
