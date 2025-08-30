@@ -1,6 +1,5 @@
 import { PriceList, BillboardSize, QuoteItem, Quote, CustomerType, PackageDuration, PriceListType, SizeManagement, DurationPricing, PricingZone, CustomerTypePricing, ABPricing } from '@/types'
 import { formatGregorianDate } from '@/lib/dateUtils'
-import { jsonDatabase } from './jsonDatabase'
 import { cloudDatabase } from './cloudDatabase'
 
 // ا��مقاسات الافتراضية
@@ -126,19 +125,22 @@ class NewPricingService implements SizeManagement {
   /**
    * تهيئة البيانات الافتراضية
    */
-  private initializeDefaults() {
-    // Prefer rental pricing from JSON DB if available
-    const dbPricing = jsonDatabase.getRentalPricing()
-    if (dbPricing) {
-      localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(dbPricing))
-    } else if (!localStorage.getItem(this.PRICING_STORAGE_KEY)) {
-      // لا تقم بكتابة أسعار تجريبية إذا لم تكن موجودة بيانات حقيقية
-      // اتركه فارغاً ليتم جلبه من Supabase أو يقوم المستخدم بإدخاله
-      // localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(DEFAULT_PRICING_NEW))
-    }
-    if (!localStorage.getItem(this.SIZES_STORAGE_KEY)) {
-      localStorage.setItem(this.SIZES_STORAGE_KEY, JSON.stringify(DEFAULT_SIZES))
-    }
+  
+private initializeDefaults() {
+  // Clear any local/demo pricing; hydrate only from Supabase if available
+  try { localStorage.removeItem(this.PRICING_STORAGE_KEY) } catch {}
+  if (!localStorage.getItem(this.SIZES_STORAGE_KEY)) {
+    localStorage.setItem(this.SIZES_STORAGE_KEY, JSON.stringify(DEFAULT_SIZES))
+  }
+  void (async () => {
+    try {
+      const remote = await cloudDatabase.getRentalPricing()
+      if (remote) {
+        localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(remote))
+      }
+    } catch {}
+  })()
+}
 
     // Try hydrate from cloud asynchronously
     void (async () => {
@@ -225,9 +227,7 @@ class NewPricingService implements SizeManagement {
   updatePricing(pricing: PriceList): { success: boolean; error?: string } {
     try {
       localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(pricing))
-      // Persist to JSON DB cache (exportable)
-      jsonDatabase.saveRentalPricing(pricing)
-      // Persist to cloud (Netlify KV), non-blocking
+      // Persist to cloud (Supabase), non-blocking
       void cloudDatabase.saveRentalPricing(pricing)
       return { success: true }
     } catch (error) {

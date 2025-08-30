@@ -1,7 +1,5 @@
 import { PriceList, PricingZone, BillboardSize, QuoteItem, Quote, CustomerType, PackageDuration, PriceListType } from '@/types'
 import { formatGregorianDate } from '@/lib/dateUtils'
-import { dynamicPricingService } from './dynamicPricingService'
-import { jsonDatabase } from './jsonDatabase'
 import { cloudDatabase } from './cloudDatabase'
 
 /**
@@ -18,12 +16,19 @@ class PricingService {
   /**
    * تهيئة الأسعار من قاعدة البيانات فقط
    */
-  private initializePricingFromDB() {
-    // تحميل الأسعار من قاعدة JSON المحلية
-    const dbPricing = jsonDatabase.getRentalPricing()
-    if (dbPricing) {
-      localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(dbPricing))
-    }
+  
+private initializePricingFromDB() {
+  // Clear any local/demo data; hydrate only from Supabase
+  try { localStorage.removeItem(this.PRICING_STORAGE_KEY) } catch {}
+  void (async () => {
+    try {
+      const remote = await cloudDatabase.getRentalPricing()
+      if (remote) {
+        localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(remote))
+      }
+    } catch {}
+  })()
+}
 
     // محاولة التحميل من قاعدة بيانات Supabase / السحابة
     void (async () => {
@@ -43,14 +48,15 @@ class PricingService {
   /**
    * الحصول على قائمة الأسعار
    */
-  getPricing(): PriceList | null {
-    try {
-      const storedPricing = localStorage.getItem(this.PRICING_STORAGE_KEY)
-      const useDynamicPricing = localStorage.getItem('al-fares-use-dynamic-pricing') === 'true'
-
-      if (useDynamicPricing) {
-        return dynamicPricingService.generateDynamicPriceList()
-      }
+  
+getPricing(): PriceList | null {
+  try {
+    const storedPricing = localStorage.getItem(this.PRICING_STORAGE_KEY)
+    return storedPricing ? JSON.parse(storedPricing) : null
+  } catch {
+    return null
+  }
+}
 
       if (storedPricing) return JSON.parse(storedPricing)
       const dbPricing = jsonDatabase.getRentalPricing()
@@ -67,7 +73,6 @@ class PricingService {
   updatePricing(pricing: PriceList): { success: boolean; error?: string } {
     try {
       localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(pricing))
-      jsonDatabase.saveRentalPricing(pricing)
       void cloudDatabase.saveRentalPricing(pricing)
       return { success: true }
     } catch (error) {
@@ -80,13 +85,6 @@ class PricingService {
    * الحصول على سعر لوحة معينة حسب فئة الزبون
    */
   getBillboardPrice(size: BillboardSize, zone: string, customerType: CustomerType = 'individuals', municipality?: string): number {
-    const useDynamicPricing = localStorage.getItem('al-fares-use-dynamic-pricing') === 'true'
-
-    if (useDynamicPricing && municipality) {
-      const dynamicPrice = dynamicPricingService.getPriceForMunicipalityAndSize(municipality, size, customerType)
-      if (dynamicPrice !== null) return dynamicPrice
-    }
-
     const pricing = this.getPricing()
     if (!pricing) return 0
     const zoneData = pricing.zones[zone]
