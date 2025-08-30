@@ -16,7 +16,6 @@ class PricingService {
       const remote = await cloudDatabase.getRentalPricing()
       if (remote) {
         localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(remote))
-        jsonDatabase.saveRentalPricing(remote)
       }
     } catch {
       // ignore
@@ -39,7 +38,6 @@ class PricingService {
   updatePricing(pricing: PriceList): { success: boolean; error?: string } {
     try {
       localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(pricing))
-      try { jsonDatabase.saveRentalPricing(pricing) } catch {}
       try { void cloudDatabase.saveRentalPricing(pricing) } catch {}
       return { success: true }
     } catch (error) {
