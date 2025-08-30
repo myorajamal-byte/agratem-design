@@ -115,16 +115,8 @@ class PricingService {
   }
 
   addPricingZoneForMunicipality(municipality: string, baseZone?: string): boolean {
-    const pricing = this.getPricing()
-    const zoneName = municipality.trim()
-    if (!zoneName) return false
-    if (pricing.zones[zoneName]) return true
-    let base: PricingZone | undefined
-    if (baseZone && pricing.zones[baseZone]) base = pricing.zones[baseZone]
-    else if (Object.keys(pricing.zones).length) base = pricing.zones[Object.keys(pricing.zones)[0]]
-    if (!base) return false
-    pricing.zones[zoneName] = { ...base, name: zoneName }
-    return this.updatePricing(pricing).success
+    // ممنوع إنشاء بيانات محلية افتراضية؛ البيانات يجب أن تأتي من Supabase فقط
+    return false
   }
 
   calculateQuoteTotal(items: QuoteItem[]): number {
