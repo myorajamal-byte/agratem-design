@@ -126,34 +126,31 @@ class NewPricingService implements SizeManagement {
    * تهيئة البيانات الافتراضية
    */
   
+
+
 private initializeDefaults() {
-  // Clear any local/demo pricing; hydrate only from Supabase if available
   try { localStorage.removeItem(this.PRICING_STORAGE_KEY) } catch {}
+  cloudDatabase.getRentalPricing()
+    .then(remote => { if (remote) { localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(remote)) } })
+    .catch(() => {})
+}
+catch {}
+  if (!localStorage.getItem(this.SIZES_STORAGE_KEY)) {
+    const DEFAULT_SIZES: any = ['5x13','4x12','4x10','3x8','3x6','3x4']
+    localStorage.setItem(this.SIZES_STORAGE_KEY, JSON.stringify(DEFAULT_SIZES))
+  }
+  cloudDatabase.getRentalPricing()
+    .then((remote) => { if (remote) { localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(remote)) } })
+    .catch(() => {})
+}
+
   if (!localStorage.getItem(this.SIZES_STORAGE_KEY)) {
     localStorage.setItem(this.SIZES_STORAGE_KEY, JSON.stringify(DEFAULT_SIZES))
   }
-  ;(async () => {
-    try {
-      const remote = await cloudDatabase.getRentalPricing()
-      if (remote) {
-        localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(remote))
-      }
-    } catch {}
-  })()
-}
+  }
 
     // Try hydrate from cloud asynchronously
-    ;(async () => {
-      try {
-        const remote = await cloudDatabase.getRentalPricing()
-        if (remote) {
-          localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(remote))
-        }
-      } catch {
-        // ignore
-      }
-    })()
-  }
+    }
 
   /**
    * تحميل المقاسا�� من التخزين
