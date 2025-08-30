@@ -64,10 +64,15 @@ class InstallationPricingService {
    * تهيئة البيانات الافتراضية
    */
   
+
 private initializeDefaults() {
-  // Clear any local/demo installation pricing; hydrate only from Supabase
   try { localStorage.removeItem(this.STORAGE_KEY) } catch {}
-  ;(async () => {
+  cloudDatabase.getInstallationPricing()
+    .then((remote) => { if (remote) { localStorage.setItem(this.STORAGE_KEY, JSON.stringify(remote)) } })
+    .catch(() => {})
+}
+
+  /* init async moved to promise chain */
     const remote = await cloudDatabase.getInstallationPricing()
     if (remote) {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(remote))
