@@ -144,7 +144,7 @@ private initializeDefaults() {
 
 
   /**
-   * تحميل المقاسا�� من التخزين
+   * ��حميل المقاسا�� من التخزين
    */
   private loadSizes() {
     try {
@@ -160,6 +160,12 @@ private initializeDefaults() {
    */
   private saveSizes() {
     localStorage.setItem(this.SIZES_STORAGE_KEY, JSON.stringify(this.sizes))
+  }
+
+  // استبدال قائمة المقاسات كاملةً وتخزينها
+  public setSizes(sizes: BillboardSize[]) {
+    this.sizes = Array.from(new Set(sizes))
+    this.saveSizes()
   }
 
   /**
@@ -259,7 +265,7 @@ private initializeDefaults() {
   }
 
   /**
-   * الحصول على سعر لوحة حسب فئة الزبون (للنظام الق��يم)
+   * الحصول على سعر لوحة حسب فئة الزبون (للنظام القديم)
    */
   getBillboardPrice(size: BillboardSize, zone: string, customerType: CustomerType = 'individuals', municipality?: string): number {
     const pricing = this.getPricing()
@@ -435,7 +441,7 @@ private initializeDefaults() {
   }
 
   /**
-   * إضافة منطقة سعر��ة جديدة بناءً على البلدية
+   * إضافة منطقة سعرية جديدة بناءً على البلدية
    */
   addPricingZoneForMunicipality(municipality: string, baseZone: string = 'مصراتة'): boolean {
     // ممنوع إنشاء بيانات تجريبية تلقائياً
@@ -447,7 +453,7 @@ private initializeDefaults() {
    */
   async syncWithExcelData(): Promise<{ success: boolean; summary?: any; error?: string }> {
     try {
-      // ��ستيراد خدمة إدارة المناطق التلقائية
+      // ��ستيراد خدم�� إدارة المناطق التلقائية
       const { pricingZoneAutoManager } = await import('./pricingZoneAutoManager')
 
       // تنفيذ المزامنة
