@@ -24,7 +24,7 @@ export async function syncSizesWithExcel(): Promise<{ success: boolean; sizes: s
     }
 
     // Save to Supabase (sizes table)
-    try { await cloudDatabase.saveSizes(sizes) } catch {}
+    try { await sizesDatabase.saveSizes(sizes) } catch {}
 
     // Update local service list
     newPricingService.setSizes(sizes as any)
