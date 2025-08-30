@@ -476,9 +476,29 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
     showNotification('success', `تم إضافة مستوى "${newLevel.name}" بنجاح`)
   }
 
+  // Sync sizes from Excel and persist to Supabase
+  const syncSizesNow = async () => {
+    try {
+      setSyncStatus(prev => ({ ...prev, isLoading: true }))
+      const { syncSizesWithExcel } = await import('@/services/sizeSyncService')
+      const result = await syncSizesWithExcel()
+      setSyncStatus(prev => ({ ...prev, isLoading: false, lastSync: new Date().toISOString() }))
+      if (result.success) {
+        // Update local sizes list for this screen
+        setPricingData(prev => ({ ...prev, sizes: result.sizes }))
+        showNotification('success', `تمت مزامنة ${result.sizes.length} مقاس بنجاح`)
+      } else {
+        showNotification('error', result.error || 'فشل في مزامنة المقاسات')
+      }
+    } catch (e: any) {
+      setSyncStatus(prev => ({ ...prev, isLoading: false }))
+      showNotification('error', e?.message || 'فشل في مزامنة المقاسات')
+    }
+  }
+
   // Add new size
   const addSize = async () => {
-    const newSize = prompt('أدخل المقاس الجديد (مثال: 6x14):')
+    const newSize = prompt('أدخل ا��مقاس الجديد (مثال: 6x14):')
     if (!newSize || !newSize.match(/^\d+x\d+$/)) {
       showNotification('error', 'يرجى إدخال مقاس صحيح بصيغة رقمxرقم')
       return
@@ -925,7 +945,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                     <div className="text-center">
                       <div className="font-bold text-blue-900">{syncStatus.totalMunicipalities || 0}</div>
-                      <div className="text-blue-700">إجمالي البلديات</div>
+                      <div className="text-blue-700">إجمالي الب��ديات</div>
                     </div>
                     <div className="text-center">
                       <div className="font-bold text-green-900">{syncStatus.existingZones || 0}</div>
@@ -1008,6 +1028,15 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                   <Download className="w-4 h-4 mr-2" />
                   تصدير بلديات
                 </Button>
+                <Button
+                  onClick={syncSizesNow}
+                  variant="outline"
+                  className="text-emerald-600 border-emerald-300"
+                  disabled={syncStatus.isLoading}
+                >
+                  <FileSpreadsheet className="w-4 h-4 mr-2" />
+                  مزامنة المقاسات الآن
+                </Button>
               </div>
             </div>
           </Card>
@@ -1026,7 +1055,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                       <div className="text-sm text-emerald-100 font-medium">حسب فئة العميل مع التحكم الكامل</div>
                     </div>
                     {selectedDuration?.unit === 'day' && (
-                      <Badge className="bg-amber-500 text-black text-sm font-bold px-3 py-2 rounded-full shadow-lg">حساب يومي</Badge>
+                      <Badge className="bg-amber-500 text-black text-sm font-bold px-3 py-2 rounded-full shadow-lg">حساب ��ومي</Badge>
                     )}
                   </h3>
                 </div>
@@ -1191,7 +1220,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                 <div className="text-sm text-gray-600">
                   <span className="font-semibold">إجمالي المقاسات:</span>
                   <Badge className="bg-blue-100 text-blue-800 mr-2">{pricingData.sizes.length}</Badge>
-                  <span className="font-semibold mr-4">إجمالي الفئات:</span>
+                  <span className="font-semibold mr-4">��جمالي الفئات:</span>
                   <Badge className="bg-green-100 text-green-800">{pricingData.categories.length}</Badge>
                 </div>
                 <Button
