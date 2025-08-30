@@ -18,22 +18,20 @@ class PricingService {
    */
   
 
+
 private initializePricingFromDB() {
   try { localStorage.removeItem(this.PRICING_STORAGE_KEY) } catch {}
+  cloudDatabase.getRentalPricing()
+    .then(remote => { if (remote) { localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(remote)) } })
+    .catch(() => {})
+}
+catch {}
   cloudDatabase.getRentalPricing()
     .then((remote) => { if (remote) { localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(remote)) } })
     .catch(() => {})
 }
 
-  /* init async moved to promise chain */
-    try {
-      const remote = await cloudDatabase.getRentalPricing()
-      if (remote) {
-        localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(remote))
-      }
-    } catch {}
-  })()
-}
+  }
   }
 
   /**
@@ -41,11 +39,16 @@ private initializePricingFromDB() {
    */
   
 
+
 getPricing(): PriceList | null {
   try {
     const storedPricing = localStorage.getItem(this.PRICING_STORAGE_KEY)
     return storedPricing ? JSON.parse(storedPricing) : null
   } catch {
+    return null
+  }
+}
+catch {
     return null
   }
 }
