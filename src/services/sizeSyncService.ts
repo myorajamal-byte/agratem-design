@@ -1,6 +1,6 @@
 import { newPricingService } from './newPricingService'
 import { loadBillboardsFromExcel } from './billboardService'
-import { cloudDatabase } from './cloudDatabase'
+import { sizesDatabase } from './sizesDatabase'
 
 function isValidSize(s: string): boolean {
   return /^\d+x\d+$/.test((s || '').toString().trim())
