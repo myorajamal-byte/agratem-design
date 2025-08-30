@@ -67,7 +67,7 @@ class InstallationPricingService {
 private initializeDefaults() {
   // Clear any local/demo installation pricing; hydrate only from Supabase
   try { localStorage.removeItem(this.STORAGE_KEY) } catch {}
-  void (async () => {
+  ;(async () => {
     const remote = await cloudDatabase.getInstallationPricing()
     if (remote) {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(remote))
@@ -76,7 +76,7 @@ private initializeDefaults() {
 }
 
     // Hydrate from cloud (Netlify KV) asynchronously
-    void (async () => {
+    ;(async () => {
       const remote = await cloudDatabase.getInstallationPricing()
       if (remote) {
         // استبدال أي بيانات تجريبية ببيانات القاعدة
