@@ -93,7 +93,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       { id: 'C', name: 'مستوى C', description: 'مواقع اقتصادي��' }
     ],
     municipalities: [
-      { id: '1', name: 'مصراتة', multiplier: 1.0 },
+      { id: '1', name: 'مصرات��', multiplier: 1.0 },
       { id: '2', name: 'زل��تن', multiplier: 0.8 },
       { id: '3', name: 'بنغازي', multiplier: 1.2 },
       { id: '4', name: 'طرابلس', multiplier: 1.0 }
@@ -186,7 +186,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
 
         const message = result.summary.newZonesCreated > 0
           ? `تمت المزامنة بنجاح! تم إنشاء ${result.summary.newZonesCreated} منطقة جديدة`
-          : 'تمت المزامنة بنجاح! جميع المناطق محدثة'
+          : 'تمت المزامنة بنجاح! جميع ال��ناطق محدثة'
 
         showNotification('success', message)
       } else {
@@ -509,20 +509,24 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
     }
 
     if (pricingData.sizes.includes(newSize)) {
-      showNotification('error', 'هذا ��لمقاس موجود بالفعل')
+      showNotification('error', 'هذا المقاس موجود بالفعل')
       return
     }
+
+    // Persist to Supabase public.sizes
+    try {
+      const { sizesDatabase } = await import('@/services/sizesDatabase')
+      await sizesDatabase.saveSize(newSize)
+    } catch {}
 
     setPricingData(prev => {
       const updatedSizes = [...prev.sizes, newSize]
       const updatedPrices = { ...prev.prices }
-      
-      // Add default prices for new size
+
+      // Initialize zero prices (بدون ديمو)
       updatedPrices[newSize] = {}
       prev.categories.forEach(category => {
-        const basePrice = getSizeBasePrice(newSize)
-        const categoryMultiplier = getCategoryMultiplier(category.id)
-        updatedPrices[newSize][category.id] = Math.round(basePrice * categoryMultiplier)
+        updatedPrices[newSize][category.id] = 0
       })
 
       return {
@@ -532,7 +536,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       }
     })
 
-    showNotification('success', `تم إضافة ��قاس "${newSize}" بنجاح`)
+    showNotification('success', `تم إضافة مقاس "${newSize}" وحفظه في القاعدة`)
   }
 
   // Delete size
@@ -824,7 +828,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
             <Card className="p-4">
               <h3 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
                 <Clock className="w-5 h-5" />
-                ال��دة الزمنية
+                المدة الزمنية
               </h3>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
                 {durationOptions.map((duration) => (
