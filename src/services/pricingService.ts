@@ -11,22 +11,23 @@ class PricingService {
     this.initializePricingFromDB()
   }
 
-  private async hydrateFromCloud() {
-    try {
-      const remote = await cloudDatabase.getRentalPricing()
-      if (remote) {
-        localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(remote))
-      }
-    } catch {
-      // ignore
-    }
-  }
-
+  /**
+   * تحميل الأسعار من Supabase وتخزينها محلياً
+   */
   private initializePricingFromDB() {
     try { localStorage.removeItem(this.PRICING_STORAGE_KEY) } catch {}
-    void this.hydrateFromCloud()
+    cloudDatabase.getRentalPricing()
+      .then(remote => {
+        if (remote) {
+          localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(remote))
+        }
+      })
+      .catch(() => {})
   }
 
+  /**
+   * الحصول على الأسعار المخزنة
+   */
   getPricing(): PriceList {
     try {
       const stored = localStorage.getItem(this.PRICING_STORAGE_KEY)
@@ -63,7 +64,6 @@ class PricingService {
     const pricing = this.getPricing()
     const zoneData = pricing.zones[zone]
     if (!zoneData || !zoneData.abPrices?.[priceList]) return 0
-    // default to 1-month pricing if durations exist
     const durationPrices = (zoneData.abPrices[priceList] as any)['1'] || (zoneData.abPrices as any)[priceList]
     const basePrice = durationPrices?.[size]
     if (!basePrice) return 0
@@ -108,13 +108,7 @@ class PricingService {
     for (const z of available) {
       if (z.toLowerCase().includes(lower) || lower.includes(z.toLowerCase())) return z
     }
-    this.addPricingZoneForMunicipality(zoneName)
-    return zoneName
-  }
-
-  addPricingZoneForMunicipality(municipality: string, baseZone?: string): boolean {
-    // ممنوع إنشاء بيانات محلية افتراضية؛ البيانات يجب أن تأتي من Supabase فقط
-    return false
+    return null
   }
 
   calculateQuoteTotal(items: QuoteItem[]): number {
@@ -246,7 +240,7 @@ class PricingService {
   getPriceListTypes(): Array<{ value: PriceListType; label: string }> {
     return [
       { value: 'A', label: 'مستوى 1 - سيتي A' },
-      { value: 'B', label: 'مستوى 2 - مسو��ين' },
+      { value: 'B', label: 'مستوى 2 - مسوقين' },
     ]
   }
 
@@ -256,7 +250,6 @@ class PricingService {
     const pricing = this.getPricing()
     const zone = pricing.zones[zoneName]
     if (!zone || !zone.abPrices) return null
-    // use 1-month duration if available
     const pricesA = (zone.abPrices.A as any)['1'] || (zone.abPrices as any).A
     const pricesB = (zone.abPrices.B as any)['1'] || (zone.abPrices as any).B
     const sizes = Array.from(new Set([...(Object.keys(pricesA||{})), ...(Object.keys(pricesB||{}))])) as BillboardSize[]

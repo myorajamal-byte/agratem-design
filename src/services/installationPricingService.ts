@@ -64,16 +64,21 @@ class InstallationPricingService {
    * تهيئة البيانات الافتراضية
    */
   
+
+
 private initializeDefaults() {
-  // Clear any local/demo installation pricing; hydrate only from Supabase
   try { localStorage.removeItem(this.STORAGE_KEY) } catch {}
-  ;(async () => {
-    const remote = await cloudDatabase.getInstallationPricing()
-    if (remote) {
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(remote))
-    }
-  })()
+  cloudDatabase.getInstallationPricing()
+    .then(remote => { if (remote) { localStorage.setItem(this.STORAGE_KEY, JSON.stringify(remote)) } })
+    .catch(() => {})
 }
+catch {}
+  cloudDatabase.getInstallationPricing()
+    .then((remote) => { if (remote) { localStorage.setItem(this.STORAGE_KEY, JSON.stringify(remote)) } })
+    .catch(() => {})
+}
+
+  }
   /**
    * الحصول على أسعار التركيب
    */
