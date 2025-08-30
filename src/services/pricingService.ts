@@ -17,10 +17,15 @@ class PricingService {
    * تهيئة الأسعار من قاعدة البيانات فقط
    */
   
+
 private initializePricingFromDB() {
-  // Clear any local/demo data; hydrate only from Supabase
   try { localStorage.removeItem(this.PRICING_STORAGE_KEY) } catch {}
-  ;(async () => {
+  cloudDatabase.getRentalPricing()
+    .then((remote) => { if (remote) { localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(remote)) } })
+    .catch(() => {})
+}
+
+  /* init async moved to promise chain */
     try {
       const remote = await cloudDatabase.getRentalPricing()
       if (remote) {
@@ -29,20 +34,6 @@ private initializePricingFromDB() {
     } catch {}
   })()
 }
-
-    // محاولة التحميل من قاعدة بيانات Supabase / السحابة
-    ;(async () => {
-      try {
-        const remote = await cloudDatabase.getRentalPricing()
-        if (remote) {
-          // إزالة أي أسعار تجريبية واستبدالها بالبيانات من القاعدة
-          localStorage.setItem(this.PRICING_STORAGE_KEY, JSON.stringify(remote))
-          jsonDatabase.saveRentalPricing(remote)
-        }
-      } catch {
-        // تجاهل الأخطاء وابقَ على البيانات المحلية إن وجدت
-      }
-    })()
   }
 
   /**
@@ -60,8 +51,7 @@ getPricing(): PriceList | null {
 }
 
       if (storedPricing) return JSON.parse(storedPricing)
-      const dbPricing = jsonDatabase.getRentalPricing()
-      if (dbPricing) return dbPricing
+      const dbPricing = if (dbPricing) return dbPricing
       return null
     } catch {
       return null
