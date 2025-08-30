@@ -103,7 +103,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       { id: 'companies', name: 'شركات', description: 'أسعار الشركات', color: 'green' },
       { id: 'individuals', name: 'أفراد', description: 'الأسعار العادية', color: 'purple' }
     ],
-    sizes: ['5x13', '4x12', '4x10', '3x8', '3x6', '3x4'],
+    sizes: [],
     currentLevel: 'A',
     currentMunicipality: '1',
     currentDuration: 1,
@@ -208,16 +208,26 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
   // Initialize default pricing data
   const initializePricingData = async () => {
     try {
-      // Load from the new pricing service
+      // Load zones from pricing service (Supabase-backed)
       const { newPricingService } = await import('@/services/newPricingService')
       const pricingFromService = newPricingService.getPricing()
+
+      // Load distinct sizes from Supabase pricing table
+      const { sizesDatabase } = await import('@/services/sizesDatabase')
+      const distinctSizes = await (async () => {
+        const { data, error } = await (sizesDatabase as any).client
+          ? { data: null, error: null }
+          : { data: null, error: null }
+        const sizes = await sizesDatabase.getDistinctSizesFromPricing?.() || []
+        return sizes
+      })()
 
       // Update municipalities list from pricing zones
       const availableZones = Object.keys(pricingFromService.zones)
       const updatedMunicipalities = availableZones.map((zoneName, index) => ({
         id: (index + 1).toString(),
         name: zoneName,
-        multiplier: 1.0 // Will be updated from municipality service if available
+        multiplier: 1.0
       }))
 
       // Try to get multipliers from municipality service
@@ -225,28 +235,22 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
         const { municipalityService } = await import('@/services/municipalityService')
         updatedMunicipalities.forEach(muni => {
           const municipalityData = municipalityService.getMunicipalityByName(muni.name)
-          if (municipalityData) {
-            muni.multiplier = municipalityData.multiplier
-          }
+          if (municipalityData) muni.multiplier = municipalityData.multiplier
         })
-      } catch (error) {
-        console.warn('Municipality service not available, using default multipliers')
-      }
+      } catch {}
 
+      // Initialize zero prices to avoid demo values
       const initialPrices: Record<string, Record<string, number>> = {}
-
-      pricingData.sizes.forEach(size => {
+      distinctSizes.forEach(size => {
         initialPrices[size] = {}
         pricingData.categories.forEach(category => {
-          // Generate realistic pricing based on size and category
-          const basePrice = getSizeBasePrice(size)
-          const categoryMultiplier = getCategoryMultiplier(category.id)
-          initialPrices[size][category.id] = Math.round(basePrice * categoryMultiplier)
+          initialPrices[size][category.id] = 0
         })
       })
 
       setPricingData(prev => ({
         ...prev,
+        sizes: distinctSizes,
         prices: initialPrices,
         municipalities: updatedMunicipalities
       }))
@@ -498,14 +502,14 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
 
   // Add new size
   const addSize = async () => {
-    const newSize = prompt('أدخل ا��مقاس الجديد (مثال: 6x14):')
+    const newSize = prompt('أدخل المقاس الجديد (مثال: 6x14):')
     if (!newSize || !newSize.match(/^\d+x\d+$/)) {
       showNotification('error', 'يرجى إدخال مقاس صحيح بصيغة رقمxرقم')
       return
     }
 
     if (pricingData.sizes.includes(newSize)) {
-      showNotification('error', 'هذا المقاس موجود بالفعل')
+      showNotification('error', 'هذا ��لمقاس موجود بالفعل')
       return
     }
 
@@ -820,7 +824,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
             <Card className="p-4">
               <h3 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
                 <Clock className="w-5 h-5" />
-                المدة الزمنية
+                ال��دة الزمنية
               </h3>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
                 {durationOptions.map((duration) => (
@@ -945,7 +949,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                     <div className="text-center">
                       <div className="font-bold text-blue-900">{syncStatus.totalMunicipalities || 0}</div>
-                      <div className="text-blue-700">إجمالي الب��ديات</div>
+                      <div className="text-blue-700">إجمالي البلديات</div>
                     </div>
                     <div className="text-center">
                       <div className="font-bold text-green-900">{syncStatus.existingZones || 0}</div>
@@ -1055,7 +1059,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                       <div className="text-sm text-emerald-100 font-medium">حسب فئة العميل مع التحكم الكامل</div>
                     </div>
                     {selectedDuration?.unit === 'day' && (
-                      <Badge className="bg-amber-500 text-black text-sm font-bold px-3 py-2 rounded-full shadow-lg">حساب ��ومي</Badge>
+                      <Badge className="bg-amber-500 text-black text-sm font-bold px-3 py-2 rounded-full shadow-lg">حساب يومي</Badge>
                     )}
                   </h3>
                 </div>
@@ -1220,7 +1224,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                 <div className="text-sm text-gray-600">
                   <span className="font-semibold">إجمالي المقاسات:</span>
                   <Badge className="bg-blue-100 text-blue-800 mr-2">{pricingData.sizes.length}</Badge>
-                  <span className="font-semibold mr-4">��جمالي الفئات:</span>
+                  <span className="font-semibold mr-4">إجمالي الفئات:</span>
                   <Badge className="bg-green-100 text-green-800">{pricingData.categories.length}</Badge>
                 </div>
                 <Button
