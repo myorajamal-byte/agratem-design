@@ -170,7 +170,8 @@ export const cloudDatabase = {
             const level = mapLevel(r['المستوى'] || r['level'] || r['price_list'])
 
             if (hasDurations) {
-              if (level) {
+              // Populate A/B duration prices ONLY from 'individuals' (عادي) rows to avoid duplicates
+              if (level && customer === 'individuals') {
                 Object.entries(durMap).forEach(([col, dur]) => {
                   const price = Number(r[col] || 0)
                   if (size && price) {
@@ -178,6 +179,7 @@ export const cloudDatabase = {
                   }
                 })
               }
+              // Also keep legacy per-customer base (30 days) pricing
               if (customer) {
                 const baseCandidates = ['30','price','السعر']
                 let base = 0
