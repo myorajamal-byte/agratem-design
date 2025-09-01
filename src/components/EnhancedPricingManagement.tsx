@@ -132,7 +132,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
     { value: 30, label: 'شهر واحد', discount: 0, unit: 'month' },
     { value: 60, label: '2 أشهر', discount: 0, unit: 'months' },
     { value: 90, label: '3 أشهر', discount: 5, unit: 'months' },
-    { value: 180, label: '6 أشهر', discount: 10, unit: 'months' },
+    { value: 180, label: '6 أ��هر', discount: 10, unit: 'months' },
     { value: 365, label: 'سنة كاملة', discount: 20, unit: 'year' }
   ]
 
@@ -163,7 +163,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       initialPrices[size] = {}
       pricingData.categories.forEach((category) => {
         const row = arabicRows.find((r) => (r['المقاس'] || '').toString().trim() === size && (r['المستوى'] || '').toString().trim().toUpperCase() === pricingData.currentLevel.toUpperCase() && mapCat(r['الزبون']) === category.id)
-        const price = row ? Number((row as any)[col] || 0) : 0
+        const price = row ? (() => { const raw = (row as any)[col]; const n = raw === null || raw === undefined || raw === '' ? 0 : Number(raw); return isNaN(n) ? 0 : n })() : 0
         initialPrices[size][category.id] = price
       })
     })
@@ -283,7 +283,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
         initialPrices[size] = {}
         pricingData.categories.forEach((category) => {
           const row = rows.find((r) => (r['المقاس'] || '').toString().trim() === size && (r['المستوى'] || '').toString().trim().toUpperCase() === pricingData.currentLevel.toUpperCase() && mapCat(r['الزبون']) === category.id)
-          const price = row ? Number((row as any)[col] || 0) : 0
+          const price = row ? (() => { const raw = (row as any)[col]; const n = raw === null || raw === undefined || raw === '' ? 0 : Number(raw); return isNaN(n) ? 0 : n })() : 0
           initialPrices[size][category.id] = price
         })
       })
@@ -517,7 +517,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
 
     setNewLevel({ name: '', description: '', discount: 0 })
     setShowLevelModal(false)
-    showNotification('success', `تم إضافة مستوى "${newLevel.name}" بنجاح`)
+    showNotification('success', `تم إضا��ة مستوى "${newLevel.name}" بنجاح`)
   }
 
   // Sync sizes from Excel and persist to Supabase
@@ -734,7 +734,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
               </div>
               <div>
                 <h1 className="text-2xl font-bold">إدارة الأسعار المتطورة</h1>
-                <p className="text-sm opacity-90">النظام الشامل لإدارة أسعار الل��حات الإعلانية</p>
+                <p className="text-sm opacity-90">النظام الشامل لإدارة أسعار اللوحات الإعلانية</p>
               </div>
             </div>
             <Button
