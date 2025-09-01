@@ -266,12 +266,13 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       const labelMap: Record<string, { name: string; description?: string; color: string }> = {
         marketers: { name: 'مسوق', description: 'من الشيت', color: 'blue' },
         individuals: { name: 'عادي', description: 'من الشيت', color: 'purple' },
-        companies: { name: 'شركات', description: 'من الشيت', color: 'green' }
+        companies: { name: 'شركات', description: 'من الشيت', color: 'green' },
+        city: { name: 'المدينة', description: 'من الشيت', color: 'rose' }
       }
       const presentKeys = new Set<string>()
-      Object.values(pricingFromService.zones || {}).forEach((z) => {
-        ;(['marketers','individuals','companies'] as const).forEach((k) => {
-          if (z.prices?.[k] && Object.keys(z.prices[k]).length > 0) presentKeys.add(k)
+      Object.values(pricingFromService.zones || {}).forEach((z: any) => {
+        ;(['marketers','individuals','companies','city'] as const).forEach((k) => {
+          if (z.prices?.[k] && Object.keys(z.prices[k] || {}).length > 0) presentKeys.add(k)
         })
       })
       const derivedCategories = Array.from(presentKeys).map((id) => ({ id, name: labelMap[id]?.name || id, description: labelMap[id]?.description, color: labelMap[id]?.color || 'blue' }))
@@ -552,7 +553,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
   const addSize = async () => {
     const newSize = prompt('أدخل المقاس الجديد (مثال: 6x14):')
     if (!newSize || !newSize.match(/^\d+x\d+$/)) {
-      showNotification('error', 'يرجى إدخال مقاس صحيح بصيغة رقمxرقم')
+      showNotification('error', 'يرجى إدخال مقاس صحيح بصيغة رقمxرق��')
       return
     }
 
@@ -678,7 +679,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       const result = newPricingService.updatePricing(updatedPricing)
 
       if (result.success) {
-        console.log('تم حفظ التغييرات تلقائياً')
+        console.log('تم حفظ الت��ييرات تلقائياً')
         return true
       } else {
         console.error('فشل في الحفظ التلقائي:', result.error)
@@ -1024,7 +1025,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
               {/* Missing Zones List */}
               {syncStatus.needsSync && syncStatus.missingZones && syncStatus.missingZones.length > 0 && (
                 <div className="mt-4 p-3 bg-orange-50 rounded-lg border border-orange-200">
-                  <h4 className="font-bold text-orange-900 mb-2">المناطق الجديدة المكتشفة:</h4>
+                  <h4 className="font-bold text-orange-900 mb-2">المناطق الجد��دة المكتشفة:</h4>
                   <div className="flex flex-wrap gap-2">
                     {syncStatus.missingZones.map(zone => (
                       <span
@@ -1410,7 +1411,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
         {showCategoryModal && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-60">
             <Card className="w-full max-w-md p-6">
-              <h3 className="text-xl font-bold mb-4">إضافة فئة جديدة</h3>
+              <h3 className="text-xl font-bold mb-4">إضافة ��ئة جديدة</h3>
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">اسم الفئة</label>
@@ -1468,7 +1469,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
         {showLevelModal && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-60">
             <Card className="w-full max-w-md p-6">
-              <h3 className="text-xl font-bold mb-4">إضافة مستوى جديد</h3>
+              <h3 className="text-xl font-bold mb-4">إضافة مستوى ج��يد</h3>
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">اسم المستوى</label>
