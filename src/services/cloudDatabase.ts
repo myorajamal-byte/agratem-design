@@ -125,19 +125,55 @@ export const cloudDatabase = {
         const sheet = wb.Sheets[wb.SheetNames[0]]
         const json = XLSX.utils.sheet_to_json(sheet, { defval: '' }) as any[]
         if (json?.length) {
-          const rows: PricingRow[] = json.map((r: any, i: number) => ({
-            id: i + 1,
-            zone_id: null,
-            zone_name: (r.zone_name || r['zone'] || r['المنطقة'] || '').toString(),
-            billboard_size: (r.billboard_size || r['size'] || r['المقاس'] || '').toString(),
-            customer_type: (r.customer_type || r['customer'] || r['نوع العميل'] || null) as any,
-            price: Number(r.price || r['السعر'] || 0),
-            ab_type: (r.ab_type || r['price_list'] || r['التصنيف'] || null) as any,
-            package_duration: r.package_duration != null ? Number(r.package_duration) : null,
-            package_discount: null,
-            currency: (r.currency || r['العملة'] || 'د.ل').toString(),
-            created_at: null,
-          }))
+          const headers = Object.keys(json[0] || {}).map(k => k.toString())
+          const hasDurations = headers.some(k => ['30','60','90','180','360'].includes(k))
+
+          const mapCustomer = (v: string): 'marketers'|'individuals'|'companies'|null => {
+            const s = (v||'').toString().trim()
+            if (!s) return null
+            const lower = s.toLowerCase()
+            if (['الشركات','companies','company'].some(x=>lower.includes(x))) return 'companies'
+            if (['الأفراد','individuals','individual'].some(x=>lower.includes(x))) return 'individuals'
+            if (['المسوقين','marketers','marketer'].some(x=>lower.includes(x))) return 'marketers'
+            return null
+          }
+
+          const mapLevel = (v: string): 'A'|'B'|null => {
+            const s = (v||'').toString().trim().toUpperCase()
+            return s === 'A' || s === 'B' ? (s as 'A'|'B') : null
+          }
+
+          const durMap: Record<string, number> = { '30': 1, '60': 2, '90': 3, '180': 6, '360': 12 }
+
+          const rows: PricingRow[] = []
+          for (let i = 0; i < json.length; i++) {
+            const r: any = json[i]
+            const size = (r['المقاس'] || r['size'] || r['billboard_size'] || '').toString()
+            const customer = mapCustomer(r['الزبون'] || r['customer'])
+            const level = mapLevel(r['المستوى'] || r['level'] || r['price_list'])
+
+            if (hasDurations) {
+              if (level) {
+                Object.entries(durMap).forEach(([col, dur]) => {
+                  const price = Number(r[col] || 0)
+                  if (size && price) {
+                    rows.push({ id: rows.length+1, zone_id: null, zone_name: 'عام', billboard_size: size, customer_type: null, price, ab_type: level, package_duration: dur, package_discount: null, currency: 'د.ل', created_at: null })
+                  }
+                })
+              }
+              if (customer) {
+                const base = Number(r['30'] || 0)
+                if (size && base) {
+                  rows.push({ id: rows.length+1, zone_id: null, zone_name: 'عام', billboard_size: size, customer_type: customer, price: base, ab_type: null, package_duration: null, package_discount: null, currency: 'د.ل', created_at: null })
+                }
+              }
+            } else {
+              const price = Number(r['السعر'] || r['price'] || 0)
+              if (customer && size && price) {
+                rows.push({ id: rows.length+1, zone_id: null, zone_name: 'عام', billboard_size: size, customer_type: customer, price, ab_type: null, package_duration: null, package_discount: null, currency: 'د.ل', created_at: null })
+              }
+            }
+          }
           const pl = rowsToPriceList(rows)
           if (Object.keys(pl.zones).length > 0) return pl
         }
