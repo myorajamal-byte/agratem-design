@@ -222,12 +222,25 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
         } catch {}
       }
 
-      // Load distinct sizes from Supabase pricing table, fallback to current pricing-derived sizes
-      const { sizesDatabase } = await import('@/services/sizesDatabase')
-      let distinctSizes = await sizesDatabase.getDistinctSizesFromPricing?.()
-      if (!distinctSizes || distinctSizes.length === 0) {
-        distinctSizes = newPricingService.sizes
-      }
+      // Derive sizes directly from the loaded pricing to avoid fallback zeros
+      const sizesSet = new Set<string>()
+      Object.values(pricingFromService.zones || {}).forEach((z: any) => {
+        ;(['companies','individuals','marketers'] as const).forEach((ct) => {
+          Object.keys(z.prices?.[ct] || {}).forEach((s) => sizesSet.add(s))
+        })
+        ;(['A','B'] as const).forEach((pl) => {
+          const ab = (z.abPrices || {})[pl] || {}
+          ;(['1','2','3','6','12'] as const).forEach((dk) => {
+            Object.keys((ab as any)[dk] || {}).forEach((s) => sizesSet.add(s))
+          })
+          // also support flat maps
+          Object.keys(ab || {}).forEach((k) => {
+            if (!['1','2','3','6','12'].includes(k)) sizesSet.add(k)
+          })
+        })
+      })
+      let distinctSizes = Array.from(sizesSet)
+      distinctSizes.sort((a,b)=>a.localeCompare(b,'ar'))
 
       // Update municipalities list from pricing zones
       const availableZones = Object.keys(pricingFromService.zones)
@@ -260,7 +273,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       })
       const derivedCategories = Array.from(presentKeys).map((id) => ({ id, name: labelMap[id]?.name || id, description: labelMap[id]?.description, color: labelMap[id]?.color || 'blue' }))
       const categoriesToUse = derivedCategories.length > 0 ? derivedCategories : [
-        { id: 'marketers', name: 'مسوق', description: 'من الشيت', color: 'blue' },
+        { id: 'marketers', name: 'مسوق', description: 'من ال��يت', color: 'blue' },
         { id: 'companies', name: 'شركات', description: 'من الشيت', color: 'green' },
         { id: 'individuals', name: 'عادي', description: 'من الشيت', color: 'purple' }
       ]
@@ -529,7 +542,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       }
     } catch (e: any) {
       setSyncStatus(prev => ({ ...prev, isLoading: false }))
-      showNotification('error', e?.message || 'فشل في مزامنة المقاسات')
+      showNotification('error', e?.message || 'فشل ف�� مزامنة المقاسات')
     }
   }
 
@@ -1291,7 +1304,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                           جدول معاملات البلديات
                         </div>
                         <div className="text-sm text-gray-300 font-medium mt-1">
-                          إدارة شاملة لمعاملات الضرب وأسع��ر البلديات المختلفة
+                          إدارة شاملة لمعاملات الضرب وأسعار البلديات المختلفة
                         </div>
                       </div>
                     </h3>
