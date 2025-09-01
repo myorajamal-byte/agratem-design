@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import type { PriceList, InstallationPricing } from '@/types'
 import { createClient } from '@supabase/supabase-js'
+import * as XLSX from 'xlsx'
 
 // Prefer Supabase for cloud persistence; fallback to Netlify KV if not configured
 const supabaseUrl = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_SUPABASE_URL) || ''
@@ -8,6 +9,34 @@ const supabaseAnonKey = (typeof import.meta !== 'undefined' && import.meta.env &
 const hasSupabase = !!(supabaseUrl && supabaseAnonKey)
 
 const API_BASE = '/.netlify/functions/kv-pricing'
+
+// Optional Google Sheets/Excel sources (read-only)
+const PRICING_XLSX_URL = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_PRICING_XLSX_URL) || ''
+const PRICING_CSV_URL = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_PRICING_CSV_URL) || ''
+const INSTALL_XLSX_URL = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_INSTALLATION_XLSX_URL) || ''
+const INSTALL_CSV_URL = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_INSTALLATION_CSV_URL) || ''
+
+async function fetchWorkbookFromUrl(url: string, timeoutMs = 12000): Promise<XLSX.WorkBook | null> {
+  if (!url) return null
+  try {
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), timeoutMs)
+    const res = await fetch(`${url}${url.includes('?') ? '&' : '?'}cachebuster=${Date.now()}`, { signal: controller.signal, redirect: 'follow' })
+    clearTimeout(timeout)
+    if (!res.ok) return null
+    const ct = res.headers.get('content-type') || ''
+    if (ct.includes('text') || ct.includes('csv')) {
+      const text = await res.text()
+      if (!text) return null
+      return XLSX.read(text, { type: 'string' })
+    }
+    const buffer = await res.arrayBuffer()
+    if (!buffer || buffer.byteLength === 0) return null
+    return XLSX.read(buffer, { type: 'array', cellDates: true })
+  } catch {
+    return null
+  }
+}
 
 async function kvGet<T>(key: string): Promise<T | null> {
   try {
@@ -89,6 +118,32 @@ function rowsToPriceList(rows: PricingRow[]): PriceList {
 
 export const cloudDatabase = {
   async getRentalPricing(): Promise<PriceList | null> {
+    // Try Google Sheets/Excel if provided
+    if (PRICING_CSV_URL || PRICING_XLSX_URL) {
+      const wb = (await fetchWorkbookFromUrl(PRICING_CSV_URL)) || (await fetchWorkbookFromUrl(PRICING_XLSX_URL))
+      if (wb && wb.SheetNames?.length) {
+        const sheet = wb.Sheets[wb.SheetNames[0]]
+        const json = XLSX.utils.sheet_to_json(sheet, { defval: '' }) as any[]
+        if (json?.length) {
+          const rows: PricingRow[] = json.map((r: any, i: number) => ({
+            id: i + 1,
+            zone_id: null,
+            zone_name: (r.zone_name || r['zone'] || r['المنطقة'] || '').toString(),
+            billboard_size: (r.billboard_size || r['size'] || r['المقاس'] || '').toString(),
+            customer_type: (r.customer_type || r['customer'] || r['نوع العميل'] || null) as any,
+            price: Number(r.price || r['السعر'] || 0),
+            ab_type: (r.ab_type || r['price_list'] || r['التصنيف'] || null) as any,
+            package_duration: r.package_duration != null ? Number(r.package_duration) : null,
+            package_discount: null,
+            currency: (r.currency || r['العملة'] || 'د.ل').toString(),
+            created_at: null,
+          }))
+          const pl = rowsToPriceList(rows)
+          if (Object.keys(pl.zones).length > 0) return pl
+        }
+      }
+    }
+
     if (supabase) {
       const { data, error } = await supabase.from('pricing').select('*')
       if (error) return null
@@ -136,6 +191,32 @@ export const cloudDatabase = {
     return await kvSet<PriceList>('rental_pricing', pricing)
   },
   async getInstallationPricing(): Promise<InstallationPricing | null> {
+    // Try Google Sheets/Excel if provided
+    if (INSTALL_CSV_URL || INSTALL_XLSX_URL) {
+      const wb = (await fetchWorkbookFromUrl(INSTALL_CSV_URL)) || (await fetchWorkbookFromUrl(INSTALL_XLSX_URL))
+      if (wb && wb.SheetNames?.length) {
+        const sheet = wb.Sheets[wb.SheetNames[0]]
+        const json = XLSX.utils.sheet_to_json(sheet, { defval: '' }) as any[]
+        if (json?.length) {
+          const zones: InstallationPricing['zones'] = {}
+          let currency: string = 'د.ل'
+          for (const r0 of json as any[]) {
+            const zone_name = (r0.zone_name || r0['zone'] || r0['المنطقة'] || '').toString()
+            const size = (r0.billboard_size || r0['size'] || r0['المقاس'] || '').toString()
+            const price = Number(r0.price || r0['السعر'] || 0)
+            const multiplier = r0.multiplier != null ? Number(r0.multiplier) : 1.0
+            const desc = (r0.description || '').toString() || undefined
+            const cur = (r0.currency || r0['العملة'] || 'د.ل').toString()
+            if (!zones[zone_name]) zones[zone_name] = { name: zone_name, prices: {}, multiplier, description: desc }
+            zones[zone_name].prices[size as any] = price
+            if (cur) currency = cur
+          }
+          const sizes = Array.from(new Set(json.map((r: any) => (r.billboard_size || r['size'] || r['المقاس'] || '').toString()).filter(Boolean))) as any
+          return { zones, sizes, currency, lastUpdated: new Date().toISOString() }
+        }
+      }
+    }
+
     if (supabase) {
       type Row = {
         id: number
@@ -172,7 +253,6 @@ export const cloudDatabase = {
         }
       }
     }
-    // Fallback to KV if Supabase not configured or table missing
     return await kvGet<InstallationPricing>('installation_pricing')
   },
   async saveInstallationPricing(pricing: InstallationPricing): Promise<boolean> {
