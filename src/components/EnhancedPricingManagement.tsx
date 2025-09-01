@@ -132,7 +132,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
     { value: 30, label: 'شهر واحد', discount: 0, unit: 'month' },
     { value: 60, label: '2 أشهر', discount: 0, unit: 'months' },
     { value: 90, label: '3 أشهر', discount: 5, unit: 'months' },
-    { value: 180, label: '6 أ��هر', discount: 10, unit: 'months' },
+    { value: 180, label: '6 أشهر', discount: 10, unit: 'months' },
     { value: 365, label: 'سنة كاملة', discount: 20, unit: 'year' }
   ]
 
@@ -265,6 +265,9 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       // Fetch Arabic pricing rows (global for all municipalities)
       const rows = await arabicPricingTable.getRows()
       setArabicRows(rows)
+
+      const sizesFromRows = Array.from(new Set(rows.map(r => (r['المقاس'] || '').toString().trim()).filter(Boolean)))
+      const effectiveSizes = sizesFromRows.length > 0 ? sizesFromRows : sizesList
 
       const colFor = (v: number) => (v === 1 ? 'يوم واحد' : v === 30 ? 'شهر واحد' : v === 60 ? '2 أشهر' : v === 90 ? '3 أشهر' : v === 180 ? '6 أشهر' : 'سنة كاملة') as keyof ArabicPricingRow
       const mapCat = (ar?: string) => {
@@ -517,7 +520,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
 
     setNewLevel({ name: '', description: '', discount: 0 })
     setShowLevelModal(false)
-    showNotification('success', `تم إضا��ة مستوى "${newLevel.name}" بنجاح`)
+    showNotification('success', `تم إضافة مستوى "${newLevel.name}" بنجاح`)
   }
 
   // Sync sizes from Excel and persist to Supabase
@@ -812,7 +815,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
             <Card className="p-4">
               <h3 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
                 <Building2 className="w-5 h-5" />
-                اختيار المستوى
+                اختيار المست��ى
               </h3>
               <div className="flex flex-wrap gap-2 mb-3">
                 {pricingData.levels.map((level) => (
