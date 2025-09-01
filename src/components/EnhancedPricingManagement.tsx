@@ -93,7 +93,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       { id: 'C', name: 'مستوى C', description: 'مواقع اقتصادي��' }
     ],
     municipalities: [
-      { id: '1', name: 'مصرات����', multiplier: 1.0 },
+      { id: '1', name: 'مصرات��', multiplier: 1.0 },
       { id: '2', name: 'زل��تن', multiplier: 0.8 },
       { id: '3', name: 'بنغازي', multiplier: 1.2 },
       { id: '4', name: 'طرابلس', multiplier: 1.0 }
@@ -236,6 +236,25 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
         })
       } catch {}
 
+      // Derive categories from pricing (sheet-driven) only
+      const labelMap: Record<string, { name: string; description?: string; color: string }> = {
+        marketers: { name: 'مسوق', description: 'من الشيت', color: 'blue' },
+        individuals: { name: 'عادي', description: 'من الشيت', color: 'purple' },
+        companies: { name: 'شركات', description: 'من الشيت', color: 'green' }
+      }
+      const presentKeys = new Set<string>()
+      Object.values(pricingFromService.zones || {}).forEach((z) => {
+        ;(['marketers','individuals','companies'] as const).forEach((k) => {
+          if (z.prices?.[k] && Object.keys(z.prices[k]).length > 0) presentKeys.add(k)
+        })
+      })
+      const derivedCategories = Array.from(presentKeys).map((id) => ({ id, name: labelMap[id]?.name || id, description: labelMap[id]?.description, color: labelMap[id]?.color || 'blue' }))
+      const categoriesToUse = derivedCategories.length > 0 ? derivedCategories : [
+        { id: 'marketers', name: 'مسوق', description: 'من الشيت', color: 'blue' },
+        { id: 'companies', name: 'شركات', description: 'من الشيت', color: 'green' },
+        { id: 'individuals', name: 'عادي', description: 'من الشيت', color: 'purple' }
+      ]
+
       // Initialize prices from existing pricing service (fallback to zeros)
       const initialPrices: Record<string, Record<string, number>> = {}
       const availableZonesSet = new Set(availableZones)
@@ -245,7 +264,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
 
       distinctSizes.forEach(size => {
         initialPrices[size] = {}
-        pricingData.categories.forEach(category => {
+        categoriesToUse.forEach(category => {
           const fromService = sourceZone?.prices?.[category.id as 'marketers'|'individuals'|'companies']?.[size] || 0
           initialPrices[size][category.id] = Number(fromService) || 0
         })
@@ -255,7 +274,8 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
         ...prev,
         sizes: distinctSizes,
         prices: initialPrices,
-        municipalities: updatedMunicipalities
+        municipalities: updatedMunicipalities,
+        categories: categoriesToUse
       }))
 
     } catch (error) {
