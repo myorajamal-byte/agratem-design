@@ -1,6 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
 import type { PriceList, InstallationPricing } from '@/types'
-import { createClient } from '@supabase/supabase-js'
 import * as XLSX from 'xlsx'
 import { municipalityService } from '@/services/municipalityService'
 
@@ -107,12 +106,17 @@ function rowsToPriceList(rows: PricingRow[]): PriceList {
     }
   }
 
-  const packages = Array.from(packagesSet).sort((a, b) => a - b).map(value => ({
-    value,
-    unit: value === 12 ? 'year' : 'months',
-    label: value === 1 ? 'شهر واحد' : value === 3 ? '3 أشهر' : value === 6 ? '6 أشهر' : 'سنة كاملة',
-    discount: value === 1 ? 0 : value === 3 ? 5 : value === 6 ? 10 : 20
-  }))
+  const packages = Array.from(packagesSet).sort((a, b) => a - b).map(value => {
+    const unit = value === 12 ? 'year' : 'months'
+    let label = 'شهر'
+    if (value === 1) label = 'شهر واحد'
+    else if (value === 3) label = '3 أشهر'
+    else if (value === 6) label = '6 أشهر'
+    else if (value === 12) label = 'سنة كاملة'
+    else label = `${value} أشهر`
+    const discount = value === 1 ? 0 : value === 3 ? 5 : value === 6 ? 10 : value === 12 ? 20 : 0
+    return { value, unit, label, discount }
+  })
 
   return { zones, packages, currency }
 }
@@ -127,15 +131,20 @@ export const cloudDatabase = {
         const json = XLSX.utils.sheet_to_json(sheet, { defval: '' }) as any[]
         if (json?.length) {
           const headers = Object.keys(json[0] || {}).map(k => k.toString())
-          const hasDurations = headers.some(k => ['30','60','90','180','360'].includes(k))
+          const hasDurations = headers.some(k => ['30','90','180','360','365'].includes(k))
 
           const mapCustomer = (v: string): 'marketers'|'individuals'|'companies'|null => {
             const s = (v||'').toString().trim()
             if (!s) return null
             const lower = s.toLowerCase()
-            if (['الشركات','companies','company'].some(x=>lower.includes(x))) return 'companies'
-            if (['الأفراد','individuals','individual'].some(x=>lower.includes(x))) return 'individuals'
-            if (['المسوقين','marketers','marketer'].some(x=>lower.includes(x))) return 'marketers'
+            // Ignore obvious non-customer values
+            if (['المدينة','city'].some(x=>lower.includes(x))) return null
+            // Companies synonyms
+            if (['شركات','الشركات','companies','company','corporate','business'].some(x=>lower.includes(x))) return 'companies'
+            // Individuals synonyms (normal)
+            if (['افراد','الأفراد','الافراد','عادي','العادي','العاديين','individuals','individual','normal','regular'].some(x=>lower.includes(x))) return 'individuals'
+            // Marketers synonyms
+            if (['مسوق','مسوقين','المسوق','المسوقين','marketers','marketer'].some(x=>lower.includes(x))) return 'marketers'
             return null
           }
 
@@ -144,13 +153,14 @@ export const cloudDatabase = {
             return s === 'A' || s === 'B' ? (s as 'A'|'B') : null
           }
 
-          const durMap: Record<string, number> = { '30': 1, '60': 2, '90': 3, '180': 6, '360': 12 }
+          const durMap: Record<string, number> = { '30': 1, '90': 3, '180': 6, '360': 12, '365': 12 }
 
           const rows: PricingRow[] = []
           for (let i = 0; i < json.length; i++) {
             const r: any = json[i]
             const size = (r['المقاس'] || r['size'] || r['billboard_size'] || '').toString()
-            const customer = mapCustomer(r['الزبون'] || r['customer'])
+            const rawCustomer = r['الزبون'] || r['customer'] || r['الفئة'] || r['نوع العميل'] || r['نوع الزبون'] || r['المستويات']
+            const customer = mapCustomer(rawCustomer)
             const level = mapLevel(r['المستوى'] || r['level'] || r['price_list'])
 
             if (hasDurations) {
@@ -163,7 +173,9 @@ export const cloudDatabase = {
                 })
               }
               if (customer) {
-                const base = Number(r['30'] || 0)
+                const baseCandidates = ['30','price','السعر']
+                let base = 0
+                for (const k of baseCandidates) { if (!base) base = Number(r[k] || 0) }
                 if (size && base) {
                   rows.push({ id: rows.length+1, zone_id: null, zone_name: 'عام', billboard_size: size, customer_type: customer, price: base, ab_type: null, package_duration: null, package_discount: null, currency: 'د.ل', created_at: null })
                 }
