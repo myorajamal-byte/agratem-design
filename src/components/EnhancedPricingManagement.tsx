@@ -282,7 +282,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       // Build prices for current view (level + duration)
       const initialPrices: Record<string, Record<string, number>> = {}
       const col = colFor(pricingData.currentDuration)
-      sizesList.forEach((size) => {
+      effectiveSizes.forEach((size) => {
         initialPrices[size] = {}
         pricingData.categories.forEach((category) => {
           const row = rows.find((r) => (r['المقاس'] || '').toString().trim() === size && (r['المستوى'] || '').toString().trim().toUpperCase() === pricingData.currentLevel.toUpperCase() && mapCat(r['الزبون']) === category.id)
