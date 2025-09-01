@@ -233,15 +233,10 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       const { newPricingService } = await import('@/services/newPricingService')
       const pricingFromService = newPricingService.getPricing()
 
-      // Load distinct sizes from Supabase pricing table
+      // Load distinct sizes from Supabase pricing table (fallback to local if empty)
       const { sizesDatabase } = await import('@/services/sizesDatabase')
-      const distinctSizes = await (async () => {
-        const { data, error } = await (sizesDatabase as any).client
-          ? { data: null, error: null }
-          : { data: null, error: null }
-        const sizes = await sizesDatabase.getDistinctSizesFromPricing?.() || []
-        return sizes
-      })()
+      const distinctSizes = await sizesDatabase.getDistinctSizesFromPricing?.() || []
+      const sizesList = distinctSizes.length > 0 ? distinctSizes : newPricingService.sizes
 
       // Update municipalities list from pricing zones
       const availableZones = Object.keys(pricingFromService.zones)
