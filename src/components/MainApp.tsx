@@ -66,7 +66,7 @@ export default function MainApp() {
         setLoading(true)
         const data = await loadBillboardsFromExcel()
 
-        // تطبيق فلترة الزبون المخصص إذا ك��ن المستخدم لديه هذه الصلاحية
+        // تطبيق فلترة الزبون المخصص إذا ك��ن المستخدم لد��ه هذه الصلاحية
         let filteredData = data
         if (user?.permissions.some(p => p.name === 'view_specific_client') && user.assignedClient) {
           filteredData = clientService.filterBillboardsByClient(data, user.assignedClient)
@@ -587,7 +587,7 @@ ${selectedBillboardsData
                   🎯 عرض مخصص: تظهر لك فقط العقود الخاصة بالزبون "{user.assignedClient}"
                 </p>
                 <p className="text-xs text-blue-600 mt-1">
-                  إجمالي اللوحات المعروضة: {filteredBillboards.length} لوحة
+                  إجمالي اللوحات المعروضة: {filteredBillboards.length} لوح��
                 </p>
               </div>
             </div>
@@ -616,7 +616,7 @@ ${selectedBillboardsData
         />
 
         {/* اختيار مدة التسعير */}
-        {user?.permissions.some(p => p.name === 'admin_access') && (
+        {((user && (user.role === 'admin' || user.permissions?.some(p => p.name === 'admin_access'))) ? true : false) && (
           <div className="bg-white rounded-xl shadow-lg p-4 mb-6 border-2 border-emerald-200">
             <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2 text-right" dir="rtl">
               <DollarSign className="w-5 h-5 text-emerald-600" />
