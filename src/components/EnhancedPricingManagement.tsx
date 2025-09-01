@@ -293,7 +293,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
 
       setPricingData(prev => ({
         ...prev,
-        sizes: sizesList,
+        sizes: effectiveSizes,
         prices: initialPrices,
         municipalities: availableZones.length > 0 ? updatedMunicipalities : prev.municipalities
       }))
@@ -547,7 +547,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
   const addSize = async () => {
     const newSize = prompt('أدخل المقاس الجديد (مثال: 6x14):')
     if (!newSize || !newSize.match(/^\d+x\d+$/)) {
-      showNotification('error', 'يرجى إدخال مقاس صحيح بصيغة رقمxرقم')
+      showNotification('error', 'يرجى إدخال مقاس صح��ح بصيغة رقمxرقم')
       return
     }
 
