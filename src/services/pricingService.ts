@@ -101,14 +101,16 @@ class PricingService {
   determinePricingZone(municipality: string, area?: string): string | null {
     const pricing = this.getPricing()
     const zoneName = (municipality || '').trim()
-    if (!zoneName) return null
+    if (!zoneName) return pricing.zones['عام'] ? 'عام' : null
     if (pricing.zones[zoneName]) return zoneName
     const available = Object.keys(pricing.zones)
     const lower = zoneName.toLowerCase()
     for (const z of available) {
       if (z.toLowerCase().includes(lower) || lower.includes(z.toLowerCase())) return z
     }
-    return null
+    // Fallback to a default/general zone when specific match is not found
+    if (pricing.zones['عام']) return 'عام'
+    return available[0] || null
   }
 
   calculateQuoteTotal(items: QuoteItem[]): number {
