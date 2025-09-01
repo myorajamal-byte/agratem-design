@@ -55,9 +55,9 @@ export default function BillboardCard({ billboard, isSelected, onToggleSelection
         billboard.municipality
       )
 
-      // إذا لم يجد سعر في النظام الجديد، استخدم النظام القديم
+      // إذا ��م يجد سعر في النظام الجديد، استخدم النظام القديم
       if (monthlyPrice === 0) {
-        pricingService.addPricingZoneForMunicipality(billboard.municipality)
+        newPricingService.addPricingZoneForMunicipality(billboard.municipality)
         monthlyPrice = pricingService.getBillboardPriceAB(
           billboard.size as BillboardSize,
           zone,
