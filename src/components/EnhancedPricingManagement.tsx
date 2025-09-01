@@ -149,7 +149,14 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
   useEffect(() => {
     if (!arabicRows || arabicRows.length === 0) return
     const colFor = (v: number) => (v === 1 ? 'يوم واحد' : v === 30 ? 'شهر واحد' : v === 60 ? '2 أشهر' : v === 90 ? '3 أشهر' : v === 180 ? '6 أشهر' : 'سنة كاملة') as keyof ArabicPricingRow
-    const mapCat = (ar?: string) => (ar && ar.includes('شرك') ? 'companies' : ar && ar.includes('مسوق') ? 'marketers' : 'individuals')
+    const mapCat = (ar?: string) => {
+      const s = (ar || '').toString().trim()
+      if (s.includes('شرك')) return 'companies'
+      if (s.includes('مسوق')) return 'marketers'
+      if (s.includes('أفراد') || s.includes('فرد') || s.includes('عادي')) return 'individuals'
+      if (s.includes('المدينة')) return 'individuals'
+      return 'individuals'
+    }
     const initialPrices: Record<string, Record<string, number>> = {}
     const col = colFor(pricingData.currentDuration)
     (pricingData.sizes || []).forEach((size) => {
@@ -260,7 +267,14 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       setArabicRows(rows)
 
       const colFor = (v: number) => (v === 1 ? 'يوم واحد' : v === 30 ? 'شهر واحد' : v === 60 ? '2 أشهر' : v === 90 ? '3 أشهر' : v === 180 ? '6 أشهر' : 'سنة كاملة') as keyof ArabicPricingRow
-      const mapCat = (ar?: string) => (ar && ar.includes('شرك') ? 'companies' : ar && ar.includes('مسوق') ? 'marketers' : 'individuals')
+      const mapCat = (ar?: string) => {
+      const s = (ar || '').toString().trim()
+      if (s.includes('شرك')) return 'companies'
+      if (s.includes('مسوق')) return 'marketers'
+      if (s.includes('أفراد') || s.includes('فرد') || s.includes('عادي')) return 'individuals'
+      if (s.includes('المدينة')) return 'individuals'
+      return 'individuals'
+    }
 
       // Build prices for current view (level + duration)
       const initialPrices: Record<string, Record<string, number>> = {}
@@ -720,7 +734,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
               </div>
               <div>
                 <h1 className="text-2xl font-bold">إدارة الأسعار المتطورة</h1>
-                <p className="text-sm opacity-90">النظام الشامل لإدارة أسعار اللوحات الإعلانية</p>
+                <p className="text-sm opacity-90">النظام الشامل لإدارة أسعار الل��حات الإعلانية</p>
               </div>
             </div>
             <Button
@@ -1086,7 +1100,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                     </div>
                     <div>
                       <div className="text-2xl font-black">جدول الأسعار التفاعلي</div>
-                      <div className="text-sm text-emerald-100 font-medium">ح��ب فئة العميل مع التحكم الكامل</div>
+                      <div className="text-sm text-emerald-100 font-medium">حسب فئة العميل مع التحكم الكامل</div>
                     </div>
                     {selectedDuration?.unit === 'day' && (
                       <Badge className="bg-amber-500 text-black text-sm font-bold px-3 py-2 rounded-full shadow-lg">حساب يومي</Badge>
