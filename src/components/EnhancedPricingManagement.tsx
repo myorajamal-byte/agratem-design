@@ -724,7 +724,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
 
   // Reset all changes
   const resetAllChanges = async () => {
-    if (window.confirm('هل أنت متأكد من إلغاء جميع التغييرات غير المحفوظة؟')) {
+    if (window.confirm('هل أنت متأكد من إلغاء جميع التغييرات غي�� المحفوظة؟')) {
       await initializePricingData()
       setUnsavedChanges({ hasChanges: false, changedCells: new Set() })
       showNotification('success', 'تم إلغاء جميع التغييرات')
@@ -750,7 +750,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                 <DollarSign className="w-6 h-6" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold">إدارة الأسعار الم��طورة</h1>
+                <h1 className="text-2xl font-bold">إدارة الأسعار الم��طور��</h1>
                 <p className="text-sm opacity-90">النظام الشامل لإدارة أسعار اللوحات الإعلانية</p>
               </div>
             </div>
@@ -1024,7 +1024,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                     </div>
                     <div className="text-center">
                       <div className="font-bold text-purple-900">{Object.keys(pricingData.zones || {}).length}</div>
-                      <div className="text-purple-700">إجمالي المناطق</div>
+                      <div className="text-purple-700">إجمالي المنا��ق</div>
                     </div>
                   </div>
                 </div>
@@ -1247,19 +1247,17 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                               >
                                 <div className="flex flex-col items-center justify-center gap-2">
                                   <div className="flex items-center gap-2">
-                                    <span className="font-bold text-gray-800 text-base leading-tight bg-gray-100 px-2 py-1 rounded-lg group-hover:bg-blue-100 transition-colors">
-                                      {formatPrice(basePrice)}
+                                    <span className="font-black text-emerald-800 text-lg leading-tight bg-emerald-100 px-2 py-1 rounded-lg group-hover:bg-emerald-200 transition-colors">
+                                      {formatPrice(finalPrice)}
                                     </span>
                                     <Edit3 className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 group-hover:text-blue-600 transition-all duration-200" />
                                   </div>
                                   <div className="text-xs text-blue-600 font-semibold bg-blue-50 px-2 py-1 rounded-full">
                                     يومي: {formatPrice(dailyRate)}
                                   </div>
-                                  {finalPrice !== basePrice && (
-                                    <div className="text-xs text-green-600 font-semibold px-2 py-1 bg-green-100 rounded-full shadow-sm">
-                                      النهائي: {formatPrice(finalPrice)}
-                                    </div>
-                                  )}
+                                  <div className="text-[10px] text-gray-500 font-semibold px-2 py-0.5 bg-gray-100 rounded-full">
+                                    الأساس: {formatPrice(basePrice)}
+                                  </div>
                                 </div>
                               </div>
                             )}
