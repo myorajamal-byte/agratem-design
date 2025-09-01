@@ -299,7 +299,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       }))
 
     } catch (error) {
-      console.error('خطأ في تحميل بيانات الأسعار:', error)
+      console.error('خطأ في تحميل بيانات الأسعا��:', error)
       // Fallback to original initialization
       const initialPrices: Record<string, Record<string, number>> = {}
 
@@ -423,26 +423,27 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       changedCells: new Set([...prev.changedCells, editingCell])
     }))
 
-    // Auto-save the change
+    // Auto-save the change into Arabic pricing table (Supabase or local fallback)
     try {
-      const { newPricingService } = await import('@/services/newPricingService')
-      const currentPricing = newPricingService.getPricing()
-
-      // Update the specific pricing zone (assuming we're working with the current municipality)
-      const currentZone = pricingData.currentMunicipality
-      const zoneName = pricingData.municipalities.find(m => m.id === currentZone)?.name || 'مصراتة'
-
-      if (currentPricing.zones[zoneName]) {
-        // Update the zone's customer type pricing
-        const customerType = category as 'marketers' | 'individuals' | 'companies'
-        if (currentPricing.zones[zoneName].prices[customerType]) {
-          currentPricing.zones[zoneName].prices[customerType][size] = value
-
-          const result = newPricingService.updatePricing(currentPricing)
-          if (result.success) {
-            console.log(`تم حفظ السعر تلقائياً: ${size} - ${category} = ${value}`)
+      const { arabicPricingTable } = await import('@/services/arabicPricingTable')
+      const customerType = category as 'marketers' | 'individuals' | 'companies'
+      const ok = await arabicPricingTable.upsertCell(size, pricingData.currentLevel, customerType, pricingData.currentDuration, value)
+      if (ok) {
+        // Patch arabicRows state so the UI recompute reflects immediately
+        setArabicRows((prev) => {
+          const rows = Array.isArray(prev) ? [...prev] : []
+          const customerAr = customerType === 'companies' ? 'شركات' : customerType === 'marketers' ? 'مسوق' : 'عادي'
+          const col = (pricingData.currentDuration === 1 ? 'يوم واحد' : pricingData.currentDuration === 30 ? 'شهر واحد' : pricingData.currentDuration === 60 ? '2 أشهر' : pricingData.currentDuration === 90 ? '3 أشهر' : pricingData.currentDuration === 180 ? '6 أشهر' : 'سنة كاملة') as any
+          const idx = rows.findIndex(r => (r['المقاس']||'').toString().trim() === size && (r['المستوى']||'').toString().trim().toUpperCase() === pricingData.currentLevel.toUpperCase() && (r['الزبون']||'').toString().trim() === customerAr)
+          if (idx >= 0) {
+            (rows[idx] as any)[col] = value
+          } else {
+            const newRow: any = { 'المقاس': size, 'المستوى': pricingData.currentLevel, 'الزبون': customerAr, 'شهر واحد': null, '2 أشهر': null, '3 أشهر': null, '6 أشهر': null, 'سنة كاملة': null, 'يوم واحد': null }
+            newRow[col] = value
+            rows.push(newRow)
           }
-        }
+          return rows as any
+        })
       }
     } catch (error) {
       console.warn('لم يتم الحفظ التلقائي:', error)
@@ -547,7 +548,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
   const addSize = async () => {
     const newSize = prompt('أدخل المقاس الجديد (مثال: 6x14):')
     if (!newSize || !newSize.match(/^\d+x\d+$/)) {
-      showNotification('error', 'يرجى إدخال مقاس صح��ح بصيغة رقمxرقم')
+      showNotification('error', 'يرجى إدخال مقاس صحيح بصيغة رقمxرقم')
       return
     }
 
@@ -780,7 +781,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-yellow-800">
                   <AlertTriangle className="w-5 h-5" />
-                  <span className="font-semibold">لديك تغييرات غير محفوظة</span>
+                  <span className="font-semibold">لديك تغييرات غير ��حفوظة</span>
                   <Badge variant="outline" className="bg-yellow-100 text-yellow-800">
                     {unsavedChanges.changedCells.size} تغيير
                   </Badge>
