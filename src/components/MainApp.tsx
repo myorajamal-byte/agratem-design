@@ -66,7 +66,7 @@ export default function MainApp() {
         setLoading(true)
         const data = await loadBillboardsFromExcel()
 
-        // تطبيق فلترة الزبون المخصص إذا ك��ن المستخدم لد��ه هذه الصلاحية
+        // تطبيق فلترة الزبون المخصص إذا ك��ن المستخدم لديه هذه الصلاحية
         let filteredData = data
         if (user?.permissions.some(p => p.name === 'view_specific_client') && user.assignedClient) {
           filteredData = clientService.filterBillboardsByClient(data, user.assignedClient)
@@ -587,7 +587,7 @@ ${selectedBillboardsData
                   🎯 عرض مخصص: تظهر لك فقط العقود الخاصة بالزبون "{user.assignedClient}"
                 </p>
                 <p className="text-xs text-blue-600 mt-1">
-                  إجمالي اللوحات المعروضة: {filteredBillboards.length} لوح��
+                  إجمالي اللوحات المعروضة: {filteredBillboards.length} لوحة
                 </p>
               </div>
             </div>
@@ -632,7 +632,7 @@ ${selectedBillboardsData
         )}
 
         {/* أزرار إدارة الأسعار للمدراء */}
-        {user?.permissions.some(p => p.name === 'admin_access') && (
+        {((user && (user.role === 'admin' || user.permissions?.some(p => p.name === 'admin_access'))) ? true : false) && (
           <div className="bg-white rounded-xl shadow-lg p-4 mb-6 border-2 border-blue-200">
             <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
               <Settings className="w-5 h-5 text-blue-600" />
@@ -721,7 +721,7 @@ ${selectedBillboardsData
               isSelected={selectedBillboards.has(billboard.id)}
               onToggleSelection={toggleBillboardSelection}
               onViewImage={setSelectedImage}
-              showPricing={user?.permissions.some(p => p.name === 'admin_access')}
+              showPricing={(user && (user.role === 'admin' || user.permissions?.some(p => p.name === 'admin_access'))) ? true : false}
               selectedDuration={selectedPricingDuration}
             />
           ))}
@@ -898,17 +898,17 @@ ${selectedBillboardsData
       )}
 
       {/* نافذة إدارة الأسعار */}
-      {showPricingManagement && user?.permissions.some(p => p.name === 'admin_access') && (
+      {showPricingManagement && ((user && (user.role === 'admin' || user.permissions?.some(p => p.name === 'admin_access'))) ? true : false) && (
         <EnhancedPricingManagement onClose={() => setShowPricingManagement(false)} />
       )}
 
       {/* نافذة إدارة ��سعار التركيب */}
-      {showInstallationPricing && user?.permissions.some(p => p.name === 'admin_access') && (
+      {showInstallationPricing && ((user && (user.role === 'admin' || user.permissions?.some(p => p.name === 'admin_access'))) ? true : false) && (
         <InstallationPricingManagement onClose={() => setShowInstallationPricing(false)} />
       )}
 
       {/* نافذة فاتور�� العرض */}
-      {showQuoteDialog && user?.permissions.some(p => p.name === 'admin_access') && (
+      {showQuoteDialog && ((user && (user.role === 'admin' || user.permissions?.some(p => p.name === 'admin_access'))) ? true : false) && (
         <QuoteDialog
           isOpen={showQuoteDialog}
           onClose={() => setShowQuoteDialog(false)}
