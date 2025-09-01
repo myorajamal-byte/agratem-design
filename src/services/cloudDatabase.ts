@@ -234,6 +234,48 @@ export const cloudDatabase = {
         const sheet = wb.Sheets[wb.SheetNames[0]]
         const json = XLSX.utils.sheet_to_json(sheet, { defval: '' }) as any[]
         if (json?.length) {
+          // Detect base installation table: [مقاس اللوحة, سعر تركيب اللوحة]
+          const first = json[0]
+          const sizeKey = Object.keys(first).find(k => ['مقاس اللوحة','المقاس','size','billboard_size'].includes(k.toString()))
+          const priceKey = Object.keys(first).find(k => ['سعر تركيب اللوحة','السعر','price'].includes(k.toString()))
+          if (sizeKey && priceKey) {
+            const base: Record<string, number> = {}
+            for (const row of json) {
+              const s = (row[sizeKey] || '').toString().replace(/[×X]/g,'x').trim()
+              const p = Number(row[priceKey] || 0)
+              if (s && p) base[s] = p
+            }
+            // Optionally pull municipality multipliers from remote sources and persist
+            try {
+              const muniWb = (await fetchWorkbookFromUrl((typeof import.meta!=='undefined' && import.meta.env && import.meta.env.VITE_MUNICIPALITY_CSV_URL) || '')) || (await fetchWorkbookFromUrl((typeof import.meta!=='undefined' && import.meta.env && import.meta.env.VITE_MUNICIPALITY_XLSX_URL) || ''))
+              if (muniWb && muniWb.SheetNames?.length) {
+                const msheet = muniWb.Sheets[muniWb.SheetNames[0]]
+                const mjson = XLSX.utils.sheet_to_json(msheet, { defval: '' }) as any[]
+                const list = [] as { name: string; multiplier: number }[]
+                for (const r of mjson) {
+                  const name = (r['البلدية'] || r['municipality'] || r['name'] || '').toString().trim()
+                  const m = Number(r['معامل الضرب'] || r['multiplier'] || r['factor'] || 1)
+                  if (name && !isNaN(m)) list.push({ name, multiplier: m })
+                }
+                if (list.length) {
+                  const existing = municipalityService.getMunicipalities()
+                  const names = new Set(list.map(x=>x.name))
+                  const withoutDup = existing.filter(e => !names.has(e.name))
+                  const merged = [...withoutDup, ...list.map((x, idx) => ({ id: (Date.now()+idx).toString(), name: x.name, multiplier: x.multiplier }))]
+                  municipalityService.saveMunicipalities(merged)
+                }
+              }
+            } catch {}
+            const municipalities = municipalityService.getMunicipalities()
+            const zones: InstallationPricing['zones'] = {}
+            municipalities.forEach(m => {
+              zones[m.name] = { name: m.name, prices: {}, multiplier: m.multiplier, description: undefined }
+              Object.entries(base).forEach(([s,p]) => { zones[m.name].prices[s as any] = Math.round(p * (m.multiplier || 1)) })
+            })
+            const sizes = Object.keys(base) as any
+            return { zones, sizes, currency: 'د.ل', lastUpdated: new Date().toISOString(), basePrices: base as any }
+          }
+          // Fallback to per-zone sheet
           const zones: InstallationPricing['zones'] = {}
           let currency: string = 'د.ل'
           for (const r0 of json as any[]) {
