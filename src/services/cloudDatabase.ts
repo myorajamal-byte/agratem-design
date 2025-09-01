@@ -137,7 +137,18 @@ export const cloudDatabase = {
         const json = XLSX.utils.sheet_to_json(sheet, { defval: '' }) as any[]
         if (json?.length) {
           const headers = Object.keys(json[0] || {}).map(k => k.toString())
-          const hasDurations = headers.some(k => ['30','90','180','360','365'].includes(k))
+          const arDurations: Record<string, number> = {
+            'شهر واحد': 1,
+            '1 شهر': 1,
+            'شهر': 1,
+            '2 أشهر': 2,
+            'شهرين': 2,
+            '3 أشهر': 3,
+            '6 أشهر': 6,
+            'سنة كاملة': 12,
+            '12 شهر': 12
+          }
+          const hasDurations = headers.some(k => ['30','90','180','360','365'].includes(k) || Object.keys(arDurations).includes(k))
 
           const mapCustomer = (v: string): 'marketers'|'individuals'|'companies'|null => {
             const s = (v||'').toString().trim()
@@ -159,7 +170,7 @@ export const cloudDatabase = {
             return s === 'A' || s === 'B' ? (s as 'A'|'B') : null
           }
 
-          const durMap: Record<string, number> = { '30': 1, '90': 3, '180': 6, '360': 12, '365': 12 }
+          const durMap: Record<string, number> = { '30': 1, '90': 3, '180': 6, '360': 12, '365': 12, 'شهر واحد': 1, '1 شهر': 1, 'شهر': 1, '2 أشهر': 2, 'شهرين': 2, '3 أشهر': 3, '6 أشهر': 6, 'سنة كاملة': 12, '12 شهر': 12 }
 
           const rows: PricingRow[] = []
           for (let i = 0; i < json.length; i++) {
@@ -172,18 +183,21 @@ export const cloudDatabase = {
             if (hasDurations) {
               // Populate A/B duration prices ONLY from 'individuals' (عادي) rows to avoid duplicates
               if (level && customer === 'individuals') {
+                // Only push columns that actually exist in this row
                 Object.entries(durMap).forEach(([col, dur]) => {
-                  const price = Number(r[col] || 0)
-                  if (size && price) {
-                    rows.push({ id: rows.length+1, zone_id: null, zone_name: 'عام', billboard_size: size, customer_type: null, price, ab_type: level, package_duration: dur, package_discount: null, currency: 'د.ل', created_at: null })
+                  if (headers.includes(col)) {
+                    const price = Number(r[col] || 0)
+                    if (size && price) {
+                      rows.push({ id: rows.length+1, zone_id: null, zone_name: 'عام', billboard_size: size, customer_type: null, price, ab_type: level, package_duration: dur, package_discount: null, currency: 'د.ل', created_at: null })
+                    }
                   }
                 })
               }
               // Also keep legacy per-customer base (30 days) pricing
               if (customer) {
-                const baseCandidates = ['30','price','السعر']
+                const baseCandidates = ['شهر واحد','30','price','السعر']
                 let base = 0
-                for (const k of baseCandidates) { if (!base) base = Number(r[k] || 0) }
+                for (const k of baseCandidates) { if (!base && headers.includes(k)) base = Number(r[k] || 0) }
                 if (size && base) {
                   rows.push({ id: rows.length+1, zone_id: null, zone_name: 'عام', billboard_size: size, customer_type: customer, price: base, ab_type: null, package_duration: null, package_discount: null, currency: 'د.ل', created_at: null })
                 }
