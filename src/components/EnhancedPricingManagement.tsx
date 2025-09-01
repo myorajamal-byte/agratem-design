@@ -239,12 +239,18 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
         })
       } catch {}
 
-      // Initialize zero prices to avoid demo values
+      // Initialize prices from existing pricing service (fallback to zeros)
       const initialPrices: Record<string, Record<string, number>> = {}
+      const availableZonesSet = new Set(availableZones)
+      // Prefer general zone if exists, otherwise first available
+      const sourceZoneName = availableZonesSet.has('عام') ? 'عام' : (availableZones[0] || '')
+      const sourceZone = sourceZoneName ? pricingFromService.zones[sourceZoneName] : null
+
       distinctSizes.forEach(size => {
         initialPrices[size] = {}
         pricingData.categories.forEach(category => {
-          initialPrices[size][category.id] = 0
+          const fromService = sourceZone?.prices?.[category.id as 'marketers'|'individuals'|'companies']?.[size] || 0
+          initialPrices[size][category.id] = Number(fromService) || 0
         })
       })
 
@@ -907,7 +913,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                     <h3 className="font-bold text-blue-900">مزامنة المناطق السعرية مع ملف الإكسل</h3>
                     {syncStatus.needsSync ? (
                       <p className="text-sm text-blue-700">
-                        🔥 تم الع��ور عل�� <span className="font-bold">{syncStatus.missingZones?.length || 0}</span> منطقة جديدة في ملف الإكسل تحتاج إلى مزامنة
+                        🔥 تم الع��ور عل��� <span className="font-bold">{syncStatus.missingZones?.length || 0}</span> منطقة جديدة في ملف الإكسل تحتاج إلى مزامنة
                       </p>
                     ) : syncStatus.lastSync ? (
                       <p className="text-sm text-green-700">
