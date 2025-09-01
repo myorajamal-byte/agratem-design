@@ -155,7 +155,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
     (pricingData.sizes || []).forEach((size) => {
       initialPrices[size] = {}
       pricingData.categories.forEach((category) => {
-        const row = arabicRows.find((r) => (r['المقاس'] || '').toString().trim() === size && (r['ا��مستوى'] || '').toString().trim().toUpperCase() === pricingData.currentLevel.toUpperCase() && mapCat(r['الزبون']) === category.id)
+        const row = arabicRows.find((r) => (r['المقاس'] || '').toString().trim() === size && (r['المستوى'] || '').toString().trim().toUpperCase() === pricingData.currentLevel.toUpperCase() && mapCat(r['الزبون']) === category.id)
         const price = row ? Number((row as any)[col] || 0) : 0
         initialPrices[size][category.id] = price
       })
@@ -1086,7 +1086,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                     </div>
                     <div>
                       <div className="text-2xl font-black">جدول الأسعار التفاعلي</div>
-                      <div className="text-sm text-emerald-100 font-medium">حسب فئة العميل مع التحكم الكامل</div>
+                      <div className="text-sm text-emerald-100 font-medium">ح��ب فئة العميل مع التحكم الكامل</div>
                     </div>
                     {selectedDuration?.unit === 'day' && (
                       <Badge className="bg-amber-500 text-black text-sm font-bold px-3 py-2 rounded-full shadow-lg">حساب يومي</Badge>
