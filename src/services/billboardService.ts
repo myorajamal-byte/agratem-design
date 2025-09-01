@@ -324,7 +324,7 @@ function processBillboardData(billboard: any, index: number): Billboard {
   let status = billboard['الحالة'] || 'متاح'
   let expiryDate = null
 
-  // تحديد الحالة بناءً على وجود عقد
+  // ت��ديد الحالة بناءً على وجود عقد
   if (contractNumber && contractNumber.trim() !== '' && contractNumber !== '#N/A') {
     status = 'محجوز'
 
@@ -348,7 +348,7 @@ function processBillboardData(billboard: any, index: number): Billboard {
           status = "متاح"
         }
       } else {
-        console.warn(`[Service] فشل في ت��ويل تاريخ الانتهاء للوحة ${id}: ${expiryDateValue}`)
+        console.warn(`[Service] فشل في تحويل تاريخ الانتهاء للوحة ${id}: ${expiryDateValue}`)
       }
     }
   } else {
@@ -402,6 +402,7 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
     try {
       console.log("[Service] محاولة قراءة البيانات بصيغة CSV...")
       workbook = await readCsvFromUrl(CSV_URL, 15000)
+      if (!workbook) throw new Error('CSV returned null')
       console.log("[Service] تم تحميل البيانات بصيغة CSV بنجاح ✅")
     } catch (csvError: any) {
       console.warn("[Service] فشل تحميل CSV:", csvError.message)
@@ -444,10 +445,10 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
           try {
             console.log(`[Service] محاولة قراءة ملف الإكسل من الرابط: ${url}`)
             fileBuffer = await readExcelFromUrl(url, 15000, 2)
-            console.log("[Service] تم تحميل ملف الإكسل من الرابط بن��اح ✅")
+            console.log("[Service] تم تحميل ملف الإكسل من الرابط بنجاح ✅")
             break
           } catch (err: any) {
-            console.warn(`[Service] فشل قراءة الملف من الرابط ${url}:`, err.message)
+            console.warn(`[Service] فشل ��راءة الملف من الرابط ${url}:`, err.message)
             lastError = err
             continue
           }
@@ -542,7 +543,7 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
     } catch (localError) {
       console.error('[Service] فشل في تحميل ال��لف ا��محلي أيضاً:', localError)
       
-      // بي��نات احتياطية
+      // بيانات احتياطية
       const today = new Date()
       const in5Days = new Date(today.getTime() + 5 * 24 * 60 * 60 * 1000)
       const in10Days = new Date(today.getTime() + 10 * 24 * 60 * 60 * 1000)
@@ -574,7 +575,7 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
         {
           id: "943",
           name: "TR-TG0943",
-          location: "امام كلية الهندسة العسكرية باتجاه الشرق",
+          location: "امام كلية الهندسة العسكرية بات��اه الشرق",
           municipality: "تاجوراء",
           city: "طرابلس",
           area: "طرابلس",
