@@ -193,11 +193,12 @@ export const cloudDatabase = {
                   }
                 })
               }
-              // Also keep legacy per-customer base (30 days) pricing
+              // Per-customer representative base: prefer long durations to capture category differences
               if (customer) {
-                const baseCandidates = ['يوم واحد','daily','day','شهر واحد','30','price','السعر']
+                const pref = ['سنة كاملة','360','6 أشهر','180','3 أشهر','90','2 أشهر','60','شهر واحد','30']
                 let base = 0
-                for (const k of baseCandidates) { if (!base && headers.includes(k)) base = Number(r[k] || 0) }
+                for (const k of pref) { if (!base && headers.includes(k)) base = Number(r[k] || 0) }
+                if (!base && headers.includes('يوم واحد')) base = Number(r['يوم واحد'] || 0) * 30
                 if (size && base) {
                   rows.push({ id: rows.length+1, zone_id: null, zone_name: 'عام', billboard_size: size, customer_type: customer, price: base, ab_type: null, package_duration: null, package_discount: null, currency: 'د.ل', created_at: null })
                 }
@@ -289,7 +290,7 @@ export const cloudDatabase = {
                 const list = [] as { name: string; multiplier: number }[]
                 for (const r of mjson) {
                   const name = (r['البلدية'] || r['municipality'] || r['name'] || '').toString().trim()
-                  const m = Number(r['معامل الضرب'] || r['multiplier'] || r['factor'] || 1)
+                  const m = Number(r['معا��ل الضرب'] || r['multiplier'] || r['factor'] || 1)
                   if (name && !isNaN(m)) list.push({ name, multiplier: m })
                 }
                 if (list.length) {
