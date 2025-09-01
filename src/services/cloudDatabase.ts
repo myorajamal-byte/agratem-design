@@ -19,9 +19,15 @@ const INSTALL_CSV_URL = (typeof import.meta !== 'undefined' && import.meta.env &
 async function fetchWorkbookFromUrl(url: string, timeoutMs = 12000): Promise<XLSX.WorkBook | null> {
   if (!url) return null
   try {
+    // Normalize Google Sheets links to direct export
+    let effUrl = url
+    const m = url.match(/docs.google.com\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/)
+    if (m && !url.includes('/export')) {
+      effUrl = `https://docs.google.com/spreadsheets/d/${m[1]}/export?format=xlsx`
+    }
     const controller = new AbortController()
     const timeout = setTimeout(() => controller.abort(), timeoutMs)
-    const res = await fetch(`${url}${url.includes('?') ? '&' : '?'}cachebuster=${Date.now()}`, { signal: controller.signal, redirect: 'follow' })
+    const res = await fetch(`${effUrl}${effUrl.includes('?') ? '&' : '?'}cachebuster=${Date.now()}`, { signal: controller.signal, redirect: 'follow' })
     clearTimeout(timeout)
     if (!res.ok) return null
     const ct = res.headers.get('content-type') || ''
