@@ -13,7 +13,7 @@ class NewPricingService {
     try { localStorage.setItem(this.SIZES_STORAGE_KEY, JSON.stringify(sizes)) } catch {}
   }
 
-  // إرجاع المقاسات المتاحة (من التخزين المحلي أو استنتاجاً من الأسعار)
+  // إرجاع ا��مقاسات المتاحة (من التخزين المحلي أو استنتاجاً من الأسعار)
   get sizes(): BillboardSize[] {
     try {
       const stored = localStorage.getItem(this.SIZES_STORAGE_KEY)
@@ -40,6 +40,7 @@ class NewPricingService {
       Object.keys(z.prices?.companies || {}).forEach(s => sizes.add(s))
       Object.keys(z.prices?.individuals || {}).forEach(s => sizes.add(s))
       Object.keys(z.prices?.marketers || {}).forEach(s => sizes.add(s))
+      Object.keys((z.prices as any)?.city || {}).forEach(s => sizes.add(s as any))
     }
     const result = Array.from(sizes)
     return result.length > 0 ? result as BillboardSize[] : FALLBACK_SIZES
@@ -63,8 +64,8 @@ class NewPricingService {
   getPricingZones(): string[] { return Object.keys(this.getPricing().zones || {}) }
 
   // أنواع الزبائن
-  getCustomerTypes(): Array<'marketers' | 'individuals' | 'companies'> {
-    return ['marketers','individuals','companies']
+  getCustomerTypes(): Array<'marketers' | 'individuals' | 'companies' | 'city'> {
+    return ['marketers','individuals','companies','city']
   }
 
   // قوائم الأسعار A/B وأنواع المدد
@@ -150,9 +151,9 @@ class NewPricingService {
           })
         })
         // تحديث النظام القديم أيضاً
-        ;(['marketers','individuals','companies'] as const).forEach((ct) => {
-          if (!zone.prices[ct]) (zone.prices as any)[ct] = {}
-          if (typeof zone.prices[ct][size] !== 'number') zone.prices[ct][size] = defaultPrice
+        ;(['marketers','individuals','companies','city'] as const).forEach((ct) => {
+          if (!(zone.prices as any)[ct]) (zone.prices as any)[ct] = {}
+          if (typeof (zone.prices as any)[ct][size] !== 'number') (zone.prices as any)[ct][size] = defaultPrice
         })
       })
       const res = this.updatePricing(pricing)
@@ -177,7 +178,7 @@ class NewPricingService {
           const durations: Array<'1'|'3'|'6'|'12'> = ['1','3','6','12']
           durations.forEach((dk) => { if (zone.abPrices?.[pl]?.[dk]) delete (zone.abPrices as any)[pl][dk][size] })
         })
-        ;(['marketers','individuals','companies'] as const).forEach((ct) => { if (zone.prices?.[ct]) delete zone.prices[ct][size] })
+        ;(['marketers','individuals','companies','city'] as const).forEach((ct) => { if ((zone.prices as any)?.[ct]) delete (zone.prices as any)[ct][size] })
       })
       const res = this.updatePricing(pricing)
       if (res.success) this.setSizes(current.filter((s) => s !== size))
