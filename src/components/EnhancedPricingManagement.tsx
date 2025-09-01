@@ -67,6 +67,7 @@ interface PricingData {
   currentLevel: string
   currentMunicipality: string
   currentDuration: number
+  currentCategory: string
   prices: Record<string, Record<string, number>> // size -> category -> price
 }
 
@@ -108,6 +109,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
     currentLevel: 'A',
     currentMunicipality: '1',
     currentDuration: 1,
+    currentCategory: 'individuals',
     prices: {}
   })
 
@@ -299,7 +301,8 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
         sizes: distinctSizes,
         prices: initialPrices,
         municipalities: updatedMunicipalities,
-        categories: categoriesToUse
+        categories: categoriesToUse,
+        currentCategory: categoriesToUse[0]?.id || prev.currentCategory || 'individuals'
       }))
 
     } catch (error) {
@@ -927,15 +930,17 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
             </div>
             <div className="flex flex-wrap gap-2">
               {pricingData.categories.map((category) => (
-                <Badge
+                <Button
                   key={category.id}
-                  className={`px-3 py-1 text-sm bg-${category.color}-100 text-${category.color}-800 border border-${category.color}-200`}
+                  onClick={() => setPricingData(prev => ({ ...prev, currentCategory: category.id }))}
+                  variant={pricingData.currentCategory === category.id ? 'default' : 'outline'}
+                  className={`${pricingData.currentCategory === category.id ? 'bg-blue-600 text-white' : 'text-blue-700 border-blue-300'} px-3 py-1 rounded-full`}
                 >
                   {category.name}
                   {category.description && (
                     <span className="text-xs opacity-75 mr-2">({category.description})</span>
                   )}
-                </Badge>
+                </Button>
               ))}
             </div>
           </Card>
@@ -1149,7 +1154,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                         <span className="font-black text-base">الحجم</span>
                       </div>
                     </th>
-                    {pricingData.categories.map((category, index) => {
+                    {[pricingData.categories.find(c=>c.id===pricingData.currentCategory)].filter(Boolean).map((category: any, index: number) => {
                       const colors = [
                         'from-blue-500 via-blue-600 to-indigo-600',
                         'from-emerald-500 via-green-600 to-teal-600',
@@ -1185,16 +1190,16 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                           {size}
                         </div>
                       </td>
-                      {pricingData.categories.map(category => {
-                        const cellKey = `${size}-${category.id}`
-                        const basePrice = pricingData.prices[size]?.[category.id] || 0
+                      {[pricingData.categories.find(c=>c.id===pricingData.currentCategory)].filter(Boolean).map(category => {
+                        const cellKey = `${size}-${category!.id}`
+                        const basePrice = pricingData.prices[size]?.[category!.id] || 0
                         const { price: finalPrice, calculation, dailyRate } = calculateFinalPrice(basePrice, size)
                         const isEditing = editingCell === cellKey
                         const hasChanges = unsavedChanges.changedCells.has(cellKey)
 
                         return (
                           <td
-                            key={category.id}
+                            key={category!.id}
                             className={`border-0 p-2 text-center relative transition-all duration-300 ${
                               hasChanges ? 'bg-yellow-200 shadow-inner animate-pulse' : 'bg-white'
                             }`}
