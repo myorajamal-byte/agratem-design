@@ -16,6 +16,21 @@ const supabaseUrl = (typeof import.meta !== 'undefined' && import.meta.env && im
 const supabaseAnonKey = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_SUPABASE_ANON_KEY) || ''
 const supabase = supabaseUrl && supabaseAnonKey ? createClient(supabaseUrl, supabaseAnonKey) : null
 
+function customerEnToArabic(id: string): string {
+  if (id === 'companies') return 'شركات'
+  if (id === 'marketers') return 'مسوق'
+  return 'عادي'
+}
+
+function durationToColumn(value: number): keyof ArabicPricingRow {
+  if (value === 1) return 'يوم واحد'
+  if (value === 30) return 'شهر واحد'
+  if (value === 60) return '2 أشهر'
+  if (value === 90) return '3 أشهر'
+  if (value === 180) return '6 أشهر'
+  return 'سنة كاملة'
+}
+
 export const arabicPricingTable = {
   async getRows(): Promise<ArabicPricingRow[]> {
     // 1) Try Supabase
@@ -46,4 +61,51 @@ export const arabicPricingTable = {
 
     return []
   },
+
+  async upsertCell(size: string, level: string, customerId: 'companies'|'individuals'|'marketers', durationValue: number, price: number): Promise<boolean> {
+    try {
+      const customerAr = customerEnToArabic(customerId)
+      const col = durationToColumn(durationValue)
+
+      if (supabase) {
+        // Fetch existing row
+        const { data } = await supabase.from('pricing')
+          .select('*')
+          .eq('المقاس', size)
+          .eq('المستوى', level)
+          .eq('الزبون', customerAr)
+          .maybeSingle()
+        if (data) {
+          const update: any = {}
+          update[col as any] = price
+          const { error } = await supabase.from('pricing')
+            .update(update)
+            .eq('المقاس', size)
+            .eq('المستوى', level)
+            .eq('الزبون', customerAr)
+          return !error
+        } else {
+          const row: any = { 'المقاس': size, 'المستوى': level, 'الزبون': customerAr, 'شهر واحد': null, '2 أشهر': null, '3 أشهر': null, '6 أشهر': null, 'سنة كاملة': null, 'يوم واحد': null }
+          row[col as any] = price
+          const { error } = await supabase.from('pricing').insert(row)
+          return !error
+        }
+      }
+
+      // LocalStorage fallback
+      const rows = await this.getRows()
+      const idx = rows.findIndex(r => (r['المقاس']||'').toString().trim() === size && (r['المستوى']||'').toString().trim().toUpperCase() === level.toUpperCase() && (r['الزبون']||'').toString().trim() === customerAr)
+      if (idx >= 0) {
+        (rows[idx] as any)[col] = price
+      } else {
+        const newRow: any = { 'المقاس': size, 'المستوى': level, 'الزبون': customerAr, 'شهر واحد': null, '2 أشهر': null, '3 أشهر': null, '6 أشهر': null, 'سنة كاملة': null, 'يوم واحد': null }
+        newRow[col] = price
+        rows.push(newRow)
+      }
+      localStorage.setItem('external_arabic_pricing_rows', JSON.stringify(rows))
+      return true
+    } catch {
+      return false
+    }
+  }
 }
