@@ -112,7 +112,7 @@ async function readCsvFromUrl(url: string, timeoutMs = 10000) {
     return workbook
   } catch (error: any) {
     console.warn(`[Service] خطأ في قراءة CSV: ${error.message}`)
-    throw error
+    return null
   }
 }
 
@@ -348,7 +348,7 @@ function processBillboardData(billboard: any, index: number): Billboard {
           status = "متاح"
         }
       } else {
-        console.warn(`[Service] فشل في تحويل تاريخ الانتهاء للوحة ${id}: ${expiryDateValue}`)
+        console.warn(`[Service] فشل في ت��ويل تاريخ الانتهاء للوحة ${id}: ${expiryDateValue}`)
       }
     }
   } else {
@@ -444,7 +444,7 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
           try {
             console.log(`[Service] محاولة قراءة ملف الإكسل من الرابط: ${url}`)
             fileBuffer = await readExcelFromUrl(url, 15000, 2)
-            console.log("[Service] تم تحميل ملف الإكسل من الرابط بنجاح ✅")
+            console.log("[Service] تم تحميل ملف الإكسل من الرابط بن��اح ✅")
             break
           } catch (err: any) {
             console.warn(`[Service] فشل قراءة الملف من الرابط ${url}:`, err.message)
@@ -542,7 +542,7 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
     } catch (localError) {
       console.error('[Service] فشل في تحميل ال��لف ا��محلي أيضاً:', localError)
       
-      // بيانات احتياطية
+      // بي��نات احتياطية
       const today = new Date()
       const in5Days = new Date(today.getTime() + 5 * 24 * 60 * 60 * 1000)
       const in10Days = new Date(today.getTime() + 10 * 24 * 60 * 60 * 1000)
