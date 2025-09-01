@@ -210,7 +210,17 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
     try {
       // Load zones from pricing service (Supabase-backed)
       const { newPricingService } = await import('@/services/newPricingService')
-      const pricingFromService = newPricingService.getPricing()
+      let pricingFromService = newPricingService.getPricing()
+      if (!pricingFromService || !pricingFromService.zones || Object.keys(pricingFromService.zones).length === 0) {
+        try {
+          const { cloudDatabase } = await import('@/services/cloudDatabase')
+          const remote = await cloudDatabase.getRentalPricing()
+          if (remote) {
+            newPricingService.updatePricing(remote)
+            pricingFromService = remote
+          }
+        } catch {}
+      }
 
       // Load distinct sizes from Supabase pricing table, fallback to current pricing-derived sizes
       const { sizesDatabase } = await import('@/services/sizesDatabase')
@@ -1281,7 +1291,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                           جدول معاملات البلديات
                         </div>
                         <div className="text-sm text-gray-300 font-medium mt-1">
-                          إدارة شاملة لمعاملات الضرب وأسعار البلديات المختلفة
+                          إدارة شاملة لمعاملات الضرب وأسع��ر البلديات المختلفة
                         </div>
                       </div>
                     </h3>
