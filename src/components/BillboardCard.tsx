@@ -57,7 +57,7 @@ export default function BillboardCard({ billboard, isSelected, onToggleSelection
 
       // إذا لم يجد سعر في النظام الجديد، استخدم النظام القديم
       if (monthlyPrice === 0) {
-        pricingService.addPricingZoneForMunicipality(billboard.municipality)
+        newPricingService.addPricingZoneForMunicipality(billboard.municipality)
         monthlyPrice = pricingService.getBillboardPriceAB(
           billboard.size as BillboardSize,
           zone,
@@ -401,7 +401,7 @@ export default function BillboardCard({ billboard, isSelected, onToggleSelection
               style={{display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px'}}
             >
               <MapPin className="w-4 h-4" />
-              <span dir="rtl">عرض الموقع على الخريطة</span>
+              <span dir="rtl">عرض ��لموقع على الخريطة</span>
             </Button>
           </div>
         </div>
