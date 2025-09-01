@@ -77,7 +77,7 @@ export interface SizeManagement {
   validateSize: (size: string) => boolean
 }
 
-export type CustomerType = 'marketers' | 'individuals' | 'companies'
+export type CustomerType = 'marketers' | 'individuals' | 'companies' | 'city'
 
 export type PriceListType = 'A' | 'B'
 
@@ -89,9 +89,10 @@ export type PackageDuration = {
 }
 
 export interface CustomerTypePricing {
-  marketers: Record<BillboardSize, number> // أسعار المسوقين
-  individuals: Record<BillboardSize, number> // أسعار العاديين
-  companies: Record<BillboardSize, number> // أسعار الشركات
+  marketers: Record<BillboardSize, number>
+  individuals: Record<BillboardSize, number>
+  companies: Record<BillboardSize, number>
+  city?: Record<BillboardSize, number>
 }
 
 // نظام قوائم الأسعار A و B مع المدد
