@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 import type { PriceList, InstallationPricing } from '@/types'
 import { createClient } from '@supabase/supabase-js'
 import * as XLSX from 'xlsx'
+import { municipalityService } from '@/services/municipalityService'
 
 // Prefer Supabase for cloud persistence; fallback to Netlify KV if not configured
 const supabaseUrl = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_SUPABASE_URL) || ''
