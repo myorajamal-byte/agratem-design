@@ -93,7 +93,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       { id: 'C', name: 'مستوى C', description: 'مواقع اقتصادي��' }
     ],
     municipalities: [
-      { id: '1', name: 'مصرات��', multiplier: 1.0 },
+      { id: '1', name: 'مصرات����', multiplier: 1.0 },
       { id: '2', name: 'زل��تن', multiplier: 0.8 },
       { id: '3', name: 'بنغازي', multiplier: 1.2 },
       { id: '4', name: 'طرابلس', multiplier: 1.0 }
@@ -212,15 +212,12 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       const { newPricingService } = await import('@/services/newPricingService')
       const pricingFromService = newPricingService.getPricing()
 
-      // Load distinct sizes from Supabase pricing table
+      // Load distinct sizes from Supabase pricing table, fallback to current pricing-derived sizes
       const { sizesDatabase } = await import('@/services/sizesDatabase')
-      const distinctSizes = await (async () => {
-        const { data, error } = await (sizesDatabase as any).client
-          ? { data: null, error: null }
-          : { data: null, error: null }
-        const sizes = await sizesDatabase.getDistinctSizesFromPricing?.() || []
-        return sizes
-      })()
+      let distinctSizes = await sizesDatabase.getDistinctSizesFromPricing?.()
+      if (!distinctSizes || distinctSizes.length === 0) {
+        distinctSizes = newPricingService.sizes
+      }
 
       // Update municipalities list from pricing zones
       const availableZones = Object.keys(pricingFromService.zones)
@@ -913,7 +910,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                     <h3 className="font-bold text-blue-900">مزامنة المناطق السعرية مع ملف الإكسل</h3>
                     {syncStatus.needsSync ? (
                       <p className="text-sm text-blue-700">
-                        🔥 تم الع��ور عل��� <span className="font-bold">{syncStatus.missingZones?.length || 0}</span> منطقة جديدة في ملف الإكسل تحتاج إلى مزامنة
+                        🔥 تم الع��ور عل�� <span className="font-bold">{syncStatus.missingZones?.length || 0}</span> منطقة جديدة في ملف الإكسل تحتاج إلى مزامنة
                       </p>
                     ) : syncStatus.lastSync ? (
                       <p className="text-sm text-green-700">
