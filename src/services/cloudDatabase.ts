@@ -77,7 +77,7 @@ type PricingRow = {
   zone_id: number | null
   zone_name: string
   billboard_size: string
-  customer_type: 'marketers' | 'individuals' | 'companies' | null
+  customer_type: 'marketers' | 'individuals' | 'companies' | 'city' | null
   price: number
   ab_type: 'A' | 'B' | null
   package_duration: number | null
@@ -95,7 +95,7 @@ function rowsToPriceList(rows: PricingRow[]): PriceList {
     if (!zones[r.zone_name]) {
       zones[r.zone_name] = {
         name: r.zone_name,
-        prices: { marketers: {}, individuals: {}, companies: {} },
+        prices: { marketers: {}, individuals: {}, companies: {}, city: {} as any },
         abPrices: { A: { '1': {}, '3': {}, '6': {}, '12': {} }, B: { '1': {}, '3': {}, '6': {}, '12': {} } }
       }
     }
@@ -150,18 +150,18 @@ export const cloudDatabase = {
           }
           const hasDurations = headers.some(k => ['30','90','180','360','365'].includes(k) || Object.keys(arDurations).includes(k))
 
-          const mapCustomer = (v: string): 'marketers'|'individuals'|'companies'|null => {
+          const mapCustomer = (v: string): 'marketers'|'individuals'|'companies'|'city'|null => {
             const s = (v||'').toString().trim()
             if (!s) return null
             const lower = s.toLowerCase()
-            // Ignore obvious non-customer values
-            if (['المدينة','city'].some(x=>lower.includes(x))) return null
+            // City special category
+            if (['المدينة','city'].some(x=>lower.includes(x))) return 'city'
             // Companies synonyms
             if (['شركات','الشركات','companies','company','corporate','business'].some(x=>lower.includes(x))) return 'companies'
             // Individuals synonyms (normal)
             if (['افراد','الأفراد','الافراد','عادي','العادي','العاديين','individuals','individual','normal','regular'].some(x=>lower.includes(x))) return 'individuals'
             // Marketers synonyms
-            if (['مسوق','مسوقين','المسوق','المسوقين','marketers','marketer'].some(x=>lower.includes(x))) return 'marketers'
+            if (['مسوق','مسوقين','ال��سوق','المسوقين','marketers','marketer'].some(x=>lower.includes(x))) return 'marketers'
             return null
           }
 
@@ -229,7 +229,7 @@ export const cloudDatabase = {
       const rows: PricingRow[] = [] as any
       Object.entries(pricing.zones).forEach(([zone_name, zone]) => {
         // customer types
-        (['marketers','individuals','companies'] as const).forEach(ct => {
+        (['marketers','individuals','companies','city'] as const).forEach(ct => {
           Object.entries(zone.prices[ct]).forEach(([billboard_size, price]) => {
             rows.push({ id: 0, zone_id: null, zone_name, billboard_size, customer_type: ct, price: Number(price), ab_type: null, package_duration: null, package_discount: null, currency: pricing.currency, created_at: new Date().toISOString() })
           })
@@ -315,7 +315,7 @@ export const cloudDatabase = {
           let currency: string = 'د.ل'
           for (const r0 of json as any[]) {
             const zone_name = (r0.zone_name || r0['zone'] || r0['المنطقة'] || '').toString()
-            const size = (r0.billboard_size || r0['size'] || r0['المقاس'] || '').toString()
+            const size = (r0.billboard_size || r0['size'] || r0['الم��اس'] || '').toString()
             const price = Number(r0.price || r0['السعر'] || 0)
             const multiplier = r0.multiplier != null ? Number(r0.multiplier) : 1.0
             const desc = (r0.description || '').toString() || undefined
