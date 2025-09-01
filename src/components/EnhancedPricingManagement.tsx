@@ -29,6 +29,7 @@ import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import * as XLSX from 'xlsx'
+import { arabicPricingTable, ArabicPricingRow } from '@/services/arabicPricingTable'
 
 // Types for the enhanced pricing system
 interface Municipality {
@@ -123,11 +124,13 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
   const [syncStatus, setSyncStatus] = useState<SyncStatus>({ isLoading: false })
   const [showSyncInfo, setShowSyncInfo] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [arabicRows, setArabicRows] = useState<ArabicPricingRow[]>([])
 
   // Duration options with discounts
   const durationOptions = [
     { value: 1, label: 'يوم واحد', discount: 0, unit: 'day' },
     { value: 30, label: 'شهر واحد', discount: 0, unit: 'month' },
+    { value: 60, label: '2 أشهر', discount: 0, unit: 'months' },
     { value: 90, label: '3 أشهر', discount: 5, unit: 'months' },
     { value: 180, label: '6 أشهر', discount: 10, unit: 'months' },
     { value: 365, label: 'سنة كاملة', discount: 20, unit: 'year' }
@@ -141,6 +144,24 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
     }
     init()
   }, [])
+
+  // Recompute visible prices when level/duration change
+  useEffect(() => {
+    if (!arabicRows || arabicRows.length === 0) return
+    const colFor = (v: number) => (v === 1 ? 'يوم واحد' : v === 30 ? 'شهر واحد' : v === 60 ? '2 أشهر' : v === 90 ? '3 أشهر' : v === 180 ? '6 أشهر' : 'سنة كاملة') as keyof ArabicPricingRow
+    const mapCat = (ar?: string) => (ar && ar.includes('شرك') ? 'companies' : ar && ar.includes('مسوق') ? 'marketers' : 'individuals')
+    const initialPrices: Record<string, Record<string, number>> = {}
+    const col = colFor(pricingData.currentDuration)
+    (pricingData.sizes || []).forEach((size) => {
+      initialPrices[size] = {}
+      pricingData.categories.forEach((category) => {
+        const row = arabicRows.find((r) => (r['المقاس'] || '').toString().trim() === size && (r['المستوى'] || '').toString().trim().toUpperCase() === pricingData.currentLevel.toUpperCase() && mapCat(r['الزبون']) === category.id)
+        const price = row ? Number((row as any)[col] || 0) : 0
+        initialPrices[size][category.id] = price
+      })
+    })
+    setPricingData((prev) => ({ ...prev, prices: initialPrices }))
+  }, [pricingData.currentLevel, pricingData.currentDuration, arabicRows])
 
   // Check if sync is needed
   const checkSyncStatus = async () => {
@@ -239,12 +260,22 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
         })
       } catch {}
 
-      // Initialize zero prices to avoid demo values
+      // Fetch Arabic pricing rows (global for all municipalities)
+      const rows = await arabicPricingTable.getRows()
+      setArabicRows(rows)
+
+      const colFor = (v: number) => (v === 1 ? 'يوم واحد' : v === 30 ? 'شهر واحد' : v === 60 ? '2 أشهر' : v === 90 ? '3 أشهر' : v === 180 ? '6 أشهر' : 'سنة كاملة') as keyof ArabicPricingRow
+      const mapCat = (ar?: string) => (ar && ar.includes('شرك') ? 'companies' : ar && ar.includes('مسوق') ? 'marketers' : 'individuals')
+
+      // Build prices for current view (level + duration)
       const initialPrices: Record<string, Record<string, number>> = {}
-      distinctSizes.forEach(size => {
+      const col = colFor(pricingData.currentDuration)
+      distinctSizes.forEach((size) => {
         initialPrices[size] = {}
-        pricingData.categories.forEach(category => {
-          initialPrices[size][category.id] = 0
+        pricingData.categories.forEach((category) => {
+          const row = rows.find((r) => (r['المقاس'] || '').toString().trim() === size && (r['المستوى'] || '').toString().trim().toUpperCase() === pricingData.currentLevel.toUpperCase() && mapCat(r['الزبون']) === category.id)
+          const price = row ? Number((row as any)[col] || 0) : 0
+          initialPrices[size][category.id] = price
         })
       })
 
@@ -252,7 +283,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
         ...prev,
         sizes: distinctSizes,
         prices: initialPrices,
-        municipalities: updatedMunicipalities
+        municipalities: availableZones.length > 0 ? updatedMunicipalities : prev.municipalities
       }))
 
     } catch (error) {
