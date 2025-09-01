@@ -195,7 +195,7 @@ export const cloudDatabase = {
               }
               // Also keep legacy per-customer base (30 days) pricing
               if (customer) {
-                const baseCandidates = ['شهر واحد','30','price','السعر']
+                const baseCandidates = ['يوم واحد','daily','day','شهر واحد','30','price','السعر']
                 let base = 0
                 for (const k of baseCandidates) { if (!base && headers.includes(k)) base = Number(r[k] || 0) }
                 if (size && base) {
