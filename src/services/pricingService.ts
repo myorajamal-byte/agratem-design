@@ -118,7 +118,7 @@ class PricingService {
   }
 
   getCustomerTypeLabel(type: CustomerType): string {
-    const labels = { marketers: 'المسوقين', individuals: 'العاديين', companies: 'الشركات' }
+    const labels = { marketers: 'المسوقين', individuals: 'العاديين', companies: 'الشركات', city: 'المدينة' }
     return (labels as any)[type] || 'غير محدد'
   }
 
