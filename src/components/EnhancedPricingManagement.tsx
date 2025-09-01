@@ -29,6 +29,7 @@ import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import * as XLSX from 'xlsx'
+import { newPricingService } from '@/services/newPricingService'
 
 // Types for the enhanced pricing system
 interface Municipality {
@@ -99,7 +100,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       { id: '4', name: 'طرابلس', multiplier: 1.0 }
     ],
     categories: [
-      { id: 'marketers', name: 'مسوقين', description: 'خصم للمسوقين', color: 'blue' },
+      { id: 'marketers', name: 'مسوقين', description: 'خصم للمسوقي��', color: 'blue' },
       { id: 'companies', name: 'شركات', description: 'أسعار الشركات', color: 'green' },
       { id: 'individuals', name: 'أفراد', description: 'الأسعار العادية', color: 'purple' }
     ],
@@ -273,7 +274,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       })
       const derivedCategories = Array.from(presentKeys).map((id) => ({ id, name: labelMap[id]?.name || id, description: labelMap[id]?.description, color: labelMap[id]?.color || 'blue' }))
       const categoriesToUse = derivedCategories.length > 0 ? derivedCategories : [
-        { id: 'marketers', name: 'مسوق', description: 'من ال��يت', color: 'blue' },
+        { id: 'marketers', name: 'مسوق', description: 'من الشيت', color: 'blue' },
         { id: 'companies', name: 'شركات', description: 'من الشيت', color: 'green' },
         { id: 'individuals', name: 'عادي', description: 'من الشيت', color: 'purple' }
       ]
@@ -351,12 +352,25 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
   }
 
   // Calculate final price with municipality multiplier and duration discount
-  const calculateFinalPrice = (basePrice: number): { price: number, calculation: string, dailyRate: number } => {
+  const calculateFinalPrice = (basePrice: number, size?: string): { price: number, calculation: string, dailyRate: number } => {
     const municipality = pricingData.municipalities.find(m => m.id === pricingData.currentMunicipality)
     const duration = durationOptions.find(d => d.value === pricingData.currentDuration)
 
-    let finalPrice = basePrice
-    let calculationSteps = [`السعر الأساسي: ${formatPrice(basePrice)}`]
+    let sourcePrice = basePrice
+    const monthsMap: Record<number, number> = { 1: 0, 30: 1, 60: 2, 90: 3, 180: 6, 365: 12 }
+    const months = monthsMap[pricingData.currentDuration] ?? 1
+
+    // حاول استخدام سعر A/B من الشيت للمدة المحددة (من منطقة "عام")
+    if (size) {
+      try {
+        const lvl = (pricingData.currentLevel as 'A'|'B') || 'A'
+        const ab = newPricingService.getBillboardPriceABWithDuration(size as any, 'عام', lvl, months)
+        if (ab && ab > 0) sourcePrice = ab
+      } catch {}
+    }
+
+    let finalPrice = sourcePrice
+    const calculationSteps: string[] = [`السعر الأساسي: ${formatPrice(sourcePrice)}`]
 
     // Apply municipality multiplier
     if (municipality && municipality.multiplier !== 1.0) {
@@ -364,31 +378,16 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       calculationSteps.push(`معامل ${municipality.name}: ×${municipality.multiplier} = ${formatPrice(finalPrice)}`)
     }
 
-    // Apply duration discount
-    if (duration && duration.discount > 0) {
-      const discountAmount = finalPrice * (duration.discount / 100)
-      finalPrice -= discountAmount
-      calculationSteps.push(`خصم ${duration.label}: -${duration.discount}% = ${formatPrice(finalPrice)}`)
-    }
-
+    // لا نطبق خصم إضافي إذا تم أخذ السعر مباشرة من عمود المدة في الشيت
     // Calculate daily rate
     let dailyRate = finalPrice
     if (duration) {
-      if (duration.unit === 'month') {
-        dailyRate = finalPrice / 30
-      } else if (duration.unit === 'months') {
-        dailyRate = finalPrice / duration.value
-      } else if (duration.unit === 'year') {
-        dailyRate = finalPrice / 365
-      }
-      // For 'day' unit, dailyRate remains the same as finalPrice
+      if (duration.unit === 'month') dailyRate = finalPrice / 30
+      else if (duration.unit === 'months') dailyRate = finalPrice / (duration.value || 30)
+      else if (duration.unit === 'year') dailyRate = finalPrice / 365
     }
 
-    return {
-      price: Math.round(finalPrice),
-      calculation: calculationSteps.join('\n'),
-      dailyRate: Math.round(dailyRate)
-    }
+    return { price: Math.round(finalPrice), calculation: calculationSteps.join('\n'), dailyRate: Math.round(dailyRate) }
   }
 
   // Handle cell editing
@@ -542,7 +541,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       }
     } catch (e: any) {
       setSyncStatus(prev => ({ ...prev, isLoading: false }))
-      showNotification('error', e?.message || 'فشل ف�� مزامنة المقاسات')
+      showNotification('error', e?.message || 'فشل في مزامنة المقاسات')
     }
   }
 
@@ -739,7 +738,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                 <DollarSign className="w-6 h-6" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold">إدارة الأسعار المتطورة</h1>
+                <h1 className="text-2xl font-bold">إدارة الأسعار الم��طورة</h1>
                 <p className="text-sm opacity-90">النظام الشامل لإدارة أسعار اللوحات الإعلانية</p>
               </div>
             </div>
@@ -1189,7 +1188,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                       {pricingData.categories.map(category => {
                         const cellKey = `${size}-${category.id}`
                         const basePrice = pricingData.prices[size]?.[category.id] || 0
-                        const { price: finalPrice, calculation, dailyRate } = calculateFinalPrice(basePrice)
+                        const { price: finalPrice, calculation, dailyRate } = calculateFinalPrice(basePrice, size)
                         const isEditing = editingCell === cellKey
                         const hasChanges = unsavedChanges.changedCells.has(cellKey)
 
@@ -1483,7 +1482,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-1">خصم اختياري (%)</label>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">خصم اخت��اري (%)</label>
                   <Input
                     type="number"
                     value={newLevel.discount}
