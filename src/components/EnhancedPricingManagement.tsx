@@ -155,7 +155,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
     (pricingData.sizes || []).forEach((size) => {
       initialPrices[size] = {}
       pricingData.categories.forEach((category) => {
-        const row = arabicRows.find((r) => (r['المقاس'] || '').toString().trim() === size && (r['المستوى'] || '').toString().trim().toUpperCase() === pricingData.currentLevel.toUpperCase() && mapCat(r['الزبون']) === category.id)
+        const row = arabicRows.find((r) => (r['المقاس'] || '').toString().trim() === size && (r['ا��مستوى'] || '').toString().trim().toUpperCase() === pricingData.currentLevel.toUpperCase() && mapCat(r['الزبون']) === category.id)
         const price = row ? Number((row as any)[col] || 0) : 0
         initialPrices[size][category.id] = price
       })
@@ -265,7 +265,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       // Build prices for current view (level + duration)
       const initialPrices: Record<string, Record<string, number>> = {}
       const col = colFor(pricingData.currentDuration)
-      distinctSizes.forEach((size) => {
+      sizesList.forEach((size) => {
         initialPrices[size] = {}
         pricingData.categories.forEach((category) => {
           const row = rows.find((r) => (r['المقاس'] || '').toString().trim() === size && (r['المستوى'] || '').toString().trim().toUpperCase() === pricingData.currentLevel.toUpperCase() && mapCat(r['الزبون']) === category.id)
@@ -276,7 +276,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
 
       setPricingData(prev => ({
         ...prev,
-        sizes: distinctSizes,
+        sizes: sizesList,
         prices: initialPrices,
         municipalities: availableZones.length > 0 ? updatedMunicipalities : prev.municipalities
       }))
@@ -476,7 +476,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       await autoSaveChanges({})
       console.log(`تم حفظ الفئ�� الجديدة تلقائياً: ${newCategory.name}`)
     } catch (error) {
-      console.warn('لم يتم حفظ الفئة الجديدة تلقائياً:', error)
+      console.warn('لم يتم حفظ الفئة الجديدة تلقا��ياً:', error)
     }
 
     setNewCategory({ name: '', description: '', color: 'blue' })
