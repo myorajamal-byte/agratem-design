@@ -37,7 +37,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
         setError('اسم المستخدم أو كلمة المرور غير صحيحة')
       }
     } catch (error) {
-      setError('حدث خطأ في تسجيل الدخول. يرجى المحاولة مرة أخرى')
+      setError('حدث خطأ في تسجيل الدخول. يرجى المحاول�� مرة أخرى')
     } finally {
       setIsLoading(false)
     }
@@ -152,6 +152,21 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
               )}
             </Button>
           </form>
+
+          <div className="mt-6 flex items-center justify-center gap-2 text-sm text-gray-700">
+            <span>ليس لديك حساب؟</span>
+            <button
+              className="text-yellow-700 font-bold hover:underline"
+              type="button"
+              onClick={() => {
+                const url = new URL(window.location.href)
+                url.searchParams.set('register', '1')
+                window.location.href = url.toString()
+              }}
+            >
+              إنشاء حساب جديد
+            </button>
+          </div>
 
           {/* معلومات تسجيل الدخول للتجربة */}
           <div className="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
