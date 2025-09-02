@@ -662,6 +662,19 @@ ${selectedBillboardsData
           </div>
         )}
 
+        {/* مستكشف قائمة الأسعار الحديثة */}
+        <div className="bg-white rounded-xl shadow-lg p-4 mb-6 border-2 border-yellow-200">
+          <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2 text-right" dir="rtl">
+            <DollarSign className="w-5 h-5 text-yellow-600" />
+            قائمة الأسعار الحديثة (فئات ومس��ويات)
+          </h3>
+          <div className="flex flex-wrap gap-3">
+            <Button onClick={() => setShowPricingExplorer(true)} className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-black font-black">
+              استعراض قائمة الأسعار
+            </Button>
+          </div>
+        </div>
+
         {/* أزرار إدارة الأسعار للمدراء */}
         {((user && (user.role === 'admin' || user.permissions?.some(p => p.name === 'admin_access'))) ? true : false) && (
           <div className="bg-white rounded-xl shadow-lg p-4 mb-6 border-2 border-blue-200">
