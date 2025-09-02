@@ -210,7 +210,7 @@ export default function MainApp() {
 رقم الهاتف: ${customerPhone || "غير محدد"}
 
 رسالة العميل:
-${emailMessage || "لا توجد رسالة إضافية"}
+${emailMessage || "لا توجد ��سالة إضافية"}
 
 اللوحات المختارة (${selectedBillboards.size} لوحة):
 ${selectedBillboardsData
@@ -576,7 +576,7 @@ ${selectedBillboardsData
         <section className="bg-gradient-to-r from-yellow-500 via-yellow-400 to-yellow-500 text-black py-16 relative z-10">
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-5xl md:text-6xl font-black mb-6 tracking-tight leading-tight">
-              الرائدون في عالم الدعاية والإعلان
+              الرائدون في عالم ا��دعاية والإعلان
             </h2>
             <p className="text-xl md:text-2xl mb-8 max-w-4xl mx-auto leading-relaxed font-bold">
               نحن نقدم حلول إعل��نية متكاملة ومبتكرة تضمن وصول رسالتك إلى الجمهور المناسب في الوقت ال��ناسب
@@ -595,7 +595,7 @@ ${selectedBillboardsData
               </div>
               <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 shadow-lg">
                 <MapPin className="w-12 h-12 mx-auto mb-4 text-black" />
-                <h3 className="text-3xl font-black mb-2"> نملك مواقع كافية لحملتك الإعلانية</h3>
+                <h3 className="text-3xl font-black mb-2"> نملك مواقع ك��فية لحملتك الإعلانية</h3>
                 <p className="text-lg font-bold"></p>
               </div>
               <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 shadow-lg">
@@ -935,6 +935,8 @@ ${selectedBillboardsData
       )}
 
       <Footer />
+
+      <PricingExplorer isOpen={showPricingExplorer} onClose={() => setShowPricingExplorer(false)} />
 
       {/* نافذة إعدادات النظام */}
       {showSettings && (user?.role === 'admin' || user?.permissions.some(p => p.name === 'manage_users' || p.name === 'admin_access')) && (
