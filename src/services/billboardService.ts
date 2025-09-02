@@ -98,7 +98,7 @@ async function readCsvFromUrl(url: string, timeoutMs = 10000) {
     }
 
     if (!res.ok) {
-      throw new Error(`فشل تحميل ملف CSV: ${res.status} ${res.statusText}`)
+      throw new Error(`��شل تحميل ملف CSV: ${res.status} ${res.statusText}`)
     }
 
     const csvText = await res.text()
@@ -159,7 +159,7 @@ async function readExcelFromUrl(url: string, timeoutMs = 10000, retries = 2) {
         } else if (res.status === 404) {
           throw new Error(`الملف غير موجود. تأكد من صحة رابط Google Sheets. كود الخطأ: ${res.status}`)
         } else if (res.status === 429) {
-          throw new Error(`تم تجاوز حد الطلبات. حاول مرة أخرى لاحقاً. كود الخطأ: ${res.status}`)
+          throw new Error(`تم تجاوز حد الطلبات. حاول مرة أخرى لاحق��ً. كود الخطأ: ${res.status}`)
         } else {
           throw new Error(`فشل تحميل ملف الإكسل من الرابط: ${res.status} ${res.statusText}`)
         }
@@ -394,10 +394,8 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
     
     let workbook: XLSX.WorkBook
 
-    console.log(`[Service] التحقق من صحة الرابط: ${ONLINE_URL}`)
-
-    const isUrlAccessible = await testUrlAccess(ONLINE_URL)
-    console.log(`[Service] هل الرابط متاح؟ ${isUrlAccessible}`)
+    // تجنب طلب HEAD لأنه قد يفشل بسبب CORS أو إضافات المتصفح
+    // نعتمد مباشرة على محاولات CSV ثم Excel مع آليات fallback المحلية
 
     try {
       console.log("[Service] محاولة قراءة البيانات بصيغة CSV...")
