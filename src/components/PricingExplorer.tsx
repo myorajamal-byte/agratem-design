@@ -4,18 +4,13 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { pricingService } from '@/services/pricingService'
-import { PackageDuration, PriceList, PriceListType, CustomerType, BillboardSize } from '@/types'
+import { PackageDuration, PriceList, PriceListType, BillboardSize } from '@/types'
 
 interface PricingExplorerProps {
   isOpen: boolean
   onClose: () => void
 }
 
-const CATEGORY_LABEL: Record<CustomerType, string> = {
-  marketers: 'مسوق',
-  individuals: 'عادي',
-  companies: 'شركات',
-}
 
 const LEVEL_LABEL: Record<PriceListType, string> = {
   A: 'مستوى A',
@@ -28,11 +23,18 @@ export default function PricingExplorer({ isOpen, onClose }: PricingExplorerProp
   const packages = pricingService.getPackages()
 
   const [mode, setMode] = useState<'category' | 'level'>('category')
-  const [category, setCategory] = useState<CustomerType>('individuals')
+  const [category, setCategory] = useState<string>('')
   const [level, setLevel] = useState<PriceListType>('A')
   const [zone, setZone] = useState<string>(zones[0] || '')
   const [duration, setDuration] = useState<PackageDuration | null>(packages[0] || null)
   const [zoneQuery, setZoneQuery] = useState('')
+
+  // Initialize first available category when zone/mode changes
+  const zonePrices = pricing.zones[zone]?.prices as any
+  const catKeys = Object.keys(zonePrices || {})
+  if (!category && catKeys.length) {
+    setTimeout(() => setCategory(catKeys[0]), 0)
+  }
 
   const currency = pricing.currency || 'د.ل'
 
@@ -126,9 +128,9 @@ export default function PricingExplorer({ isOpen, onClose }: PricingExplorerProp
           {/* Tabs */}
           {mode === 'category' ? (
             <div className="flex flex-wrap gap-2">
-              {(Object.keys(CATEGORY_LABEL) as Array<CustomerType>).map((c) => (
+              {Object.keys((pricing.zones[zone]?.prices)||{}).map((c) => (
                 <button key={c} onClick={() => setCategory(c)} className={`px-4 py-2 rounded-full border text-sm font-bold ${category===c ? 'bg-yellow-500 text-black border-yellow-600' : 'bg-white border-gray-300 text-gray-800'} `}>
-                  {CATEGORY_LABEL[c]}
+                  {c}
                 </button>
               ))}
             </div>
@@ -172,7 +174,7 @@ export default function PricingExplorer({ isOpen, onClose }: PricingExplorerProp
               </div>
               <div className="flex items-center gap-2">
                 {mode === 'category' ? (
-                  <Badge className="bg-blue-100 text-blue-800 border border-blue-200">{CATEGORY_LABEL[category]}</Badge>
+                  <Badge className="bg-blue-100 text-blue-800 border border-blue-200">{category}</Badge>
                 ) : (
                   <Badge className="bg-green-100 text-green-800 border border-green-200">{LEVEL_LABEL[level]}</Badge>
                 )}
@@ -207,7 +209,7 @@ export default function PricingExplorer({ isOpen, onClose }: PricingExplorerProp
                                 <span className="text-xs bg-red-100 text-red-800 rounded-full px-2 py-0.5 font-bold">خصم {d.discount}%</span>
                               )}
                             </div>
-                            <div className="text-xs text-gray-600 mt-1">الإجمالي: {d.total.toLocaleString()} {currency}</div>
+                            <div className="text-xs text-gray-600 mt-1">الإجما��ي: {d.total.toLocaleString()} {currency}</div>
                           </div>
                         )}
                       </div>
