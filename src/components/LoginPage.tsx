@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
 import { useAuth } from '@/contexts/AuthContext'
+import RegisterPage from '@/components/RegisterPage'
 
 interface LoginPageProps {
   onLoginSuccess?: () => void
@@ -15,7 +16,8 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  
+  const [showRegister, setShowRegister] = useState(false)
+
   const { login } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -41,6 +43,10 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  if (showRegister) {
+    return <RegisterPage onCancel={() => setShowRegister(false)} />
   }
 
   return (
@@ -158,11 +164,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
             <button
               className="text-yellow-700 font-bold hover:underline"
               type="button"
-              onClick={() => {
-                const url = new URL(window.location.href)
-                url.searchParams.set('register', '1')
-                window.location.href = url.toString()
-              }}
+              onClick={() => setShowRegister(true)}
             >
               إنشاء حساب جديد
             </button>
