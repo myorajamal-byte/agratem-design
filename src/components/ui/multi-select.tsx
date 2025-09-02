@@ -80,15 +80,25 @@ export function MultiSelect({
           <div className="flex items-center gap-1 mr-2" dir="ltr">
             <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
             {!isAllSelected && (
-              <button
+              <span
+                role="button"
+                aria-label="مسح الاختيار"
+                tabIndex={0}
                 onClick={(e) => {
                   e.stopPropagation()
                   handleClear()
                 }}
-                className="hover:bg-gray-200 rounded-full p-1 transition-colors"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    handleClear()
+                  }
+                }}
+                className="hover:bg-gray-200 rounded-full p-1 transition-colors cursor-pointer"
               >
                 <X className="h-3 w-3" />
-              </button>
+              </span>
             )}
           </div>
         </Button>
