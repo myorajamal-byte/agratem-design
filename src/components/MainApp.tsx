@@ -210,9 +210,9 @@ export default function MainApp() {
 رقم الهاتف: ${customerPhone || "غير محدد"}
 
 رسالة العميل:
-${emailMessage || "لا توجد ��سا��ة إضافية"}
+${emailMessage || "لا توجد ��سالة إضافية"}
 
-اللوحات المختارة (${selectedBillboards.size} لوحة):
+الل��حات المختارة (${selectedBillboards.size} لوحة):
 ${selectedBillboardsData
   .map(
     (billboard, index) =>
@@ -576,7 +576,7 @@ ${selectedBillboardsData
         <section className="bg-gradient-to-r from-yellow-500 via-yellow-400 to-yellow-500 text-black py-16 relative z-10">
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-5xl md:text-6xl font-black mb-6 tracking-tight leading-tight">
-              الرائ��ون في عالم ا��دعاية والإعلان
+              الرائدون في عالم ا��دعاية والإعلان
             </h2>
             <p className="text-xl md:text-2xl mb-8 max-w-4xl mx-auto leading-relaxed font-bold">
               نحن نقدم حلول إعل��نية متكاملة ومبتكرة تضمن وصول رسالتك إلى الجمهور المناسب في الوقت ال��ناسب
@@ -595,7 +595,7 @@ ${selectedBillboardsData
               </div>
               <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 shadow-lg">
                 <MapPin className="w-12 h-12 mx-auto mb-4 text-black" />
-                <h3 className="text-3xl font-black mb-2"> نملك مواقع ك��فية لحملتك الإعلانية</h3>
+                <h3 className="text-3xl font-black mb-2"> نملك مواقع ك��فية لحملتك الإ��لانية</h3>
                 <p className="text-lg font-bold"></p>
               </div>
               <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 shadow-lg">
@@ -651,7 +651,7 @@ ${selectedBillboardsData
           <div className="bg-white rounded-xl shadow-lg p-4 mb-6 border-2 border-emerald-200">
             <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2 text-right" dir="rtl">
               <DollarSign className="w-5 h-5 text-emerald-600" />
-              عرض الأسعار حسب المدة
+              عرض الأ��عار حسب المدة
             </h3>
             <div className="max-w-md">
               <PricingDurationSelector
@@ -680,7 +680,7 @@ ${selectedBillboardsData
           <div className="bg-white rounded-xl shadow-lg p-4 mb-6 border-2 border-blue-200">
             <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
               <Settings className="w-5 h-5 text-blue-600" />
-              إد��رة الأسعار
+              إدارة الأسعار
             </h3>
             <div className="flex flex-wrap gap-3">
               <Button
