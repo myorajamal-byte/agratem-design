@@ -60,6 +60,7 @@ export default function MainApp() {
   const [showBookingMode, setShowBookingMode] = useState(false)
   const [selectedPricingDuration, setSelectedPricingDuration] = useState<PackageDuration | null>(null)
   const [billboardDates, setBillboardDates] = useState<Record<string, string>>({})
+  const [showPricingExplorer, setShowPricingExplorer] = useState(false)
 
   const itemsPerPage = 12
 
