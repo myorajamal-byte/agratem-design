@@ -28,6 +28,9 @@ interface SearchFiltersProps {
   showMap: boolean
   setShowMap: (show: boolean) => void
   municipalities: string[]
+  cities?: string[]
+  selectedCities?: string[]
+  setSelectedCities?: (cities: string[]) => void
   sizes: string[]
   contracts: string[]
   onPrint: () => void
@@ -49,6 +52,9 @@ export default function SearchFilters({
   showMap,
   setShowMap,
   municipalities,
+  cities = [],
+  selectedCities = [],
+  setSelectedCities = () => {},
   sizes,
   contracts,
   onPrint,
@@ -99,6 +105,16 @@ export default function SearchFilters({
               placeholder="جميع البلديات"
               allText="جميع البلديات"
               className="w-56"
+              dir="rtl"
+            />
+
+            <MultiSelect
+              options={cities}
+              selected={selectedCities}
+              onChange={setSelectedCities}
+              placeholder="جميع المدن"
+              allText="جميع المدن"
+              className="w-48"
               dir="rtl"
             />
 
