@@ -676,7 +676,7 @@ ${selectedBillboardsData
                 className="bg-green-600 hover:bg-green-700 text-white"
               >
                 <DollarSign className="w-4 h-4 mr-2" />
-                قائمة الأسعار العادية
+                النظام الشامل للأسعار
               </Button>
               <Button
                 onClick={() => setShowInstallationPricing(true)}
