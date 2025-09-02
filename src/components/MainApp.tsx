@@ -66,10 +66,14 @@ export default function MainApp() {
         setLoading(true)
         const data = await loadBillboardsFromExcel()
 
-        // تطبيق فلترة الزبون المخصص إذا ك��ن المستخدم لديه هذه الصلاحية
+        // تطبيق صلاحيات العرض:
+        // 1) إن كانت صلاحية "view_specific_client" موجودة وتم تحديد زبون، فالظهور يقتصر على لوحات ذلك الزبون
+        // 2) خلاف ذلك، إن لم يكن Admin فاعرض اللوحات المتاحة فقط
         let filteredData = data
         if (user?.permissions.some(p => p.name === 'view_specific_client') && user.assignedClient) {
           filteredData = clientService.filterBillboardsByClient(data, user.assignedClient)
+        } else if (user && user.role === 'user' && !user.permissions.some(p => p.name === 'admin_access')) {
+          filteredData = data.filter(b => b.status === 'متاح')
         }
 
         setBillboards(filteredData)
@@ -213,7 +217,7 @@ ${selectedBillboardsData
 
       window.open(mailtoLink, "_blank")
 
-      alert("تم فتح برنامج البريد الإلكتروني مع تفاصيل اللوحات المختارة!")
+      alert("تم فتح برنامج ال��ريد الإلكتروني مع تفاصيل اللوحات المختارة!")
       setShowEmailDialog(false)
       clearSelection()
       setCustomerEmail("")
