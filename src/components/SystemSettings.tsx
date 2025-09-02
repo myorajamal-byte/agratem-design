@@ -19,6 +19,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useAuth } from '@/contexts/AuthContext'
 import { authService } from '@/services/authService'
 import { clientService } from '@/services/clientService'
@@ -41,7 +42,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
   const [showPasswordDialog, setShowPasswordDialog] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
-  // نموذج إضافة مستخدم جديد
+  // نموذج إضا��ة مستخدم جديد
   const [newUser, setNewUser] = useState({
     username: '',
     email: '',
@@ -454,20 +455,21 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
                           <label className="block text-sm font-bold text-gray-700 mb-1">
                             الزبون المخصص
                           </label>
-                          <select
-                            value={newUser.assignedClient}
-                            onChange={(e) => setNewUser(prev => ({ ...prev, assignedClient: e.target.value }))}
-                            className="w-full border border-gray-300 rounded-md px-3 py-2 bg-white"
-                          >
-                            <option value="">اختر زبون...</option>
-                            {clients.map((client) => (
-                              <option key={client.name} value={client.name}>
-                                {client.name} ({client.contractsCount} عقد)
-                              </option>
-                            ))}
-                          </select>
+                          <Select value={newUser.assignedClient} onValueChange={(val)=> setNewUser(prev => ({ ...prev, assignedClient: val }))} searchable>
+                            <SelectTrigger className="h-11">
+                              <SelectValue placeholder="اختر زبون..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="">الكل</SelectItem>
+                              {clients.map((client) => (
+                                <SelectItem key={client.name} value={client.name}>
+                                  {client.name} ({client.contractsCount} لوحة)
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                           <p className="text-xs text-gray-500 mt-1">
-                            هذا المستخدم سيرى العقود الخاصة بالزبون المحدد + جميع اللوحات المتاحة
+                            هذا المستخدم سيرى اللوحات الخاصة بالزبون المحدد + جميع اللوحات المتاحة
                           </p>
                         </div>
                       )}
@@ -503,8 +505,8 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
         {/* نافذة تعديل مستخدم */}
         {editingUser && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-60">
-            <Card className="w-full max-w-md max-h-[90vh] overflow-y-auto">
-              <div className="p-6">
+            <Card className="w-full max-w-md max-h-[90vh] overflow-y-auto bg-white shadow-2xl border border-gray-200">
+              <div className="p-6 bg-white">
                 <h3 className="text-xl font-bold mb-4">تعديل المستخدم</h3>
                 
                 <div className="space-y-4">
@@ -583,20 +585,21 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
                           <label className="block text-sm font-bold text-gray-700 mb-1">
                             الزبون المخصص
                           </label>
-                          <select
-                            value={editingUser.assignedClient || ''}
-                            onChange={(e) => setEditingUser(prev => prev ? ({ ...prev, assignedClient: e.target.value || undefined }) : null)}
-                            className="w-full border border-gray-300 rounded-md px-3 py-2"
-                          >
-                            <option value="">اختر زبون...</option>
-                            {clients.map((client) => (
-                              <option key={client.name} value={client.name}>
-                                {client.name} ({client.contractsCount} عقد)
-                              </option>
-                            ))}
-                          </select>
+                          <Select value={editingUser.assignedClient || ''} onValueChange={(val)=> setEditingUser(prev => prev ? ({ ...prev, assignedClient: val || undefined }) : null)} searchable>
+                            <SelectTrigger className="h-11">
+                              <SelectValue placeholder="اختر زبون..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="">الكل</SelectItem>
+                              {clients.map((client) => (
+                                <SelectItem key={client.name} value={client.name}>
+                                  {client.name} ({client.contractsCount} لوحة)
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                           <p className="text-xs text-gray-500 mt-1">
-                            هذا المستخدم يرى العقود الخاصة بالزبون المحدد + جميع اللوحات المتاحة
+                            هذا المستخدم يرى اللوحات الخاصة بالزبون المحدد + جميع اللوحات المتاحة
                           </p>
                         </div>
                       )}
@@ -632,8 +635,8 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
         {/* نافذة تغيير كلمة المرور */}
         {showPasswordDialog && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-60">
-            <Card className="w-full max-w-md">
-              <div className="p-6">
+            <Card className="w-full max-w-md bg-white shadow-2xl border border-gray-200">
+              <div className="p-6 bg-white">
                 <h3 className="text-xl font-bold mb-4">تغيير كلمة المرور</h3>
                 <p className="text-gray-600 mb-4">المستخدم: {showPasswordDialog}</p>
                 
