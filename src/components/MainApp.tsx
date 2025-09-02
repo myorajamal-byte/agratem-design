@@ -449,7 +449,7 @@ ${selectedBillboardsData
               <th style="width: 16%;">صورة ��للوحة</th>
               <th style="width: 12%;">رقم اللوحة</th>
               <th style="width: 22%;">موقع اللوحة</th>
-              <th style="width: 14%;">البلدية</th>
+              <th style="width: 14%;">ا��بلدية</th>
               <th style="width: 14%;">المنطقة</th>
               <th style="width: 12%;">المقاس</th>
               <th style="width: 10%;">الحالة</th>
@@ -706,7 +706,7 @@ ${selectedBillboardsData
                 className="bg-green-600 hover:bg-green-700 text-white"
               >
                 <DollarSign className="w-4 h-4 mr-2" />
-                قائمة الأسعار العادية
+                إدارة الأسعار المتطورة
               </Button>
               <Button
                 onClick={() => setShowInstallationPricing(true)}
@@ -720,7 +720,7 @@ ${selectedBillboardsData
                 className="bg-purple-600 hover:bg-purple-700 text-white"
               >
                 <Settings className="w-4 h-4 mr-2" />
-                حالة النظام والاختبار
+                حال�� النظام والاختبار
               </Button>
             </div>
           </div>
@@ -815,7 +815,7 @@ ${selectedBillboardsData
                   className="bg-emerald-600 hover:bg-emerald-700 text-white px-6"
                 >
                   <Calculator className="w-4 h-4 ml-2" />
-                  حساب الأسعار
+                  حساب الأس��ار
                 </Button>
                 <Button
                   onClick={() => setShowEmailDialog(true)}
