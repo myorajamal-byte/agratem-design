@@ -80,6 +80,8 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
       setBillboards(billboardData)
       const clientsData = clientService.getClientsFromBillboards(billboardData)
       setClients(clientsData)
+      const cats = await customerCategoryService.getCategories()
+      setCustomerCategories(cats)
     } catch (error) {
       console.error('خطأ في تحميل البيانات:', error)
     }
@@ -156,7 +158,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
 
   const handleUpdatePassword = async (username: string) => {
     if (!passwordForm.newPassword || !passwordForm.confirmPassword) {
-      setError('يرجى ملء جميع حقول ��لمة المرور')
+      setError('يرجى ملء جميع حقول كلمة المرور')
       return
     }
 
@@ -424,7 +426,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
                       <option value="marketers">المسوقين (أسعار مخفضة)</option>
                       <option value="companies">الشركات (أسعار عالية)</option>
                       <option value="A">قائمة أسعار A</option>
-                      <option value="B">قا��مة أسعار B</option>
+                      <option value="B">قائمة أسعار B</option>
                     </select>
                     <p className="text-xs text-gray-500 mt-1">
                       تحدد ��ذه الفئة الأسعار التي ستظهر للمستخدم عند عرض اللوحات الإعلانية
@@ -666,7 +668,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
 
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">
-                      تأكيد كلمة المرور
+                      تأكي�� كلمة المرور
                     </label>
                     <Input
                       type={passwordForm.showPassword ? 'text' : 'password'}
