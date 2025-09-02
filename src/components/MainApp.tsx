@@ -24,6 +24,8 @@ import { sizesDatabase } from "@/services/sizesDatabase"
 import { Billboard, PackageDuration } from "@/types"
 import { useAuth } from "@/contexts/AuthContext"
 import { hybridSystemTest } from "@/utils/hybridSystemTest"
+import { cloudDatabase } from "@/services/cloudDatabase"
+import { pricingService } from "@/services/pricingService"
 
 export default function MainApp() {
   const { user } = useAuth()
@@ -63,6 +65,15 @@ export default function MainApp() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     if (params.get('users') === '1') setShowSettings(true)
+
+    // Refresh pricing from Supabase on app start
+    ;(async () => {
+      try {
+        const remote = await cloudDatabase.getRentalPricing()
+        if (remote) pricingService.updatePricing(remote)
+      } catch {}
+    })()
+
     const loadData = async () => {
       try {
         setLoading(true)
