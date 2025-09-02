@@ -70,14 +70,14 @@ export const arabicPricingTable = {
       const column = durationToColumn(duration)
 
       if (supabase) {
-        const { error } = await supabase.from('pricing').upsert({
+        const { error } = await supabase.from('pricing_ar').upsert({
           المقاس: size,
           المستوى: level,
           الزبون: customerArabic,
           [column]: value,
         } as any)
         if (!error) return true
-        console.error('Supabase upsert failed', error)
+        try { console.error('Supabase upsert failed', JSON.stringify(error)) } catch { console.error('Supabase upsert failed', error) }
       }
 
       // Fallback to localStorage
