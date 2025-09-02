@@ -230,7 +230,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
 
         const message = result.summary.newZonesCreated > 0
           ? `تمت المزامنة بنجاح! تم إنشاء ${result.summary.newZonesCreated} منطقة جديدة`
-          : 'تمت المزامنة بنجاح! جميع ال��ناطق محدثة'
+          : 'تمت المزامنة بنجاح! جميع المناطق محدثة'
 
         showNotification('success', message)
       } else {
@@ -339,7 +339,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       }))
 
     } catch (error) {
-      console.error('خطأ في تحميل بيانا�� الأسعا��:', error)
+      console.error('خطأ في تحميل بيانات الأسعار:', error)
       // Fallback to original initialization
       const initialPrices: Record<string, Record<string, number>> = {}
 
@@ -525,9 +525,9 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
     // Auto-save new category (this is more for demo - categories are UI-specific)
     try {
       await autoSaveChanges({})
-      console.log(`تم حفظ الفئ�� الجديدة تلقائياً: ${newCategory.name}`)
+      console.log(`تم حفظ الفئة الجد��دة تلقائياً: ${newCategory.name}`)
     } catch (error) {
-      console.warn('لم يتم حفظ الفئة الجديدة تلقا��ياً:', error)
+      console.warn('لم يتم حفظ الفئة الجديدة تلقائياً:', error)
     }
 
     setNewCategory({ name: '', description: '', color: 'blue' })
@@ -814,7 +814,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-yellow-800">
                   <AlertTriangle className="w-5 h-5" />
-                  <span className="font-semibold">لديك تغييرات غير ��حفوظة</span>
+                  <span className="font-semibold">لديك تغييرات غير محفوظة</span>
                   <Badge variant="outline" className="bg-yellow-100 text-yellow-800">
                     {unsavedChanges.changedCells.size} تغيير
                   </Badge>
@@ -849,7 +849,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
             <Card className="p-4">
               <h3 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
                 <Building2 className="w-5 h-5" />
-                اختيار المست��ى
+                اختيار المستوى
               </h3>
               <div className="flex flex-wrap gap-2 mb-3">
                 {pricingData.levels.map((level) => (
@@ -984,7 +984,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                     <h3 className="font-bold text-blue-900">مزامنة المناطق السعرية مع ملف الإكسل</h3>
                     {syncStatus.needsSync ? (
                       <p className="text-sm text-blue-700">
-                        🔥 تم الع��ور عل�� <span className="font-bold">{syncStatus.missingZones?.length || 0}</span> منطقة جديدة في ملف الإكسل تحتاج إلى مزامنة
+                        🔥 تم العثور على <span className="font-bold">{syncStatus.missingZones?.length || 0}</span> منطقة جديدة في ملف الإكسل تحتاج إلى مزامنة
                       </p>
                     ) : syncStatus.lastSync ? (
                       <p className="text-sm text-green-700">
@@ -1133,6 +1133,27 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                   مزامنة المقاسات الآن
                 </Button>
               </div>
+            </div>
+          </Card>
+
+          {/* Quick category tabs */}
+          <Card className="mb-4 p-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                variant={pricingData.selectedCategories.length === 0 ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setPricingData(prev => ({ ...prev, selectedCategories: [] }))}
+                className={`${pricingData.selectedCategories.length === 0 ? 'bg-yellow-500 text-black' : ''}`}
+              >الكل</Button>
+              {pricingData.categories.map((c) => (
+                <Button
+                  key={c.id}
+                  variant={pricingData.selectedCategories.includes(c.name) ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setPricingData(prev => ({ ...prev, selectedCategories: [c.name] }))}
+                  className={`${pricingData.selectedCategories.includes(c.name) ? 'bg-yellow-500 text-black' : ''}`}
+                >{c.name}</Button>
+              ))}
             </div>
           </Card>
 
