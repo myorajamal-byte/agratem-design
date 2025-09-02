@@ -38,6 +38,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
   const [permissions, setPermissions] = useState<Permission[]>([])
   const [clients, setClients] = useState<Client[]>([])
   const [billboards, setBillboards] = useState<Billboard[]>([])
+  const [customerCategories, setCustomerCategories] = useState<{ id: 'companies' | 'individuals' | 'marketers'; label: string }[]>([])
   const [showAddUser, setShowAddUser] = useState(false)
   const [editingUser, setEditingUser] = useState<UserType | null>(null)
   const [showPasswordDialog, setShowPasswordDialog] = useState<string | null>(null)
@@ -155,7 +156,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
 
   const handleUpdatePassword = async (username: string) => {
     if (!passwordForm.newPassword || !passwordForm.confirmPassword) {
-      setError('يرجى ملء جميع حقول كلمة المرور')
+      setError('يرجى ملء جميع حقول ��لمة المرور')
       return
     }
 
@@ -423,7 +424,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
                       <option value="marketers">المسوقين (أسعار مخفضة)</option>
                       <option value="companies">الشركات (أسعار عالية)</option>
                       <option value="A">قائمة أسعار A</option>
-                      <option value="B">قائمة أسعار B</option>
+                      <option value="B">قا��مة أسعار B</option>
                     </select>
                     <p className="text-xs text-gray-500 mt-1">
                       تحدد ��ذه الفئة الأسعار التي ستظهر للمستخدم عند عرض اللوحات الإعلانية
@@ -454,7 +455,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
                       {newUser.permissions.some(p => p.name === 'view_specific_client') && (
                         <div>
                           <label className="block text-sm font-bold text-gray-700 mb-1">
-                            ��لزبون المخصص
+                            الزبون المخصص
                           </label>
                           <Select value={newUser.assignedClient} onValueChange={(val)=> setNewUser(prev => ({ ...prev, assignedClient: val }))} searchable>
                             <SelectTrigger className="h-11">
