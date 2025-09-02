@@ -417,19 +417,23 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
                     <label className="block text-sm font-bold text-gray-700 mb-1">
                       فئة الأسعار التي ستظهر للمستخدم
                     </label>
-                    <select
+                    <Select
                       value={newUser.pricingCategory}
-                      onChange={(e) => setNewUser(prev => ({ ...prev, pricingCategory: e.target.value as 'A' | 'B' | 'companies' | 'individuals' | 'marketers' }))}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 bg-white"
+                      onValueChange={(val) => setNewUser(prev => ({ ...prev, pricingCategory: val as any }))}
+                      searchable
                     >
-                      <option value="individuals">العاديين (أسعار متوسطة)</option>
-                      <option value="marketers">المسوقين (أسعار مخفضة)</option>
-                      <option value="companies">الشركات (أسعار عالية)</option>
-                      <option value="A">قائمة أسعار A</option>
-                      <option value="B">قائمة أسعار B</option>
-                    </select>
+                      <SelectTrigger className="h-11" />
+                      <SelectContent>
+                        {customerCategories.map(cat => (
+                          <SelectItem key={cat.id} value={cat.id}>{cat.label}</SelectItem>
+                        ))}
+                        <div className="py-1 border-t border-yellow-100 my-1" />
+                        <SelectItem value="A">قائمة أسعار A</SelectItem>
+                        <SelectItem value="B">قائمة أسعار B</SelectItem>
+                      </SelectContent>
+                    </Select>
                     <p className="text-xs text-gray-500 mt-1">
-                      تحدد ��ذه الفئة الأسعار التي ستظهر للمستخدم عند عرض اللوحات الإعلانية
+                      تحدد هذه الفئة الأسعار التي ستظهر للمستخدم عند عرض اللوحات الإعلانية
                     </p>
                   </div>
 
@@ -473,7 +477,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
                             </SelectContent>
                           </Select>
                           <p className="text-xs text-gray-500 mt-1">
-                            هذا المستخدم سيرى اللوحات الخاصة بالزبون المحدد + جميع اللوحات المتاحة
+                            هذا المستخدم سي��ى اللوحات الخاصة بالزبون المحدد + جميع اللوحات المتاحة
                           </p>
                         </div>
                       )}
@@ -544,7 +548,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
                       value={editingUser.role}
                       onChange={(e) => setEditingUser(prev => prev ? ({ ...prev, role: e.target.value as 'admin' | 'user' }) : null)}
                       disabled={editingUser.username === 'admin'}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 bg-white"
                     >
                       <option value="user">مستخدم</option>
                       <option value="admin">مدير</option>
@@ -581,6 +585,28 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
                             </label>
                           ))}
                         </div>
+                      </div>
+
+                      {/* اختيار فئة الأسعار من Supabase */}
+                      <div>
+                        <label className="block text-sm font-bold text-gray-700 mb-1">
+                          فئة الأسعار التي ستظهر للمستخدم
+                        </label>
+                        <Select
+                          value={editingUser.pricingCategory || ''}
+                          onValueChange={(val) => setEditingUser(prev => prev ? ({ ...prev, pricingCategory: val as any }) : null)}
+                          searchable
+                        >
+                          <SelectTrigger className="h-11" />
+                          <SelectContent>
+                            {customerCategories.map(cat => (
+                              <SelectItem key={cat.id} value={cat.id}>{cat.label}</SelectItem>
+                            ))}
+                            <div className="py-1 border-t border-yellow-100 my-1" />
+                            <SelectItem value="A">قائمة أسعار A</SelectItem>
+                            <SelectItem value="B">قائمة أسعار B</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
 
                       {/* اختيار الزبون المخصص */}
@@ -668,7 +694,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
 
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">
-                      تأكي�� كلمة المرور
+                      تأكيد كلمة المرور
                     </label>
                     <Input
                       type={passwordForm.showPassword ? 'text' : 'password'}
