@@ -24,6 +24,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { authService } from '@/services/authService'
 import { clientService } from '@/services/clientService'
 import { loadBillboardsFromExcel } from '@/services/billboardService'
+import { customerCategoryService } from '@/services/customerCategoryService'
 import { User as UserType, Permission, Client, Billboard } from '@/types'
 import { formatGregorianDate } from '@/lib/dateUtils'
 
@@ -42,7 +43,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
   const [showPasswordDialog, setShowPasswordDialog] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
-  // نموذج إضا��ة مستخدم جديد
+  // نموذج إضافة مستخدم جديد
   const [newUser, setNewUser] = useState({
     username: '',
     email: '',
@@ -453,7 +454,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
                       {newUser.permissions.some(p => p.name === 'view_specific_client') && (
                         <div>
                           <label className="block text-sm font-bold text-gray-700 mb-1">
-                            الزبون المخصص
+                            ��لزبون المخصص
                           </label>
                           <Select value={newUser.assignedClient} onValueChange={(val)=> setNewUser(prev => ({ ...prev, assignedClient: val }))} searchable>
                             <SelectTrigger className="h-11">
