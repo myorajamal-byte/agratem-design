@@ -1,15 +1,16 @@
 import React from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import LoginPage from './LoginPage'
+import RegisterPage from './RegisterPage'
 
 interface ProtectedRouteProps {
   children: React.ReactNode
   requirePermission?: string
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
-  children, 
-  requirePermission 
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+  children,
+  requirePermission
 }) => {
   const { isAuthenticated, user, isLoading } = useAuth()
 
@@ -30,9 +31,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     )
   }
 
-  // إذا لم يكن مسجل الدخول، إظهار صفحة تسجيل الدخول
+  // إذا لم يكن مسجل الدخول، إظهار صفحة التسجيل عند وجود register=1 في الرابط وإلا صفحة الدخول
   if (!isAuthenticated || !user) {
-    return <LoginPage />
+    const params = new URLSearchParams(window.location.search)
+    const showRegister = params.get('register') === '1'
+    return showRegister ? <RegisterPage /> : <LoginPage />
   }
 
   // التحقق من الصلاحية المطلوبة
