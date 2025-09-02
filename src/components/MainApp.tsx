@@ -460,7 +460,7 @@ ${selectedBillboardsData
                   `
                       : `
                     <div class="image-placeholder">
-                      <span>صورة<br>اللوحة</span>
+                      <span>صور��<br>اللوحة</span>
                     </div>
                   `
                   }
@@ -522,7 +522,7 @@ ${selectedBillboardsData
         <div className="text-center">
           <div className="flex flex-col items-center mb-8">
             <div className="w-24 h-24 bg-gradient-to-br from-yellow-400 via-yellow-500 to-yellow-600 rounded-full flex items-center justify-center shadow-2xl ring-4 ring-yellow-400/30 animate-pulse mb-4">
-              <img src="logo-symbol.svg" alt="رمز الشركة" className="w-16 h-16 object-contain" />
+              <img src="logo-symbol.svg" alt="رمز الشر��ة" className="w-16 h-16 object-contain" />
             </div>
           </div>
           <h2 className="text-3xl font-black text-gray-900 mb-4 tracking-tight">جاري تحميل البيانات...</h2>
@@ -543,6 +543,18 @@ ${selectedBillboardsData
         onOpenPricing={() => setShowPricingManagement(true)}
         onOpenInstallationPricing={() => setShowInstallationPricing(true)}
       />
+
+      {/* زر عائم لفتح صفحة المستخدمين لمن يملك صلاحية الإدارة */}
+      {user?.permissions.some(p => p.name === 'manage_users') && (
+        <button
+          onClick={() => setShowSettings(true)}
+          className="fixed bottom-6 left-6 z-50 bg-yellow-500 hover:bg-yellow-600 text-black font-bold rounded-full shadow-2xl px-5 py-3 flex items-center gap-2 border-2 border-yellow-300"
+          title="إدارة المستخدمين"
+        >
+          <Users className="w-5 h-5" />
+          <span className="hidden sm:inline">المستخدمون</span>
+        </button>
+      )}
 
 
       {!showAllBillboards && (
