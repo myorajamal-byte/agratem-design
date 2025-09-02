@@ -67,7 +67,7 @@ export default function SearchFilters({
           <Search className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-6 h-6" />
           <Input
             type="text"
-            placeholder="ابحث عن اللوحات (الاسم، الموقع، البلدية، المنطقة، العميل، رقم العقد)"
+            placeholder="ابحث عن اللوحات (الاسم، الموقع، البلدية، المنطقة، العميل، رقم اللوحة)"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pr-12 text-right border-2 border-yellow-300 focus:border-yellow-500 rounded-full py-4 text-lg shadow-lg font-sans"
@@ -75,14 +75,14 @@ export default function SearchFilters({
           />
         </div>
 
-        {/* فلتر رقم العقد */}
+        {/* فلتر رقم اللوحة */}
         <div className="max-w-md mx-auto mb-6">
           <label className="block text-sm font-bold text-gray-700 mb-2 text-center">
-            البحث برقم العقد
+            البحث برقم اللوحة
           </label>
           <Input
             type="text"
-            placeholder="أدخل رقم العقد (مثال: 1108)"
+            placeholder="أدخل رقم اللوحة (مثال: 1108)"
             value={contractFilter}
             onChange={(e) => setContractFilter(e.target.value)}
             className="text-center border-2 border-blue-300 focus:border-blue-500 rounded-full py-3 text-lg shadow-lg font-sans"
