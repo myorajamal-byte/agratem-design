@@ -1,3 +1,4 @@
+import React, { useState } from 'react'
 import { Eye, EyeOff, UserPlus, Mail, Lock, ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -130,7 +131,7 @@ const RegisterPage: React.FC = () => {
             {success && (<div className="bg-green-50 border-l-4 border-green-400 p-3 rounded-md text-sm text-green-700 font-semibold">{success}</div>)}
 
             <Button type="submit" disabled={isLoading} className="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-black font-black py-3 px-4 rounded-lg shadow-lg">
-              {isLoading ? 'جاري إنشاء الحساب...' : 'إنشاء حساب'}
+              {isLoading ? 'جاري إنشاء الحساب...' : '��نشاء حساب'}
             </Button>
           </form>
 
