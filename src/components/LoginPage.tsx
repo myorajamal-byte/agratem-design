@@ -170,14 +170,6 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
             </button>
           </div>
 
-          {/* معلومات تسجيل الدخول للتجربة */}
-          <div className="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <h3 className="text-sm font-bold text-yellow-800 mb-2">بيانات تسجيل الدخول:</h3>
-            <div className="text-sm text-yellow-700 space-y-1">
-              <p><span className="font-semibold">اسم المستخدم:</span> admin</p>
-              <p><span className="font-semibold">كلمة المرور:</span> aukg-123</p>
-            </div>
-          </div>
         </div>
       </Card>
     </div>
