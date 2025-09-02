@@ -28,7 +28,9 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { MultiSelect } from '@/components/ui/multi-select'
 import * as XLSX from 'xlsx'
+import { arabicPricingTable, ArabicPricingRow } from '@/services/arabicPricingTable'
 
 // Types for the enhanced pricing system
 interface Municipality {
@@ -66,7 +68,9 @@ interface PricingData {
   currentLevel: string
   currentMunicipality: string
   currentDuration: number
-  prices: Record<string, Record<string, number>> // size -> category -> price
+  prices: Record<string, Record<string, number>>
+  globalMultiplier: number
+  selectedCategories: string[] // Arabic names; empty => all
 }
 
 interface UnsavedChanges {
@@ -90,11 +94,11 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
     levels: [
       { id: 'A', name: 'مستوى A', description: 'مواقع مميزة' },
       { id: 'B', name: 'مستوى B', description: 'مواقع عادية' },
-      { id: 'C', name: 'مستوى C', description: 'مواقع اقتصادي��' }
+      { id: 'C', name: 'مستوى C', description: 'مواقع اقتصادية' }
     ],
     municipalities: [
-      { id: '1', name: 'مصرات��', multiplier: 1.0 },
-      { id: '2', name: 'زل��تن', multiplier: 0.8 },
+      { id: '1', name: 'مصراتة', multiplier: 1.0 },
+      { id: '2', name: 'زليتن', multiplier: 0.8 },
       { id: '3', name: 'بنغازي', multiplier: 1.2 },
       { id: '4', name: 'طرابلس', multiplier: 1.0 }
     ],
@@ -107,7 +111,9 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
     currentLevel: 'A',
     currentMunicipality: '1',
     currentDuration: 1,
-    prices: {}
+    prices: {},
+    globalMultiplier: 1.0,
+    selectedCategories: []
   })
 
   const [editingCell, setEditingCell] = useState<string | null>(null)
@@ -123,11 +129,13 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
   const [syncStatus, setSyncStatus] = useState<SyncStatus>({ isLoading: false })
   const [showSyncInfo, setShowSyncInfo] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [arabicRows, setArabicRows] = useState<ArabicPricingRow[]>([])
 
   // Duration options with discounts
   const durationOptions = [
     { value: 1, label: 'يوم واحد', discount: 0, unit: 'day' },
     { value: 30, label: 'شهر واحد', discount: 0, unit: 'month' },
+    { value: 60, label: '2 أشهر', discount: 0, unit: 'months' },
     { value: 90, label: '3 أشهر', discount: 5, unit: 'months' },
     { value: 180, label: '6 أشهر', discount: 10, unit: 'months' },
     { value: 365, label: 'سنة كاملة', discount: 20, unit: 'year' }
@@ -141,6 +149,42 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
     }
     init()
   }, [])
+
+  // Helper: map Arabic customer to system id
+  const mapCustomer = (arabic?: string): 'companies' | 'individuals' | 'marketers' => {
+    const s = (arabic || '').toString().trim()
+    if (s === 'شركات') return 'companies'
+    if (s === 'مسوق' || s === 'مسوقين') return 'marketers'
+    return 'individuals'
+  }
+
+  // Recompute visible prices when level/duration change
+  useEffect(() => {
+    if (!arabicRows || arabicRows.length === 0) return
+    const colFor = (v: number) => (v === 1 ? 'يوم واحد' : v === 30 ? 'شهر واحد' : v === 60 ? '2 أشهر' : v === 90 ? '3 أشهر' : v === 180 ? '6 أشهر' : 'سنة كاملة') as keyof ArabicPricingRow
+    const initialPrices: Record<string, Record<string, number>> = {}
+    const col = colFor(pricingData.currentDuration)
+    ;(pricingData.sizes || []).forEach((size) => {
+      initialPrices[size] = {}
+      pricingData.categories.forEach((category) => {
+        const row = arabicRows.find(
+          (r) =>
+            (r['المقاس'] || '').toString().trim() === size &&
+            (r['المستوى'] || '').toString().trim().toUpperCase() === pricingData.currentLevel.toUpperCase() &&
+            mapCustomer(r['الزبون']) === (category.id as any)
+        )
+        const price = row
+          ? (() => {
+              const raw = (row as any)[col]
+              const n = raw === null || raw === undefined || raw === '' ? 0 : Number(raw)
+              return isNaN(n) ? 0 : n
+            })()
+          : 0
+        initialPrices[size][category.id] = price
+      })
+    })
+    setPricingData((prev) => ({ ...prev, prices: initialPrices }))
+  }, [pricingData.currentLevel, pricingData.currentDuration, arabicRows])
 
   // Check if sync is needed
   const checkSyncStatus = async () => {
@@ -212,15 +256,10 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       const { newPricingService } = await import('@/services/newPricingService')
       const pricingFromService = newPricingService.getPricing()
 
-      // Load distinct sizes from Supabase pricing table
+      // Load distinct sizes from Supabase pricing table (fallback to local if empty)
       const { sizesDatabase } = await import('@/services/sizesDatabase')
-      const distinctSizes = await (async () => {
-        const { data, error } = await (sizesDatabase as any).client
-          ? { data: null, error: null }
-          : { data: null, error: null }
-        const sizes = await sizesDatabase.getDistinctSizesFromPricing?.() || []
-        return sizes
-      })()
+      const distinctSizes = await sizesDatabase.getDistinctSizesFromPricing?.() || []
+      const sizesList = distinctSizes.length > 0 ? distinctSizes : newPricingService.sizes
 
       // Update municipalities list from pricing zones
       const availableZones = Object.keys(pricingFromService.zones)
@@ -239,24 +278,68 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
         })
       } catch {}
 
-      // Initialize zero prices to avoid demo values
+      // Fetch Arabic pricing rows (global for all municipalities)
+      const rows = await arabicPricingTable.getRows()
+      setArabicRows(rows)
+
+      // Derive categories from rows (الموجودة في الجدول)
+      const uniqueCustomers = Array.from(new Set(rows.map(r => (r['الزبون'] || '').toString().trim()).filter(Boolean)))
+      const preferLabel = (id: 'companies' | 'individuals' | 'marketers', labels: string[]) => {
+        if (id === 'companies') return labels.find(l => l.includes('شرك')) || 'شركات'
+        if (id === 'marketers') return labels.find(l => l.includes('مسوق')) || 'مسوقين'
+        return labels.find(l => l.includes('أفراد')) || labels.find(l => l.includes('عادي')) || 'أفراد'
+      }
+      const grouped: Record<'companies'|'individuals'|'marketers', string[]> = { companies: [], individuals: [], marketers: [] }
+      uniqueCustomers.forEach(ar => { grouped[mapCustomer(ar)].push(ar) })
+      const categoriesFromRows: Category[] = (['companies','individuals','marketers'] as const)
+        .filter(id => grouped[id].length > 0)
+        .map((id) => ({
+          id,
+          name: preferLabel(id, grouped[id]),
+          description: id === 'marketers' ? 'خصم للمسوقين' : id === 'companies' ? 'أسعار الشركات' : 'الأسعار العادية',
+          color: id === 'marketers' ? 'blue' : id === 'companies' ? 'green' : 'purple'
+        }))
+      const categoriesToUse = categoriesFromRows.length > 0 ? categoriesFromRows : pricingData.categories
+
+      const sizesFromRows = Array.from(new Set(rows.map(r => (r['المقاس'] || '').toString().trim()).filter(Boolean)))
+      const effectiveSizes = sizesFromRows.length > 0 ? sizesFromRows : sizesList
+
+      const colFor = (v: number) => (v === 1 ? 'يوم واحد' : v === 30 ? 'شهر واحد' : v === 60 ? '2 أشهر' : v === 90 ? '3 أشهر' : v === 180 ? '6 أشهر' : 'سنة كاملة') as keyof ArabicPricingRow
+
+      // Build prices for current view (level + duration)
       const initialPrices: Record<string, Record<string, number>> = {}
-      distinctSizes.forEach(size => {
+      const col = colFor(pricingData.currentDuration)
+      effectiveSizes.forEach((size) => {
         initialPrices[size] = {}
-        pricingData.categories.forEach(category => {
-          initialPrices[size][category.id] = 0
+        categoriesToUse.forEach((category) => {
+          const row = rows.find(
+            (r) =>
+              (r['المقاس'] || '').toString().trim() === size &&
+              (r['المستوى'] || '').toString().trim().toUpperCase() === pricingData.currentLevel.toUpperCase() &&
+              mapCustomer(r['الزبون']) === (category.id as any)
+          )
+          const price = row
+            ? (() => {
+                const raw = (row as any)[col]
+                const n = raw === null || raw === undefined || raw === '' ? 0 : Number(raw)
+                return isNaN(n) ? 0 : n
+              })()
+            : 0
+          initialPrices[size][category.id] = price
         })
       })
 
       setPricingData(prev => ({
         ...prev,
-        sizes: distinctSizes,
+        sizes: effectiveSizes,
         prices: initialPrices,
-        municipalities: updatedMunicipalities
+        categories: categoriesToUse,
+        selectedCategories: [],
+        municipalities: availableZones.length > 0 ? updatedMunicipalities : prev.municipalities
       }))
 
     } catch (error) {
-      console.error('خطأ في تحميل بيانات الأسعار:', error)
+      console.error('خطأ في تحميل بيانا�� الأسعا��:', error)
       // Fallback to original initialization
       const initialPrices: Record<string, Record<string, number>> = {}
 
@@ -304,45 +387,38 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
     }).format(price) + ' د.ل'
   }
 
-  // Calculate final price with municipality multiplier and duration discount
+  // Calculate final price with global and municipality multipliers and duration discount
   const calculateFinalPrice = (basePrice: number): { price: number, calculation: string, dailyRate: number } => {
     const municipality = pricingData.municipalities.find(m => m.id === pricingData.currentMunicipality)
     const duration = durationOptions.find(d => d.value === pricingData.currentDuration)
 
     let finalPrice = basePrice
-    let calculationSteps = [`السعر الأساسي: ${formatPrice(basePrice)}`]
+    const steps: string[] = [`السعر الأساسي: ${formatPrice(basePrice)}`]
 
-    // Apply municipality multiplier
-    if (municipality && municipality.multiplier !== 1.0) {
-      finalPrice *= municipality.multiplier
-      calculationSteps.push(`معامل ${municipality.name}: ×${municipality.multiplier} = ${formatPrice(finalPrice)}`)
+    if (pricingData.globalMultiplier && pricingData.globalMultiplier !== 1) {
+      finalPrice *= pricingData.globalMultiplier
+      steps.push(`المعامل العام: ×${pricingData.globalMultiplier} = ${formatPrice(finalPrice)}`)
     }
 
-    // Apply duration discount
+    if (municipality && municipality.multiplier !== 1.0) {
+      finalPrice *= municipality.multiplier
+      steps.push(`معامل ${municipality.name}: ×${municipality.multiplier} = ${formatPrice(finalPrice)}`)
+    }
+
     if (duration && duration.discount > 0) {
       const discountAmount = finalPrice * (duration.discount / 100)
       finalPrice -= discountAmount
-      calculationSteps.push(`خصم ${duration.label}: -${duration.discount}% = ${formatPrice(finalPrice)}`)
+      steps.push(`خصم ${duration.label}: -${duration.discount}% = ${formatPrice(finalPrice)}`)
     }
 
-    // Calculate daily rate
     let dailyRate = finalPrice
     if (duration) {
-      if (duration.unit === 'month') {
-        dailyRate = finalPrice / 30
-      } else if (duration.unit === 'months') {
-        dailyRate = finalPrice / duration.value
-      } else if (duration.unit === 'year') {
-        dailyRate = finalPrice / 365
-      }
-      // For 'day' unit, dailyRate remains the same as finalPrice
+      if (duration.unit === 'month') dailyRate = finalPrice / 30
+      else if (duration.unit === 'months') dailyRate = finalPrice / duration.value
+      else if (duration.unit === 'year') dailyRate = finalPrice / 365
     }
 
-    return {
-      price: Math.round(finalPrice),
-      calculation: calculationSteps.join('\n'),
-      dailyRate: Math.round(dailyRate)
-    }
+    return { price: Math.round(finalPrice), calculation: steps.join('\n'), dailyRate: Math.round(dailyRate) }
   }
 
   // Handle cell editing
@@ -380,26 +456,27 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       changedCells: new Set([...prev.changedCells, editingCell])
     }))
 
-    // Auto-save the change
+    // Auto-save the change into Arabic pricing table (Supabase or local fallback)
     try {
-      const { newPricingService } = await import('@/services/newPricingService')
-      const currentPricing = newPricingService.getPricing()
-
-      // Update the specific pricing zone (assuming we're working with the current municipality)
-      const currentZone = pricingData.currentMunicipality
-      const zoneName = pricingData.municipalities.find(m => m.id === currentZone)?.name || 'مصراتة'
-
-      if (currentPricing.zones[zoneName]) {
-        // Update the zone's customer type pricing
-        const customerType = category as 'marketers' | 'individuals' | 'companies'
-        if (currentPricing.zones[zoneName].prices[customerType]) {
-          currentPricing.zones[zoneName].prices[customerType][size] = value
-
-          const result = newPricingService.updatePricing(currentPricing)
-          if (result.success) {
-            console.log(`تم حفظ السعر تلقائياً: ${size} - ${category} = ${value}`)
+      const { arabicPricingTable } = await import('@/services/arabicPricingTable')
+      const customerType = category as 'marketers' | 'individuals' | 'companies'
+      const ok = await arabicPricingTable.upsertCell(size, pricingData.currentLevel, customerType, pricingData.currentDuration, value)
+      if (ok) {
+        // Patch arabicRows state so the UI recompute reflects immediately
+        setArabicRows((prev) => {
+          const rows = Array.isArray(prev) ? [...prev] : []
+          const customerAr = customerType === 'companies' ? 'شركات' : customerType === 'marketers' ? 'مسوق' : 'عادي'
+          const col = (pricingData.currentDuration === 1 ? 'يوم واحد' : pricingData.currentDuration === 30 ? 'شهر واحد' : pricingData.currentDuration === 60 ? '2 أشهر' : pricingData.currentDuration === 90 ? '3 أشهر' : pricingData.currentDuration === 180 ? '6 أشهر' : 'سنة كاملة') as any
+          const idx = rows.findIndex(r => (r['المقاس']||'').toString().trim() === size && (r['المستوى']||'').toString().trim().toUpperCase() === pricingData.currentLevel.toUpperCase() && (r['الزبون']||'').toString().trim() === customerAr)
+          if (idx >= 0) {
+            (rows[idx] as any)[col] = value
+          } else {
+            const newRow: any = { 'المقاس': size, 'المستوى': pricingData.currentLevel, 'الزبون': customerAr, 'شهر واحد': null, '2 أشهر': null, '3 أشهر': null, '6 أشهر': null, 'سنة كاملة': null, 'يوم واحد': null }
+            newRow[col] = value
+            rows.push(newRow)
           }
-        }
+          return rows as any
+        })
       }
     } catch (error) {
       console.warn('لم يتم الحفظ التلقائي:', error)
@@ -450,7 +527,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       await autoSaveChanges({})
       console.log(`تم حفظ الفئ�� الجديدة تلقائياً: ${newCategory.name}`)
     } catch (error) {
-      console.warn('لم يتم حفظ الفئة الجديدة تلقائياً:', error)
+      console.warn('لم يتم حفظ الفئة الجديدة تلقا��ياً:', error)
     }
 
     setNewCategory({ name: '', description: '', color: 'blue' })
@@ -737,7 +814,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-yellow-800">
                   <AlertTriangle className="w-5 h-5" />
-                  <span className="font-semibold">لديك تغييرات غير محفوظة</span>
+                  <span className="font-semibold">لديك تغييرات غير ��حفوظة</span>
                   <Badge variant="outline" className="bg-yellow-100 text-yellow-800">
                     {unsavedChanges.changedCells.size} تغيير
                   </Badge>
@@ -772,7 +849,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
             <Card className="p-4">
               <h3 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
                 <Building2 className="w-5 h-5" />
-                اختيار المستوى
+                اختيار المست��ى
               </h3>
               <div className="flex flex-wrap gap-2 mb-3">
                 {pricingData.levels.map((level) => (
@@ -1013,6 +1090,16 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                 </Button>
               </div>
               <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2">
+                  <MultiSelect
+                    options={pricingData.categories.map(c => c.name)}
+                    selected={pricingData.selectedCategories}
+                    onChange={(names) => setPricingData(prev => ({ ...prev, selectedCategories: names }))}
+                    placeholder="اختر الفئات لعرضها"
+                    className="min-w-[240px]"
+                    allText="كل الفئات"
+                  />
+                </div>
                 <input
                   type="file"
                   ref={fileInputRef}
@@ -1067,7 +1154,18 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                     )}
                   </h3>
                 </div>
-                <div className="text-right">
+                <div className="text-right flex items-center gap-3">
+                  <div className="flex items-center gap-2 bg-white/10 px-3 py-2 rounded-lg border border-white/20">
+                    <span className="text-emerald-100 text-sm">المعامل العام</span>
+                    <Input
+                      type="number"
+                      value={pricingData.globalMultiplier}
+                      onChange={(e) => setPricingData(prev => ({ ...prev, globalMultiplier: parseFloat(e.target.value) || 1 }))}
+                      className="w-24 text-center bg-white/20 border-white/30 text-white placeholder-white/70"
+                      step="0.05"
+                      min="0"
+                    />
+                  </div>
                   <Badge className="bg-white/20 text-white text-lg px-5 py-3 font-bold rounded-xl backdrop-blur-sm">
                     {selectedDuration?.label}
                   </Badge>
@@ -1104,7 +1202,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                         <span className="font-black text-base">الحجم</span>
                       </div>
                     </th>
-                    {pricingData.categories.map((category, index) => {
+                    {(pricingData.categories.filter(c => pricingData.selectedCategories.length === 0 || pricingData.selectedCategories.includes(c.name))).map((category, index) => {
                       const colors = [
                         'from-blue-500 via-blue-600 to-indigo-600',
                         'from-emerald-500 via-green-600 to-teal-600',
@@ -1140,7 +1238,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                           {size}
                         </div>
                       </td>
-                      {pricingData.categories.map(category => {
+                      {(pricingData.categories.filter(c => pricingData.selectedCategories.length === 0 || pricingData.selectedCategories.includes(c.name))).map(category => {
                         const cellKey = `${size}-${category.id}`
                         const basePrice = pricingData.prices[size]?.[category.id] || 0
                         const { price: finalPrice, calculation, dailyRate } = calculateFinalPrice(basePrice)
@@ -1229,7 +1327,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                   <span className="font-semibold">إجمالي المقاسات:</span>
                   <Badge className="bg-blue-100 text-blue-800 mr-2">{pricingData.sizes.length}</Badge>
                   <span className="font-semibold mr-4">إجمالي الفئات:</span>
-                  <Badge className="bg-green-100 text-green-800">{pricingData.categories.length}</Badge>
+                  <Badge className="bg-green-100 text-green-800">{(pricingData.categories.filter(c => pricingData.selectedCategories.length === 0 || pricingData.selectedCategories.includes(c.name))).length}</Badge>
                 </div>
                 <Button
                   onClick={addSize}

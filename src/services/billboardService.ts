@@ -80,8 +80,7 @@ async function readCsvFromUrl(url: string, timeoutMs = 10000) {
       redirect: "follow",
       headers: {
         "Cache-Control": "no-cache",
-        Pragma: "no-cache",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        Pragma: "no-cache"
       },
     })
     clearTimeout(timeout)
@@ -98,7 +97,7 @@ async function readCsvFromUrl(url: string, timeoutMs = 10000) {
     }
 
     if (!res.ok) {
-      throw new Error(`فشل تحميل ملف CSV: ${res.status} ${res.statusText}`)
+      throw new Error(`��شل تحميل ملف CSV: ${res.status} ${res.statusText}`)
     }
 
     const csvText = await res.text()
@@ -133,10 +132,9 @@ async function readExcelFromUrl(url: string, timeoutMs = 10000, retries = 2) {
         signal: controller.signal,
         redirect: "follow",
         headers: {
-          "Cache-Control": "no-cache",
-          Pragma: "no-cache",
-          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-        },
+        "Cache-Control": "no-cache",
+        Pragma: "no-cache"
+      },
       })
       clearTimeout(timeout)
 
@@ -159,7 +157,7 @@ async function readExcelFromUrl(url: string, timeoutMs = 10000, retries = 2) {
         } else if (res.status === 404) {
           throw new Error(`الملف غير موجود. تأكد من صحة رابط Google Sheets. كود الخطأ: ${res.status}`)
         } else if (res.status === 429) {
-          throw new Error(`تم تجاوز حد الطلبات. حاول مرة أخرى لاحقاً. كود الخطأ: ${res.status}`)
+          throw new Error(`تم تجاوز حد الطلبات. حاول مرة أخرى لاحق��ً. كود الخطأ: ${res.status}`)
         } else {
           throw new Error(`فشل تحميل ملف الإكسل من الرابط: ${res.status} ${res.statusText}`)
         }
@@ -324,11 +322,11 @@ function processBillboardData(billboard: any, index: number): Billboard {
   let status = billboard['الحالة'] || 'متاح'
   let expiryDate = null
 
-  // تحديد الحالة بناءً على وجود عقد
+  // تحد��د الحالة بناءً على وجود عقد
   if (contractNumber && contractNumber.trim() !== '' && contractNumber !== '#N/A') {
     status = 'محجوز'
 
-    // إذا كان هناك تاريخ انتهاء، تحقق من اقرب من الانتهاء
+    // إذا كان هناك تاريخ ��نتهاء، تحقق من اقرب من الانتهاء
     if (expiryDateValue) {
       expiryDate = parseExcelDate(expiryDateValue)
       if (expiryDate) {
@@ -394,10 +392,31 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
     
     let workbook: XLSX.WorkBook
 
-    console.log(`[Service] التحقق من صحة الرابط: ${ONLINE_URL}`)
+    // محاولة سريعة للملف المحلي أولاً لتجنب مشاكل CORS
+    try {
+      const localRes = await fetch('/billboards.xlsx', { cache: 'no-store' })
+      if (localRes.ok) {
+        const buf = await localRes.arrayBuffer()
+        if (buf && buf.byteLength > 0) {
+          const wbLocal = XLSX.read(buf, { type: 'array', cellDates: true })
+          const sn = wbLocal.SheetNames[0]
+          if (sn) {
+            const ws = wbLocal.Sheets[sn]
+            const json = XLSX.utils.sheet_to_json(ws, { defval: '' })
+            if (json.length > 0) {
+              const billboards = json.map((bb: any, i: number) => processBillboardData(bb, i))
+              console.log('[Service] تم التحميل من الملف المحلي أولاً ✅', billboards.length)
+              return billboards
+            }
+          }
+        }
+      }
+    } catch (e:any) {
+      console.warn('[Service] فشل التحميل المحلي المبدئي، سنحاول الروابط البعيدة:', e?.message)
+    }
 
-    const isUrlAccessible = await testUrlAccess(ONLINE_URL)
-    console.log(`[Service] هل الرابط متاح؟ ${isUrlAccessible}`)
+    // تجنب طلب HEAD لأنه قد يفشل بسبب CORS أو إضافات المتصفح
+    // نعتمد مباشرة على محاولات CSV ثم Excel مع آليات fallback المحلية
 
     try {
       console.log("[Service] محاولة قراءة البيانات بصيغة CSV...")
@@ -613,7 +632,7 @@ export async function loadBillboardsFromExcel(): Promise<Billboard[]> {
           id: "917",
           name: "TR-JZ0917",
           location: "بعد مخرج السراج بـ800 متر",
-          municipality: "جنزور",
+          municipality: "جنزو��",
           city: "طرابلس",
           area: "طرابلس",
           size: "12x4",

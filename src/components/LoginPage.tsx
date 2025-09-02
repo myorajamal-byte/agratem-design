@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
 import { useAuth } from '@/contexts/AuthContext'
+import RegisterPage from '@/components/RegisterPage'
 
 interface LoginPageProps {
   onLoginSuccess?: () => void
@@ -15,7 +16,8 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  
+  const [showRegister, setShowRegister] = useState(false)
+
   const { login } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -37,10 +39,14 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
         setError('اسم المستخدم أو كلمة المرور غير صحيحة')
       }
     } catch (error) {
-      setError('حدث خطأ في تسجيل الدخول. يرجى المحاولة مرة أخرى')
+      setError('حدث خطأ في تسجيل الدخول. يرجى المحاول�� مرة أخرى')
     } finally {
       setIsLoading(false)
     }
+  }
+
+  if (showRegister) {
+    return <RegisterPage onCancel={() => setShowRegister(false)} />
   }
 
   return (
@@ -152,6 +158,17 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
               )}
             </Button>
           </form>
+
+          <div className="mt-6 flex items-center justify-center gap-2 text-sm text-gray-700">
+            <span>ليس لديك حساب؟</span>
+            <button
+              className="text-yellow-700 font-bold hover:underline"
+              type="button"
+              onClick={() => setShowRegister(true)}
+            >
+              إنشاء حساب جديد
+            </button>
+          </div>
 
           {/* معلومات تسجيل الدخول للتجربة */}
           <div className="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">

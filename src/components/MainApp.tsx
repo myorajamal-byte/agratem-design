@@ -61,15 +61,21 @@ export default function MainApp() {
   const itemsPerPage = 12
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('users') === '1') setShowSettings(true)
     const loadData = async () => {
       try {
         setLoading(true)
         const data = await loadBillboardsFromExcel()
 
-        // تطبيق فلترة الزبون المخصص إذا ك��ن المستخدم لديه هذه الصلاحية
+        // تطبيق صلاحيات العرض:
+        // 1) إن كانت صلاحية "view_specific_client" موجودة وتم تحديد زبون، فالظهور يقتصر على لوحات ذلك الزبون
+        // 2) خلاف ذلك، إن لم يكن Admin فاعرض اللوحات المتاحة فقط
         let filteredData = data
         if (user?.permissions.some(p => p.name === 'view_specific_client') && user.assignedClient) {
           filteredData = clientService.filterBillboardsByClient(data, user.assignedClient)
+        } else if (user && user.role === 'user' && !user.permissions.some(p => p.name === 'admin_access')) {
+          filteredData = data.filter(b => b.status === 'متاح')
         }
 
         setBillboards(filteredData)
@@ -213,7 +219,7 @@ ${selectedBillboardsData
 
       window.open(mailtoLink, "_blank")
 
-      alert("تم فتح برنامج البريد الإلكتروني مع تفاصيل اللوحات المختارة!")
+      alert("تم فتح برنامج ال��ريد الإلكتروني مع تفاصيل اللوحات المختارة!")
       setShowEmailDialog(false)
       clearSelection()
       setCustomerEmail("")
@@ -426,7 +432,7 @@ ${selectedBillboardsData
         <table>
           <thead>
             <tr>
-              <th style="width: 16%;">صورة اللوحة</th>
+              <th style="width: 16%;">صورة ��للوحة</th>
               <th style="width: 12%;">رقم اللوحة</th>
               <th style="width: 22%;">موقع اللوحة</th>
               <th style="width: 14%;">البلدية</th>
@@ -540,6 +546,18 @@ ${selectedBillboardsData
         onOpenInstallationPricing={() => setShowInstallationPricing(true)}
       />
 
+      {/* زر عائم لفتح صفحة المستخدمين لمن يملك صلاحية الإدارة */}
+      {(user?.role === 'admin' || user?.permissions.some(p => p.name === 'manage_users' || p.name === 'admin_access')) && (
+        <button
+          onClick={() => setShowSettings(true)}
+          className="fixed bottom-6 left-6 z-50 bg-yellow-500 hover:bg-yellow-600 text-black font-bold rounded-full shadow-2xl px-5 py-3 flex items-center gap-2 border-2 border-yellow-300"
+          title="إدارة المستخدمين"
+        >
+          <Users className="w-5 h-5" />
+          <span className="hidden sm:inline">المستخدمون</span>
+        </button>
+      )}
+
 
       {!showAllBillboards && (
         <section className="bg-gradient-to-r from-yellow-500 via-yellow-400 to-yellow-500 text-black py-16 relative z-10">
@@ -636,7 +654,7 @@ ${selectedBillboardsData
           <div className="bg-white rounded-xl shadow-lg p-4 mb-6 border-2 border-blue-200">
             <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
               <Settings className="w-5 h-5 text-blue-600" />
-              إدارة الأسعار
+              إد��رة الأسعار
             </h3>
             <div className="flex flex-wrap gap-3">
               <Button
@@ -893,7 +911,7 @@ ${selectedBillboardsData
       <Footer />
 
       {/* نافذة إعدادات النظام */}
-      {showSettings && user?.permissions.some(p => p.name === 'manage_users') && (
+      {showSettings && (user?.role === 'admin' || user?.permissions.some(p => p.name === 'manage_users' || p.name === 'admin_access')) && (
         <SystemSettings onClose={() => setShowSettings(false)} />
       )}
 

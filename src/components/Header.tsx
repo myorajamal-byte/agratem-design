@@ -1,5 +1,5 @@
 /**
- * مكون رأس الصفحة - Header Component
+ * مكون ر��س الصفحة - Header Component
  * يحتوي على شع��ر الشركة وزر الحجز الرئيسي
  * يعرض اسم الشركة باللغتين العربية والإنجليزية
  * يحتوي على معلومات المستخدم وأزرار المصادقة
@@ -114,7 +114,7 @@ export default function Header({ onOpenSettings, onOpenPricing, onOpenInstallati
                         </>
                       )}
 
-                      {user.permissions.some(p => p.name === 'manage_users') && (
+                      {(user.role === 'admin' || user.permissions.some(p => p.name === 'manage_users' || p.name === 'admin_access')) && (
                         <button
                           onClick={() => {
                             onOpenSettings?.()
