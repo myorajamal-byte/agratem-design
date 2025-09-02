@@ -36,6 +36,7 @@ export default function MainApp() {
   const [searchTerm, setSearchTerm] = useState("")
   const [contractFilter, setContractFilter] = useState("")
   const [selectedMunicipalities, setSelectedMunicipalities] = useState<string[]>([])
+  const [selectedCities, setSelectedCities] = useState<string[]>([])
   const [selectedSizes, setSelectedSizes] = useState<string[]>([])
   const [selectedAvailabilities, setSelectedAvailabilities] = useState<string[]>([])
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
@@ -125,7 +126,7 @@ export default function MainApp() {
     let filtered = billboards
 
     // Check if any filters are active
-    const hasActiveFilters = searchTerm || contractFilter || selectedMunicipalities.length > 0 || selectedSizes.length > 0 || selectedAvailabilities.length > 0
+    const hasActiveFilters = searchTerm || contractFilter || selectedMunicipalities.length > 0 || selectedCities.length > 0 || selectedSizes.length > 0 || selectedAvailabilities.length > 0
 
     if (searchTerm) {
       filtered = filtered.filter(
@@ -147,6 +148,10 @@ export default function MainApp() {
 
     if (selectedMunicipalities.length > 0) {
       filtered = filtered.filter((billboard) => selectedMunicipalities.includes(billboard.municipality))
+    }
+
+    if (selectedCities.length > 0) {
+      filtered = filtered.filter((billboard) => selectedCities.includes(billboard.city))
     }
 
     if (selectedSizes.length > 0) {
@@ -172,6 +177,7 @@ export default function MainApp() {
   }, [searchTerm, contractFilter, selectedMunicipalities, selectedSizes, selectedAvailabilities, billboards, showAllBillboards])
 
   const municipalities = Array.from(new Set(billboards.map((b) => b.municipality)))
+  const cities = Array.from(new Set(billboards.map((b) => b.city)))
   const sizes = Array.from(new Set(billboards.map((b) => b.size)))
   const sizesForFilters = sizeOptions.length ? sizeOptions : sizes
   const contracts = clientService.getUniqueContracts(billboards)
@@ -449,7 +455,7 @@ ${selectedBillboardsData
               <th style="width: 16%;">صورة ��للوحة</th>
               <th style="width: 12%;">رقم اللوحة</th>
               <th style="width: 22%;">موقع اللوحة</th>
-              <th style="width: 14%;">ا��بلدية</th>
+              <th style="width: 14%;">البلدية</th>
               <th style="width: 14%;">المنطقة</th>
               <th style="width: 12%;">المقاس</th>
               <th style="width: 10%;">الحالة</th>
@@ -538,7 +544,7 @@ ${selectedBillboardsData
         <div className="text-center">
           <div className="flex flex-col items-center mb-8">
             <div className="w-24 h-24 bg-gradient-to-br from-yellow-400 via-yellow-500 to-yellow-600 rounded-full flex items-center justify-center shadow-2xl ring-4 ring-yellow-400/30 animate-pulse mb-4">
-              <img src="logo-symbol.svg" alt="رمز الشركة" className="w-16 h-16 object-contain" />
+              <img src="logo-symbol.svg" alt="ر��ز الشركة" className="w-16 h-16 object-contain" />
             </div>
           </div>
           <h2 className="text-3xl font-black text-gray-900 mb-4 tracking-tight">جاري تحميل البيانات...</h2>
@@ -633,6 +639,8 @@ ${selectedBillboardsData
           setContractFilter={setContractFilter}
           selectedMunicipalities={selectedMunicipalities}
           setSelectedMunicipalities={setSelectedMunicipalities}
+          selectedCities={selectedCities}
+          setSelectedCities={setSelectedCities}
           selectedSizes={selectedSizes}
           setSelectedSizes={setSelectedSizes}
           selectedAvailabilities={selectedAvailabilities}
@@ -642,6 +650,7 @@ ${selectedBillboardsData
           showMap={showMap}
           setShowMap={setShowMap}
           municipalities={municipalities}
+          cities={cities}
           sizes={sizesForFilters}
           contracts={contracts}
           onPrint={handlePrint}
@@ -720,7 +729,7 @@ ${selectedBillboardsData
                 className="bg-purple-600 hover:bg-purple-700 text-white"
               >
                 <Settings className="w-4 h-4 mr-2" />
-                حال�� النظام والاختبار
+                حالة النظام والاختبار
               </Button>
             </div>
           </div>
@@ -815,7 +824,7 @@ ${selectedBillboardsData
                   className="bg-emerald-600 hover:bg-emerald-700 text-white px-6"
                 >
                   <Calculator className="w-4 h-4 ml-2" />
-                  حساب الأس��ار
+                  حساب الأسعار
                 </Button>
                 <Button
                   onClick={() => setShowEmailDialog(true)}
