@@ -194,7 +194,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       }))
 
       if (syncCheck.needsSync) {
-        showNotification('info', `تم العثور على ${syncCheck.missingZones.length} م��طقة جديدة تحتاج مزامنة`)
+        showNotification('info', `تم العثور على ${syncCheck.missingZones.length} منطقة جديدة تحتاج مزامنة`)
       }
     } catch (error) {
       console.error('خطأ في فحص حالة المزامنة:', error)
@@ -281,14 +281,6 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       const effectiveSizes = sizesFromRows.length > 0 ? sizesFromRows : sizesList
 
       const colFor = (v: number) => (v === 1 ? 'يوم واحد' : v === 30 ? 'شهر واحد' : v === 60 ? '2 أشهر' : v === 90 ? '3 أشهر' : v === 180 ? '6 أشهر' : 'سنة كاملة') as keyof ArabicPricingRow
-      const mapCat = (ar?: string) => {
-      const s = (ar || '').toString().trim()
-      if (s.includes('شرك')) return 'companies'
-      if (s.includes('مسوق')) return 'marketers'
-      if (s.includes('أفراد') || s.includes('فرد') || s.includes('عادي')) return 'individuals'
-      if (s.includes('المدينة')) return 'individuals'
-      return 'individuals'
-    }
 
       // Build prices for current view (level + duration)
       const initialPrices: Record<string, Record<string, number>> = {}
@@ -296,8 +288,19 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       effectiveSizes.forEach((size) => {
         initialPrices[size] = {}
         pricingData.categories.forEach((category) => {
-          const row = rows.find((r) => (r['المقاس'] || '').toString().trim() === size && (r['المستوى'] || '').toString().trim().toUpperCase() === pricingData.currentLevel.toUpperCase() && mapCat(r['الزبون']) === category.id)
-          const price = row ? (() => { const raw = (row as any)[col]; const n = raw === null || raw === undefined || raw === '' ? 0 : Number(raw); return isNaN(n) ? 0 : n })() : 0
+          const row = rows.find(
+            (r) =>
+              (r['المقاس'] || '').toString().trim() === size &&
+              (r['المستوى'] || '').toString().trim().toUpperCase() === pricingData.currentLevel.toUpperCase() &&
+              mapCustomer(r['الزبون']) === (category.id as any)
+          )
+          const price = row
+            ? (() => {
+                const raw = (row as any)[col]
+                const n = raw === null || raw === undefined || raw === '' ? 0 : Number(raw)
+                return isNaN(n) ? 0 : n
+              })()
+            : 0
           initialPrices[size][category.id] = price
         })
       })
@@ -614,7 +617,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       }
     })
 
-    showNotification('success', `تم حذف مقاس "${size}" ��نجاح`)
+    showNotification('success', `تم حذف مقاس "${size}" بنجاح`)
   }
 
   // Import municipalities from Excel
