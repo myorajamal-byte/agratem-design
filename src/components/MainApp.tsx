@@ -210,7 +210,7 @@ export default function MainApp() {
 رقم الهاتف: ${customerPhone || "غير محدد"}
 
 رسالة العميل:
-${emailMessage || "لا توجد ��سالة إضافية"}
+${emailMessage || "لا توجد ��سا��ة إضافية"}
 
 اللوحات المختارة (${selectedBillboards.size} لوحة):
 ${selectedBillboardsData
@@ -576,7 +576,7 @@ ${selectedBillboardsData
         <section className="bg-gradient-to-r from-yellow-500 via-yellow-400 to-yellow-500 text-black py-16 relative z-10">
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-5xl md:text-6xl font-black mb-6 tracking-tight leading-tight">
-              الرائدون في عالم ا��دعاية والإعلان
+              الرائ��ون في عالم ا��دعاية والإعلان
             </h2>
             <p className="text-xl md:text-2xl mb-8 max-w-4xl mx-auto leading-relaxed font-bold">
               نحن نقدم حلول إعل��نية متكاملة ومبتكرة تضمن وصول رسالتك إلى الجمهور المناسب في الوقت ال��ناسب
@@ -666,7 +666,7 @@ ${selectedBillboardsData
         <div className="bg-white rounded-xl shadow-lg p-4 mb-6 border-2 border-yellow-200">
           <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2 text-right" dir="rtl">
             <DollarSign className="w-5 h-5 text-yellow-600" />
-            قائمة الأسعار الحديثة (فئات ومس��ويات)
+            قائمة الأسعار الحديثة (فئات ومستويات)
           </h3>
           <div className="flex flex-wrap gap-3">
             <Button onClick={() => setShowPricingExplorer(true)} className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-black font-black">
