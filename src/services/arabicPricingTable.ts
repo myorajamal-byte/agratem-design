@@ -1,9 +1,9 @@
-import { createClient } from '@supabase/supabase-js'
+import { supabase } from '@/supabaseClient'
 
 export type ArabicPricingRow = {
   المقاس: string
-  المستوى: string // 'A' | 'B'
-  الزبون: string // 'شركات' | 'أفراد' | 'مسوقين'
+  المستوى: string
+  الزبون: string // 'شركات' | 'أفراد' | 'عادي' | 'مسوق'
   'شهر واحد'?: number | null
   '2 أشهر'?: number | null
   '3 أشهر'?: number | null
@@ -12,11 +12,9 @@ export type ArabicPricingRow = {
   'يوم واحد'?: number | null
 }
 
-const supabaseUrl = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_SUPABASE_URL) || ''
-const supabaseAnonKey = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_SUPABASE_ANON_KEY) || ''
-const supabase = supabaseUrl && supabaseAnonKey ? createClient(supabaseUrl, supabaseAnonKey) : null
+const STORAGE_KEY = 'external_arabic_pricing_rows'
 
-function customerEnToArabic(id: string): string {
+function customerEnToArabic(id: 'companies' | 'individuals' | 'marketers'): string {
   if (id === 'companies') return 'شركات'
   if (id === 'marketers') return 'مسوق'
   return 'عادي'
@@ -33,79 +31,79 @@ function durationToColumn(value: number): keyof ArabicPricingRow {
 
 export const arabicPricingTable = {
   async getRows(): Promise<ArabicPricingRow[]> {
-    // 1) Try Supabase
-    if (supabase) {
-      const select = '"المقاس","المستوى","الزبون","شهر واحد","2 أشهر","3 أشهر","6 أشهر","سنة كاملة","يوم واحد"'
-      const { data, error } = await supabase.from('pricing').select(select)
-      if (!error && data && data.length > 0) {
-        return data as unknown as ArabicPricingRow[]
-      }
-    }
-
-    // 2) Try localStorage
     try {
-      const ls = localStorage.getItem('external_arabic_pricing_rows')
-      if (ls) {
-        const parsed = JSON.parse(ls)
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed as ArabicPricingRow[]
-      }
-    } catch {}
-
-    // 3) Try window global
-    try {
-      const w: any = typeof window !== 'undefined' ? window : null
-      if (w && Array.isArray(w.ARABIC_PRICING_ROWS) && w.ARABIC_PRICING_ROWS.length > 0) {
-        return w.ARABIC_PRICING_ROWS as ArabicPricingRow[]
-      }
-    } catch {}
-
-    return []
-  },
-
-  async upsertCell(size: string, level: string, customerId: 'companies'|'individuals'|'marketers', durationValue: number, price: number): Promise<boolean> {
-    try {
-      const customerAr = customerEnToArabic(customerId)
-      const col = durationToColumn(durationValue)
-
       if (supabase) {
-        // Fetch existing row
-        const { data } = await supabase.from('pricing')
-          .select('*')
-          .eq('المقاس', size)
-          .eq('المستوى', level)
-          .eq('الزبون', customerAr)
-          .maybeSingle()
-        if (data) {
-          const update: any = {}
-          update[col as any] = price
-          const { error } = await supabase.from('pricing')
-            .update(update)
-            .eq('المقاس', size)
-            .eq('المستوى', level)
-            .eq('الزبون', customerAr)
-          return !error
-        } else {
-          const row: any = { 'المقاس': size, 'المستوى': level, 'الزبون': customerAr, 'شهر واحد': null, '2 أشهر': null, '3 أشهر': null, '6 أشهر': null, 'سنة كاملة': null, 'يوم واحد': null }
-          row[col as any] = price
-          const { error } = await supabase.from('pricing').insert(row)
-          return !error
+        const { data, error } = await supabase.from('pricing').select('*')
+        if (!error && data) {
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+          } catch {}
+          return data as unknown as ArabicPricingRow[]
         }
       }
+    } catch (e) {
+      console.warn('Supabase error, fallback to localStorage', e)
+    }
 
-      // LocalStorage fallback
-      const rows = await this.getRows()
-      const idx = rows.findIndex(r => (r['المقاس']||'').toString().trim() === size && (r['المستوى']||'').toString().trim().toUpperCase() === level.toUpperCase() && (r['الزبون']||'').toString().trim() === customerAr)
-      if (idx >= 0) {
-        (rows[idx] as any)[col] = price
-      } else {
-        const newRow: any = { 'المقاس': size, 'المستوى': level, 'الزبون': customerAr, 'شهر واحد': null, '2 أشهر': null, '3 أشهر': null, '6 أشهر': null, 'سنة كاملة': null, 'يوم واحد': null }
-        newRow[col] = price
-        rows.push(newRow)
-      }
-      localStorage.setItem('external_arabic_pricing_rows', JSON.stringify(rows))
-      return true
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY)
+      return raw ? (JSON.parse(raw) as ArabicPricingRow[]) : []
     } catch {
+      return []
+    }
+  },
+
+  async upsertCell(
+    size: string,
+    level: string,
+    customer: 'companies' | 'individuals' | 'marketers',
+    duration: number,
+    value: number
+  ): Promise<boolean> {
+    try {
+      const customerArabic = customerEnToArabic(customer)
+      const column = durationToColumn(duration)
+
+      if (supabase) {
+        const { error } = await supabase.from('pricing').upsert({
+          المقاس: size,
+          المستوى: level,
+          الزبون: customerArabic,
+          [column]: value,
+        } as any)
+        if (!error) return true
+        console.error('Supabase upsert failed', error)
+      }
+
+      // Fallback to localStorage
+      const rows = await this.getRows()
+      const idx = rows.findIndex(
+        (r) =>
+          (r['المقاس'] || '').toString().trim() === size &&
+          (r['المستوى'] || '').toString().trim() === level &&
+          (r['الزبون'] || '').toString().trim() === customerArabic
+      )
+      if (idx >= 0) {
+        ;(rows[idx] as any)[column] = value
+      } else {
+        rows.push({
+          المقاس: size,
+          المستوى: level,
+          الزبون: customerArabic,
+          'شهر واحد': null,
+          '2 أشهر': null,
+          '3 أشهر': null,
+          '6 أشهر': null,
+          'سنة كاملة': null,
+          'يوم واحد': null,
+          [column]: value,
+        } as any)
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(rows))
+      return true
+    } catch (e) {
+      console.error('arabicPricingTable.upsertCell error', e)
       return false
     }
-  }
+  },
 }
