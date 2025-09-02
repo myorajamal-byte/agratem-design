@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { pricingService } from '@/services/pricingService'
-import { BillboardSize, CustomerType, PackageDuration, PriceList, PriceListType } from '@/types'
+import { BillboardSize, PackageDuration, PriceList, PriceListType } from '@/types'
 import { Layers, Tags, Calendar } from 'lucide-react'
 
 interface PricingShowcaseProps {
@@ -17,12 +17,6 @@ const DEFAULT_PACKAGES: PackageDuration[] = [
   { value: 12, unit: 'year', label: 'سنة كاملة', discount: 15 },
 ]
 
-const CATEGORY_ORDER: CustomerType[] = ['marketers', 'individuals', 'companies']
-const CATEGORY_AR: Record<CustomerType, string> = {
-  marketers: 'مسوق',
-  individuals: 'عاد��',
-  companies: 'شركات',
-}
 
 const LEVEL_LABEL: Record<PriceListType, string> = { A: 'مستوى A', B: 'مستوى B' }
 
@@ -34,14 +28,14 @@ export default function PricingShowcase({ selectedDuration, onDurationChange }: 
 
   const [mode, setMode] = useState<'category' | 'level'>('category')
   const [activeLevel, setActiveLevel] = useState<PriceListType>('A')
-  const [activeCategory, setActiveCategory] = useState<CustomerType>('individuals')
+  const [activeCategory, setActiveCategory] = useState<string>('')
   const [activeZone, setActiveZone] = useState<string>(zones[0] || '')
 
-  const availableCategories: CustomerType[] = useMemo(() => {
-    if (!activeZone || !pricing.zones[activeZone]) return CATEGORY_ORDER
-    const keys = Object.keys(pricing.zones[activeZone].prices || {}) as CustomerType[]
-    const merged = Array.from(new Set([...CATEGORY_ORDER, ...keys])) as CustomerType[]
-    return merged.slice(0, 7)
+  const availableCategories: string[] = useMemo(() => {
+    const zoneObj = activeZone ? pricing.zones[activeZone] : undefined
+    if (!zoneObj) return []
+    const keys = Object.keys(zoneObj.prices || {})
+    return keys.slice(0, 7)
   }, [pricing, activeZone])
 
   const sizes: BillboardSize[] = useMemo(() => {
@@ -60,7 +54,7 @@ export default function PricingShowcase({ selectedDuration, onDurationChange }: 
     if (!activeZone || !pricing.zones[activeZone]) return 0
     const z = pricing.zones[activeZone]
     if (mode === 'category') {
-      return z.prices?.[activeCategory]?.[size] || 0
+      return (z.prices as any)?.[activeCategory]?.[size] || 0
     }
     const dKey = selectedDuration ? (selectedDuration.value === 12 ? '12' : selectedDuration.value === 6 ? '6' : selectedDuration.value === 3 ? '3' : '1') : '1'
     const ab = (z.abPrices as any)?.[activeLevel] as any
@@ -125,7 +119,7 @@ export default function PricingShowcase({ selectedDuration, onDurationChange }: 
           <div className="flex flex-wrap gap-2">
             {availableCategories.map((c) => (
               <button key={c} onClick={() => setActiveCategory(c)} className={`px-4 py-2 rounded-full border text-sm font-bold ${activeCategory===c ? 'bg-yellow-500 text-black border-yellow-600' : 'bg-white border-gray-300 text-gray-800'}`}>
-                {CATEGORY_AR[c] || c}
+                {c}
               </button>
             ))}
           </div>
@@ -145,7 +139,7 @@ export default function PricingShowcase({ selectedDuration, onDurationChange }: 
         <div className="flex items-center justify-between mb-3">
           <div className="text-right">
             <h4 className="text-base font-black text-gray-900">{activeZone}</h4>
-            <p className="text-xs text-gray-600">{mode==='category' ? (CATEGORY_AR[activeCategory] || activeCategory) : LEVEL_LABEL[activeLevel]}</p>
+            <p className="text-xs text-gray-600">{mode==='category' ? activeCategory : LEVEL_LABEL[activeLevel]}</p>
           </div>
           {selectedDuration && (
             <Badge className="bg-amber-100 text-amber-800 border border-amber-200">{selectedDuration.label}</Badge>
