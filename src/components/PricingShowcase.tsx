@@ -38,6 +38,11 @@ export default function PricingShowcase({ selectedDuration, onDurationChange }: 
     return keys.slice(0, 7)
   }, [pricing, activeZone])
 
+  // Initialize active category when zone changes
+  if (!activeCategory && availableCategories.length > 0) {
+    setTimeout(() => setActiveCategory(availableCategories[0]), 0)
+  }
+
   const sizes: BillboardSize[] = useMemo(() => {
     if (!activeZone || !pricing.zones[activeZone]) return []
     const z = pricing.zones[activeZone]
