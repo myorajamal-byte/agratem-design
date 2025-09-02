@@ -28,6 +28,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { MultiSelect } from '@/components/ui/multi-select'
 import * as XLSX from 'xlsx'
 import { arabicPricingTable, ArabicPricingRow } from '@/services/arabicPricingTable'
 
@@ -67,7 +68,9 @@ interface PricingData {
   currentLevel: string
   currentMunicipality: string
   currentDuration: number
-  prices: Record<string, Record<string, number>> // size -> category -> price
+  prices: Record<string, Record<string, number>>
+  globalMultiplier: number
+  selectedCategories: string[] // Arabic names; empty => all
 }
 
 interface UnsavedChanges {
@@ -91,11 +94,11 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
     levels: [
       { id: 'A', name: 'مستوى A', description: 'مواقع مميزة' },
       { id: 'B', name: 'مستوى B', description: 'مواقع عادية' },
-      { id: 'C', name: 'مستوى C', description: 'مواقع اقتصادي��' }
+      { id: 'C', name: 'مستوى C', description: 'مواقع اقتصادية' }
     ],
     municipalities: [
-      { id: '1', name: 'مصرات��', multiplier: 1.0 },
-      { id: '2', name: 'زل��تن', multiplier: 0.8 },
+      { id: '1', name: 'مصراتة', multiplier: 1.0 },
+      { id: '2', name: 'زليتن', multiplier: 0.8 },
       { id: '3', name: 'بنغازي', multiplier: 1.2 },
       { id: '4', name: 'طرابلس', multiplier: 1.0 }
     ],
@@ -108,7 +111,9 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
     currentLevel: 'A',
     currentMunicipality: '1',
     currentDuration: 1,
-    prices: {}
+    prices: {},
+    globalMultiplier: 1.0,
+    selectedCategories: []
   })
 
   const [editingCell, setEditingCell] = useState<string | null>(null)
@@ -277,6 +282,25 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       const rows = await arabicPricingTable.getRows()
       setArabicRows(rows)
 
+      // Derive categories from rows (الموجودة في الجدول)
+      const uniqueCustomers = Array.from(new Set(rows.map(r => (r['الزبون'] || '').toString().trim()).filter(Boolean)))
+      const preferLabel = (id: 'companies' | 'individuals' | 'marketers', labels: string[]) => {
+        if (id === 'companies') return labels.find(l => l.includes('شرك')) || 'شركات'
+        if (id === 'marketers') return labels.find(l => l.includes('مسوق')) || 'مسوقين'
+        return labels.find(l => l.includes('أفراد')) || labels.find(l => l.includes('عادي')) || 'أفراد'
+      }
+      const grouped: Record<'companies'|'individuals'|'marketers', string[]> = { companies: [], individuals: [], marketers: [] }
+      uniqueCustomers.forEach(ar => { grouped[mapCustomer(ar)].push(ar) })
+      const categoriesFromRows: Category[] = (['companies','individuals','marketers'] as const)
+        .filter(id => grouped[id].length > 0)
+        .map((id) => ({
+          id,
+          name: preferLabel(id, grouped[id]),
+          description: id === 'marketers' ? 'خصم للمسوقين' : id === 'companies' ? 'أسعار الشركات' : 'الأسعار العادية',
+          color: id === 'marketers' ? 'blue' : id === 'companies' ? 'green' : 'purple'
+        }))
+      const categoriesToUse = categoriesFromRows.length > 0 ? categoriesFromRows : pricingData.categories
+
       const sizesFromRows = Array.from(new Set(rows.map(r => (r['المقاس'] || '').toString().trim()).filter(Boolean)))
       const effectiveSizes = sizesFromRows.length > 0 ? sizesFromRows : sizesList
 
@@ -287,7 +311,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       const col = colFor(pricingData.currentDuration)
       effectiveSizes.forEach((size) => {
         initialPrices[size] = {}
-        pricingData.categories.forEach((category) => {
+        categoriesToUse.forEach((category) => {
           const row = rows.find(
             (r) =>
               (r['المقاس'] || '').toString().trim() === size &&
@@ -309,11 +333,13 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
         ...prev,
         sizes: effectiveSizes,
         prices: initialPrices,
+        categories: categoriesToUse,
+        selectedCategories: [],
         municipalities: availableZones.length > 0 ? updatedMunicipalities : prev.municipalities
       }))
 
     } catch (error) {
-      console.error('خطأ في تحميل بيانات الأسعا��:', error)
+      console.error('خطأ في تحميل بيانا�� الأسعا��:', error)
       // Fallback to original initialization
       const initialPrices: Record<string, Record<string, number>> = {}
 
@@ -361,45 +387,38 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
     }).format(price) + ' د.ل'
   }
 
-  // Calculate final price with municipality multiplier and duration discount
+  // Calculate final price with global and municipality multipliers and duration discount
   const calculateFinalPrice = (basePrice: number): { price: number, calculation: string, dailyRate: number } => {
     const municipality = pricingData.municipalities.find(m => m.id === pricingData.currentMunicipality)
     const duration = durationOptions.find(d => d.value === pricingData.currentDuration)
 
     let finalPrice = basePrice
-    let calculationSteps = [`السعر الأساسي: ${formatPrice(basePrice)}`]
+    const steps: string[] = [`السعر الأساسي: ${formatPrice(basePrice)}`]
 
-    // Apply municipality multiplier
-    if (municipality && municipality.multiplier !== 1.0) {
-      finalPrice *= municipality.multiplier
-      calculationSteps.push(`معامل ${municipality.name}: ×${municipality.multiplier} = ${formatPrice(finalPrice)}`)
+    if (pricingData.globalMultiplier && pricingData.globalMultiplier !== 1) {
+      finalPrice *= pricingData.globalMultiplier
+      steps.push(`المعامل العام: ×${pricingData.globalMultiplier} = ${formatPrice(finalPrice)}`)
     }
 
-    // Apply duration discount
+    if (municipality && municipality.multiplier !== 1.0) {
+      finalPrice *= municipality.multiplier
+      steps.push(`معامل ${municipality.name}: ×${municipality.multiplier} = ${formatPrice(finalPrice)}`)
+    }
+
     if (duration && duration.discount > 0) {
       const discountAmount = finalPrice * (duration.discount / 100)
       finalPrice -= discountAmount
-      calculationSteps.push(`خصم ${duration.label}: -${duration.discount}% = ${formatPrice(finalPrice)}`)
+      steps.push(`خصم ${duration.label}: -${duration.discount}% = ${formatPrice(finalPrice)}`)
     }
 
-    // Calculate daily rate
     let dailyRate = finalPrice
     if (duration) {
-      if (duration.unit === 'month') {
-        dailyRate = finalPrice / 30
-      } else if (duration.unit === 'months') {
-        dailyRate = finalPrice / duration.value
-      } else if (duration.unit === 'year') {
-        dailyRate = finalPrice / 365
-      }
-      // For 'day' unit, dailyRate remains the same as finalPrice
+      if (duration.unit === 'month') dailyRate = finalPrice / 30
+      else if (duration.unit === 'months') dailyRate = finalPrice / duration.value
+      else if (duration.unit === 'year') dailyRate = finalPrice / 365
     }
 
-    return {
-      price: Math.round(finalPrice),
-      calculation: calculationSteps.join('\n'),
-      dailyRate: Math.round(dailyRate)
-    }
+    return { price: Math.round(finalPrice), calculation: steps.join('\n'), dailyRate: Math.round(dailyRate) }
   }
 
   // Handle cell editing
@@ -1071,6 +1090,16 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                 </Button>
               </div>
               <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2">
+                  <MultiSelect
+                    options={pricingData.categories.map(c => c.name)}
+                    selected={pricingData.selectedCategories}
+                    onChange={(names) => setPricingData(prev => ({ ...prev, selectedCategories: names }))}
+                    placeholder="اختر الفئات لعرضها"
+                    className="min-w-[240px]"
+                    allText="كل الفئات"
+                  />
+                </div>
                 <input
                   type="file"
                   ref={fileInputRef}
@@ -1125,7 +1154,18 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                     )}
                   </h3>
                 </div>
-                <div className="text-right">
+                <div className="text-right flex items-center gap-3">
+                  <div className="flex items-center gap-2 bg-white/10 px-3 py-2 rounded-lg border border-white/20">
+                    <span className="text-emerald-100 text-sm">المعامل العام</span>
+                    <Input
+                      type="number"
+                      value={pricingData.globalMultiplier}
+                      onChange={(e) => setPricingData(prev => ({ ...prev, globalMultiplier: parseFloat(e.target.value) || 1 }))}
+                      className="w-24 text-center bg-white/20 border-white/30 text-white placeholder-white/70"
+                      step="0.05"
+                      min="0"
+                    />
+                  </div>
                   <Badge className="bg-white/20 text-white text-lg px-5 py-3 font-bold rounded-xl backdrop-blur-sm">
                     {selectedDuration?.label}
                   </Badge>
@@ -1162,7 +1202,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                         <span className="font-black text-base">الحجم</span>
                       </div>
                     </th>
-                    {pricingData.categories.map((category, index) => {
+                    {(pricingData.categories.filter(c => pricingData.selectedCategories.length === 0 || pricingData.selectedCategories.includes(c.name))).map((category, index) => {
                       const colors = [
                         'from-blue-500 via-blue-600 to-indigo-600',
                         'from-emerald-500 via-green-600 to-teal-600',
@@ -1198,7 +1238,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                           {size}
                         </div>
                       </td>
-                      {pricingData.categories.map(category => {
+                      {(pricingData.categories.filter(c => pricingData.selectedCategories.length === 0 || pricingData.selectedCategories.includes(c.name))).map(category => {
                         const cellKey = `${size}-${category.id}`
                         const basePrice = pricingData.prices[size]?.[category.id] || 0
                         const { price: finalPrice, calculation, dailyRate } = calculateFinalPrice(basePrice)
@@ -1287,7 +1327,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
                   <span className="font-semibold">إجمالي المقاسات:</span>
                   <Badge className="bg-blue-100 text-blue-800 mr-2">{pricingData.sizes.length}</Badge>
                   <span className="font-semibold mr-4">إجمالي الفئات:</span>
-                  <Badge className="bg-green-100 text-green-800">{pricingData.categories.length}</Badge>
+                  <Badge className="bg-green-100 text-green-800">{(pricingData.categories.filter(c => pricingData.selectedCategories.length === 0 || pricingData.selectedCategories.includes(c.name))).length}</Badge>
                 </div>
                 <Button
                   onClick={addSize}
