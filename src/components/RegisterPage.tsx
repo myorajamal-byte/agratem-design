@@ -8,7 +8,9 @@ import type { Permission, User } from '@/types'
 
 const DEFAULT_PERMISSION: Permission = { id: '1', name: 'view_billboards', description: 'عرض اللوحات الإعلانية' }
 
-const RegisterPage: React.FC = () => {
+interface RegisterPageProps { onCancel?: () => void }
+
+const RegisterPage: React.FC<RegisterPageProps> = ({ onCancel }) => {
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -54,11 +56,15 @@ const RegisterPage: React.FC = () => {
       }
       const result = await authService.addUser(newUser, password)
       if (result.success) {
-        setSuccess('تم إنشاء الحساب بنجاح! يمكنك تسجيل الدخول الآن')
+        setSuccess('تم إنشاء الحساب بنجاح! يمكن�� تسجيل الدخول الآن')
         setTimeout(() => {
-          const url = new URL(window.location.href)
-          url.searchParams.delete('register')
-          window.location.href = url.toString()
+          if (onCancel) {
+            onCancel()
+          } else {
+            const url = new URL(window.location.href)
+            url.searchParams.delete('register')
+            window.location.href = url.toString()
+          }
         }, 1200)
       } else {
         setError(result.error || 'فشل إنشاء الحساب')
@@ -137,7 +143,7 @@ const RegisterPage: React.FC = () => {
 
           <div className="mt-6 flex items-center justify-center gap-2 text-sm text-gray-700">
             <span>لديك حساب؟</span>
-            <button className="text-yellow-700 font-bold hover:underline inline-flex items-center gap-1" onClick={()=>{ const url=new URL(window.location.href); url.searchParams.delete('register'); window.location.href=url.toString(); }}>
+            <button className="text-yellow-700 font-bold hover:underline inline-flex items-center gap-1" onClick={()=>{ if (onCancel) { onCancel() } else { const url=new URL(window.location.href); url.searchParams.delete('register'); window.location.href=url.toString(); } }}>
               تسجيل الدخول <ArrowRight className="w-4 h-4" />
             </button>
           </div>
