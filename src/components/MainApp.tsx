@@ -19,6 +19,7 @@ import PricingSystemGuide from "@/components/PricingSystemGuide"
 import BookingMode from "@/components/BookingMode"
 import PricingDurationSelector from "@/components/PricingDurationSelector"
 import PricingExplorer from "@/components/PricingExplorer"
+import PricingShowcase from "@/components/PricingShowcase"
 import { loadBillboardsFromExcel } from "@/services/billboardService"
 import { clientService } from "@/services/clientService"
 import { sizesDatabase } from "@/services/sizesDatabase"
@@ -212,7 +213,7 @@ export default function MainApp() {
 رسالة العميل:
 ${emailMessage || "لا توجد ��سالة إضافية"}
 
-الل��حات المختارة (${selectedBillboards.size} لوحة):
+اللوحات المختارة (${selectedBillboards.size} لوحة):
 ${selectedBillboardsData
   .map(
     (billboard, index) =>
@@ -595,7 +596,7 @@ ${selectedBillboardsData
               </div>
               <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 shadow-lg">
                 <MapPin className="w-12 h-12 mx-auto mb-4 text-black" />
-                <h3 className="text-3xl font-black mb-2"> نملك مواقع ك��فية لحملتك الإ��لانية</h3>
+                <h3 className="text-3xl font-black mb-2"> نملك مواقع ك��فية لحملتك الإعلانية</h3>
                 <p className="text-lg font-bold"></p>
               </div>
               <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 shadow-lg">
@@ -651,7 +652,7 @@ ${selectedBillboardsData
           <div className="bg-white rounded-xl shadow-lg p-4 mb-6 border-2 border-emerald-200">
             <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2 text-right" dir="rtl">
               <DollarSign className="w-5 h-5 text-emerald-600" />
-              عرض الأ��عار حسب المدة
+              عرض الأسعار حسب المدة
             </h3>
             <div className="max-w-md">
               <PricingDurationSelector
@@ -662,15 +663,18 @@ ${selectedBillboardsData
           </div>
         )}
 
-        {/* مستكشف قائمة الأسعار الحديثة */}
+        {/* قائمة الأسعار الحديثة - عرض مباشر */}
+        <PricingShowcase selectedDuration={selectedPricingDuration} onDurationChange={setSelectedPricingDuration} />
+
+        {/* مستكشف قائمة الأسعار الحديثة (اختياري في نافذة) */}
         <div className="bg-white rounded-xl shadow-lg p-4 mb-6 border-2 border-yellow-200">
           <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2 text-right" dir="rtl">
             <DollarSign className="w-5 h-5 text-yellow-600" />
-            قائمة الأسعار الحديثة (فئات ومستويات)
+            قائمة الأسعار الحديثة (نافذة)
           </h3>
           <div className="flex flex-wrap gap-3">
             <Button onClick={() => setShowPricingExplorer(true)} className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-black font-black">
-              استعراض قائمة الأسعار
+              استعراض قائمة الأسعار في نافذة
             </Button>
           </div>
         </div>
