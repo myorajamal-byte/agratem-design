@@ -18,6 +18,7 @@ import SimplifiedPricingCalculator from "@/components/SimplifiedPricingCalculato
 import PricingSystemGuide from "@/components/PricingSystemGuide"
 import BookingMode from "@/components/BookingMode"
 import PricingDurationSelector from "@/components/PricingDurationSelector"
+import PricingExplorer from "@/components/PricingExplorer"
 import { loadBillboardsFromExcel } from "@/services/billboardService"
 import { clientService } from "@/services/clientService"
 import { sizesDatabase } from "@/services/sizesDatabase"
