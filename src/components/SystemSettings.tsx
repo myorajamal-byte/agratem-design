@@ -38,7 +38,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
   const [permissions, setPermissions] = useState<Permission[]>([])
   const [clients, setClients] = useState<Client[]>([])
   const [billboards, setBillboards] = useState<Billboard[]>([])
-  const [customerCategories, setCustomerCategories] = useState<{ id: 'companies' | 'individuals' | 'marketers'; label: string }[]>([])
+  const [customerCategories, setCustomerCategories] = useState<{ id: string; label: string }[]>([])
   const [showAddUser, setShowAddUser] = useState(false)
   const [editingUser, setEditingUser] = useState<UserType | null>(null)
   const [showPasswordDialog, setShowPasswordDialog] = useState<string | null>(null)
@@ -158,7 +158,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
 
   const handleUpdatePassword = async (username: string) => {
     if (!passwordForm.newPassword || !passwordForm.confirmPassword) {
-      setError('يرجى ملء جميع حقول كلمة المرور')
+      setError('ير��ى ملء جميع حقول كلمة المرور')
       return
     }
 
@@ -263,7 +263,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                 <Users className="w-6 h-6 text-yellow-600" />
-                إدارة المستخدمين
+                إدا��ة المستخدمين
               </h2>
               <Button
                 onClick={() => setShowAddUser(true)}
