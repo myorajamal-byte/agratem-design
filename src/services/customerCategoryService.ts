@@ -1,14 +1,8 @@
 import { supabase } from '@/supabaseClient'
 
-export type CustomerCategoryId = 'companies' | 'individuals' | 'marketers'
+export type CustomerCategoryId = string
 
-const DEFAULTS: { id: CustomerCategoryId; label: string }[] = [
-  { id: 'individuals', label: 'عادي' },
-  { id: 'marketers', label: 'مسوق' },
-  { id: 'companies', label: 'شركات' },
-]
-
-function arabicToId(label: string): CustomerCategoryId | null {
+function arabicToId(label: string): string | null {
   const normalized = (label || '').toString().trim()
   if (normalized === 'شركات') return 'companies'
   if (normalized === 'مسوق' || normalized === 'مسوقين') return 'marketers'
@@ -17,7 +11,7 @@ function arabicToId(label: string): CustomerCategoryId | null {
 }
 
 export const customerCategoryService = {
-  async getCategories(): Promise<{ id: CustomerCategoryId; label: string }[]> {
+  async getCategories(): Promise<{ id: string; label: string }[]> {
     try {
       if (supabase) {
         // Try normalized schema
@@ -25,13 +19,10 @@ export const customerCategoryService = {
         try {
           const { data, error } = await supabase.from('pricing').select('customer_type')
           if (!error && Array.isArray(data) && data.length) {
-            const ids = Array.from(new Set(data.map((r: any) => (r?.customer_type || '').toString().trim()).filter(Boolean))) as CustomerCategoryId[]
+            const ids = Array.from(new Set(data.map((r: any) => (r?.customer_type || '').toString().trim()).filter(Boolean))) as string[]
             if (ids.length) {
               used = true
-              const byId = new Map<CustomerCategoryId, string>()
-              DEFAULTS.forEach((d) => byId.set(d.id, d.label))
-              ids.forEach((id) => { if ((byId as any).has(id)) return; byId.set(id as CustomerCategoryId, id) })
-              return Array.from(byId.entries()).map(([id, label]) => ({ id, label }))
+              return ids.map((id) => ({ id, label: id }))
             }
           }
         } catch {}
@@ -46,15 +37,20 @@ export const customerCategoryService = {
                 if (!id) return null
                 return { id, label }
               })
-              .filter(Boolean) as { id: CustomerCategoryId; label: string }[]
-            const byId = new Map<CustomerCategoryId, string>()
-            DEFAULTS.forEach((d) => byId.set(d.id, d.label))
-            mapped.forEach((m) => byId.set(m.id, m.label))
-            return Array.from(byId.entries()).map(([id, label]) => ({ id, label }))
+              .filter(Boolean) as { id: string; label: string }[]
+            return mapped
           }
         }
       }
     } catch {}
-    return DEFAULTS
+    try {
+      const { pricingService } = await import('@/services/pricingService')
+      const pricing = pricingService.getPricing()
+      const zoneKeys = Object.values(pricing.zones || {})
+      const ids = Array.from(new Set(zoneKeys.flatMap((z: any) => Object.keys(z?.prices || {}))))
+      return ids.map((id) => ({ id, label: id }))
+    } catch {
+      return []
+    }
   },
 }
