@@ -102,11 +102,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
       { id: '3', name: 'بنغازي', multiplier: 1.2 },
       { id: '4', name: 'طرابلس', multiplier: 1.0 }
     ],
-    categories: [
-      { id: 'marketers', name: 'مسوقين', description: 'خصم للمسوقين', color: 'blue' },
-      { id: 'companies', name: 'شركات', description: 'أسعار الشركات', color: 'green' },
-      { id: 'individuals', name: 'أفراد', description: 'الأسعار العادية', color: 'purple' }
-    ],
+    categories: [],
     sizes: [],
     currentLevel: 'A',
     currentMunicipality: '1',
@@ -525,7 +521,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
     // Auto-save new category (this is more for demo - categories are UI-specific)
     try {
       await autoSaveChanges({})
-      console.log(`تم حفظ الفئة الجد��دة تلقائياً: ${newCategory.name}`)
+      console.log(`تم حفظ الفئة الجديدة تلقائياً: ${newCategory.name}`)
     } catch (error) {
       console.warn('لم يتم حفظ الفئة الجديدة تلقائياً:', error)
     }
@@ -771,7 +767,7 @@ const EnhancedPricingManagement: React.FC<{ onClose: () => void }> = ({ onClose 
               </div>
               <div>
                 <h1 className="text-2xl font-bold">إدارة الأسعار المتطورة</h1>
-                <p className="text-sm opacity-90">النظام الشامل لإدارة أسعار اللوحات الإعلانية</p>
+                <p className="text-sm opacity-90">��لنظام الشامل لإدارة أسعار اللوحات الإعلانية</p>
               </div>
             </div>
             <Button
