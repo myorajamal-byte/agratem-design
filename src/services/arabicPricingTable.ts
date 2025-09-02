@@ -33,12 +33,17 @@ export const arabicPricingTable = {
   async getRows(): Promise<ArabicPricingRow[]> {
     try {
       if (supabase) {
-        const { data, error } = await supabase.from('pricing').select('*')
+        // Prefer Arabic-structured table
+        const { data, error } = await supabase.from('pricing_ar').select('*')
         if (!error && data) {
-          try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
-          } catch {}
+          try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)) } catch {}
           return data as unknown as ArabicPricingRow[]
+        }
+        // Fallback to legacy table name if exists
+        const { data: dataLegacy, error: errLegacy } = await supabase.from('pricing').select('*')
+        if (!errLegacy && dataLegacy) {
+          try { localStorage.setItem(STORAGE_KEY, JSON.stringify(dataLegacy)) } catch {}
+          return dataLegacy as unknown as ArabicPricingRow[]
         }
       }
     } catch (e) {
