@@ -61,6 +61,8 @@ export default function MainApp() {
   const itemsPerPage = 12
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('users') === '1') setShowSettings(true)
     const loadData = async () => {
       try {
         setLoading(true)
@@ -430,7 +432,7 @@ ${selectedBillboardsData
         <table>
           <thead>
             <tr>
-              <th style="width: 16%;">صورة اللوحة</th>
+              <th style="width: 16%;">صورة ��للوحة</th>
               <th style="width: 12%;">رقم اللوحة</th>
               <th style="width: 22%;">موقع اللوحة</th>
               <th style="width: 14%;">البلدية</th>
@@ -460,7 +462,7 @@ ${selectedBillboardsData
                   `
                       : `
                     <div class="image-placeholder">
-                      <span>صور��<br>اللوحة</span>
+                      <span>صورة<br>اللوحة</span>
                     </div>
                   `
                   }
@@ -522,7 +524,7 @@ ${selectedBillboardsData
         <div className="text-center">
           <div className="flex flex-col items-center mb-8">
             <div className="w-24 h-24 bg-gradient-to-br from-yellow-400 via-yellow-500 to-yellow-600 rounded-full flex items-center justify-center shadow-2xl ring-4 ring-yellow-400/30 animate-pulse mb-4">
-              <img src="logo-symbol.svg" alt="رمز الشر��ة" className="w-16 h-16 object-contain" />
+              <img src="logo-symbol.svg" alt="رمز الشركة" className="w-16 h-16 object-contain" />
             </div>
           </div>
           <h2 className="text-3xl font-black text-gray-900 mb-4 tracking-tight">جاري تحميل البيانات...</h2>
@@ -545,7 +547,7 @@ ${selectedBillboardsData
       />
 
       {/* زر عائم لفتح صفحة المستخدمين لمن يملك صلاحية الإدارة */}
-      {user?.permissions.some(p => p.name === 'manage_users') && (
+      {(user?.role === 'admin' || user?.permissions.some(p => p.name === 'manage_users' || p.name === 'admin_access')) && (
         <button
           onClick={() => setShowSettings(true)}
           className="fixed bottom-6 left-6 z-50 bg-yellow-500 hover:bg-yellow-600 text-black font-bold rounded-full shadow-2xl px-5 py-3 flex items-center gap-2 border-2 border-yellow-300"
@@ -652,7 +654,7 @@ ${selectedBillboardsData
           <div className="bg-white rounded-xl shadow-lg p-4 mb-6 border-2 border-blue-200">
             <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
               <Settings className="w-5 h-5 text-blue-600" />
-              إدارة الأسعار
+              إد��رة الأسعار
             </h3>
             <div className="flex flex-wrap gap-3">
               <Button
@@ -909,7 +911,7 @@ ${selectedBillboardsData
       <Footer />
 
       {/* نافذة إعدادات النظام */}
-      {showSettings && user?.permissions.some(p => p.name === 'manage_users') && (
+      {showSettings && (user?.role === 'admin' || user?.permissions.some(p => p.name === 'manage_users' || p.name === 'admin_access')) && (
         <SystemSettings onClose={() => setShowSettings(false)} />
       )}
 
