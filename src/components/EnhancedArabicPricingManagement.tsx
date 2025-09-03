@@ -237,7 +237,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
       )
 
       if (result.success) {
-        showNotification('success', 'تم إضافة الصف بنجاح')
+        showNotification('success', 'تم إضاف�� الصف بنجاح')
         setShowAddRow(false)
         setNewRow({
           size: '',
@@ -385,10 +385,10 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
                   </div>
                 </Card>
 
-                <Card className="p-4 bg-white shadow-md border-l-4 border-green-500">
+                <Card className="stats-card p-4 bg-white shadow-md border-l-4 border-green-500">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                      <Grid3X3 className="w-5 h-5 text-green-600" />
+                      <Grid3X3 className="stats-icon w-5 h-5 text-green-600" />
                     </div>
                     <div>
                       <div className="text-2xl font-bold text-green-600">{statistics.uniqueSizes}</div>
@@ -397,10 +397,10 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
                   </div>
                 </Card>
 
-                <Card className="p-4 bg-white shadow-md border-l-4 border-purple-500">
+                <Card className="stats-card p-4 bg-white shadow-md border-l-4 border-purple-500">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                      <Target className="w-5 h-5 text-purple-600" />
+                      <Target className="stats-icon w-5 h-5 text-purple-600" />
                     </div>
                     <div>
                       <div className="text-2xl font-bold text-purple-600">{statistics.uniqueLevels}</div>
@@ -409,10 +409,10 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
                   </div>
                 </Card>
 
-                <Card className="p-4 bg-white shadow-md border-l-4 border-orange-500">
+                <Card className="stats-card p-4 bg-white shadow-md border-l-4 border-orange-500">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
-                      <Users className="w-5 h-5 text-orange-600" />
+                      <Users className="stats-icon w-5 h-5 text-orange-600" />
                     </div>
                     <div>
                       <div className="text-2xl font-bold text-orange-600">{statistics.uniqueCustomers}</div>
@@ -421,10 +421,10 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
                   </div>
                 </Card>
 
-                <Card className="p-4 bg-white shadow-md border-l-4 border-emerald-500">
+                <Card className="stats-card p-4 bg-white shadow-md border-l-4 border-emerald-500">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
-                      <TrendingUp className="w-5 h-5 text-emerald-600" />
+                      <TrendingUp className="stats-icon w-5 h-5 text-emerald-600" />
                     </div>
                     <div>
                       <div className="text-lg font-bold text-emerald-600">
@@ -435,10 +435,10 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
                   </div>
                 </Card>
 
-                <Card className="p-4 bg-white shadow-md border-l-4 border-pink-500">
+                <Card className="stats-card p-4 bg-white shadow-md border-l-4 border-pink-500">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-pink-100 rounded-full flex items-center justify-center">
-                      <DollarSign className="w-5 h-5 text-pink-600" />
+                      <DollarSign className="stats-icon w-5 h-5 text-pink-600" />
                     </div>
                     <div>
                       <div className="text-sm font-bold text-pink-600">
