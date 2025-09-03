@@ -321,7 +321,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
     setSelectedCustomer('')
   }
 
-  const priceColumns = ['يوم واحد', 'شهر واحد', '2 أشهر', '3 أشهر', '6 أشهر', 'سنة ك��ملة']
+  const priceColumns = ['يوم واحد', 'شهر واحد', '2 أشهر', '3 أشهر', '6 أشهر', 'سنة كاملة']
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -352,7 +352,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
         <div className="overflow-y-auto max-h-[calc(95vh-120px)]">
           {/* Notifications */}
           {error && (
-            <div className="mx-6 mt-6 p-4 bg-red-50 border-l-4 border-red-400 rounded-lg">
+            <div className="notification-enter-active mx-6 mt-6 p-4 bg-red-50 border-l-4 border-red-400 rounded-lg">
               <div className="flex items-center gap-2 text-red-700">
                 <AlertTriangle className="w-5 h-5" />
                 <span className="font-semibold">{error}</span>
@@ -361,7 +361,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
           )}
 
           {success && (
-            <div className="mx-6 mt-6 p-4 bg-green-50 border-l-4 border-green-400 rounded-lg">
+            <div className="notification-enter-active mx-6 mt-6 p-4 bg-green-50 border-l-4 border-green-400 rounded-lg">
               <div className="flex items-center gap-2 text-green-700">
                 <CheckCircle className="w-5 h-5" />
                 <span className="font-semibold">{success}</span>
@@ -543,7 +543,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
                   <select
                     value={selectedLevel}
                     onChange={(e) => setSelectedLevel(e.target.value)}
-                    className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                    className="filter-dropdown w-full p-3 rounded-lg bg-white"
                   >
                     <option value="">جميع المستويات</option>
                     {availableLevels.map(level => (
@@ -557,7 +557,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
                   <select
                     value={selectedCustomer}
                     onChange={(e) => setSelectedCustomer(e.target.value)}
-                    className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                    className="filter-dropdown w-full p-3 rounded-lg bg-white"
                   >
                     <option value="">جميع أنواع الزبائن</option>
                     {availableCustomers.map(customer => (
