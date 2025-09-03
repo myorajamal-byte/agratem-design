@@ -250,7 +250,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
           prices: {
             'شهر واحد': 0,
             '2 أشهر': 0,
-            '3 أشهر': 0,
+            '3 أشه��': 0,
             '6 أشهر': 0,
             'سنة كاملة': 0,
             'يوم واحد': 0
@@ -607,7 +607,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
                           onClick={() => handleSort('الزبون')}
                           className="sort-button"
                         >
-                          نوع الزبون
+                          نوع الزبو��
                           {sortConfig?.key === 'الزبون' && (
                             sortConfig.direction === 'asc' ? '↑' : '↓'
                           )}
@@ -654,9 +654,9 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
                     {/* Price Sub-headers when expanded */}
                     {expandedPriceColumns && (
                       <tr className="price-columns-subheader text-white">
-                        <th className="sticky-right-0"></th>
-                        <th className="sticky-right-120"></th>
-                        <th className="sticky-right-220"></th>
+                        <th className="sticky right-0"></th>
+                        <th className="sticky right-[140px]"></th>
+                        <th className="sticky right-[260px]"></th>
                         {priceColumns.map(column => (
                           <th key={column} className="border border-white/20 p-2 text-center font-medium text-sm min-w-[120px]">
                             <button
@@ -836,7 +836,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
                     <option value="عادي">عادي</option>
                     <option value="��سوق">مسوق</option>
                     <option value="شركات">شركات</option>
-                    <option value="المدينة">المدينة</option>
+                    <option value="المدينة">المد��نة</option>
                   </select>
                 </div>
               </div>
