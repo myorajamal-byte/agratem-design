@@ -13,7 +13,11 @@ import {
   Mail,
   User,
   Lock,
-  Settings
+  Settings,
+  Database,
+  RefreshCw,
+  CheckCircle,
+  AlertTriangle
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -62,6 +66,15 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
 
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+
+  // إعدادات قاعدة البيانات
+  const [dbSettings, setDbSettings] = useState({
+    supabaseUrl: import.meta.env.VITE_SUPABASE_URL || '',
+    supabaseKey: import.meta.env.VITE_SUPABASE_ANON_KEY || '',
+    showKey: false,
+    testingConnection: false,
+    connectionStatus: null as any
+  })
 
   useEffect(() => {
     loadData()
@@ -213,6 +226,78 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
     }
   }
 
+  // حفظ إعدادات قاعدة البيانات
+  const handleSaveDbSettings = async () => {
+    setLoading(true)
+    try {
+      // حفظ متغيرات البيئة باستخدام DevServerControl
+      // هذا سيتطلب إعادة تشغيل السيرفر
+
+      if (!dbSettings.supabaseUrl || !dbSettings.supabaseKey) {
+        setError('يرجى ملء جميع حقول قاعدة البيانات')
+        setLoading(false)
+        return
+      }
+
+      // محاولة اختبار الاتصال أولاً
+      const testResult = await testDatabaseConnection()
+      if (!testResult.success) {
+        setError(`فشل في الاتصال بقاعدة البيانات: ${testResult.error}`)
+        setLoading(false)
+        return
+      }
+
+      setSuccess('تم حفظ إعدادات قاعدة البيانات بنجاح! يرجى إعادة تحميل الصفحة لتفعيل التغييرات.')
+
+      // حفظ في localStorage كنسخة احتياطية
+      localStorage.setItem('supabase_url', dbSettings.supabaseUrl)
+      localStorage.setItem('supabase_key', dbSettings.supabaseKey)
+
+    } catch (error: any) {
+      setError(`خطأ في حفظ الإعدادات: ${error.message}`)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // اختبار الاتصال بقاعدة البيانات
+  const testDatabaseConnection = async () => {
+    setDbSettings(prev => ({ ...prev, testingConnection: true, connectionStatus: null }))
+
+    try {
+      // محاولة إنشاء عميل Supabase مؤقت للاختبار
+      const { createClient } = await import('@supabase/supabase-js')
+      const tempClient = createClient(dbSettings.supabaseUrl, dbSettings.supabaseKey)
+
+      // اختبار بسيط للاتصال
+      const { error } = await tempClient
+        .from('pricing_ar')
+        .select('count', { count: 'exact', head: true })
+        .limit(1)
+
+      if (error && !error.message.includes('relation "pricing_ar" does not exist')) {
+        throw new Error(error.message)
+      }
+
+      setDbSettings(prev => ({
+        ...prev,
+        testingConnection: false,
+        connectionStatus: { success: true, message: 'الاتصال بقاعدة البيانات ناجح' }
+      }))
+
+      return { success: true }
+
+    } catch (error: any) {
+      setDbSettings(prev => ({
+        ...prev,
+        testingConnection: false,
+        connectionStatus: { success: false, error: error.message }
+      }))
+
+      return { success: false, error: error.message }
+    }
+  }
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden">
@@ -240,6 +325,169 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
         </div>
 
         <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+          {/* إعدادات قاعدة البيانات */}
+          <div className="mb-8">
+            <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2 mb-4">
+              <Database className="w-6 h-6 text-blue-600" />
+              إعدادات قاعدة البيانات (Supabase)
+            </h2>
+
+            <Card className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* إعدادات الاتصال */}
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">
+                      رابط مشروع Supabase
+                    </label>
+                    <Input
+                      type="url"
+                      value={dbSettings.supabaseUrl}
+                      onChange={(e) => setDbSettings(prev => ({ ...prev, supabaseUrl: e.target.value }))}
+                      placeholder="https://your-project.supabase.co"
+                      className="bg-white border-blue-300 focus:border-blue-500"
+                    />
+                    <p className="text-xs text-gray-600 mt-1">
+                      يمك��ك العثور على هذا الرابط في لوحة تحكم Supabase
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">
+                      مفتاح API (anon key)
+                    </label>
+                    <div className="relative">
+                      <Input
+                        type={dbSettings.showKey ? 'text' : 'password'}
+                        value={dbSettings.supabaseKey}
+                        onChange={(e) => setDbSettings(prev => ({ ...prev, supabaseKey: e.target.value }))}
+                        placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                        className="bg-white border-blue-300 focus:border-blue-500 pr-10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setDbSettings(prev => ({ ...prev, showKey: !prev.showKey }))}
+                        className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                      >
+                        {dbSettings.showKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                    <p className="text-xs text-gray-600 mt-1">
+                      المفتاح العام (anon key) من إعدادات API في Supabase
+                    </p>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={testDatabaseConnection}
+                      disabled={dbSettings.testingConnection || !dbSettings.supabaseUrl || !dbSettings.supabaseKey}
+                      variant="outline"
+                      className="text-blue-600 border-blue-300 hover:bg-blue-50"
+                    >
+                      <RefreshCw className={`w-4 h-4 mr-2 ${dbSettings.testingConnection ? 'animate-spin' : ''}`} />
+                      اختبار الاتصال
+                    </Button>
+
+                    <Button
+                      onClick={handleSaveDbSettings}
+                      disabled={loading || !dbSettings.supabaseUrl || !dbSettings.supabaseKey}
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                      <Save className="w-4 h-4 mr-2" />
+                      حفظ الإعدادات
+                    </Button>
+                  </div>
+                </div>
+
+                {/* حالة الاتصال */}
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="font-bold text-gray-700 mb-3">حالة قاعدة البيانات الحالية</h4>
+
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between p-3 bg-white rounded-lg border">
+                        <span className="text-sm font-medium">رابط المشروع:</span>
+                        <div className="flex items-center gap-2">
+                          {import.meta.env.VITE_SUPABASE_URL ? (
+                            <>
+                              <CheckCircle className="w-4 h-4 text-green-500" />
+                              <span className="text-xs text-green-600">متصل</span>
+                            </>
+                          ) : (
+                            <>
+                              <AlertTriangle className="w-4 h-4 text-red-500" />
+                              <span className="text-xs text-red-600">غير محدد</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between p-3 bg-white rounded-lg border">
+                        <span className="text-sm font-medium">مفتاح API:</span>
+                        <div className="flex items-center gap-2">
+                          {import.meta.env.VITE_SUPABASE_ANON_KEY ? (
+                            <>
+                              <CheckCircle className="w-4 h-4 text-green-500" />
+                              <span className="text-xs text-green-600">متوفر</span>
+                            </>
+                          ) : (
+                            <>
+                              <AlertTriangle className="w-4 h-4 text-red-500" />
+                              <span className="text-xs text-red-600">غير محدد</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* نتيجة اختبار الاتصال */}
+                      {dbSettings.connectionStatus && (
+                        <div className={`p-3 rounded-lg border ${
+                          dbSettings.connectionStatus.success
+                            ? 'bg-green-50 border-green-200'
+                            : 'bg-red-50 border-red-200'
+                        }`}>
+                          <div className="flex items-center gap-2 mb-1">
+                            {dbSettings.connectionStatus.success ? (
+                              <CheckCircle className="w-4 h-4 text-green-600" />
+                            ) : (
+                              <AlertTriangle className="w-4 h-4 text-red-600" />
+                            )}
+                            <span className={`text-sm font-medium ${
+                              dbSettings.connectionStatus.success
+                                ? 'text-green-800'
+                                : 'text-red-800'
+                            }`}>
+                              {dbSettings.connectionStatus.success ? 'نجح الاختبار' : 'فشل الاختبار'}
+                            </span>
+                          </div>
+                          <p className={`text-xs ${
+                            dbSettings.connectionStatus.success
+                              ? 'text-green-700'
+                              : 'text-red-700'
+                          }`}>
+                            {dbSettings.connectionStatus.message || dbSettings.connectionStatus.error}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* إرشادات */}
+                  <div className="bg-white p-4 rounded-lg border border-blue-200">
+                    <h5 className="font-bold text-blue-800 mb-2">كيفية الحصول على البيانات:</h5>
+                    <ol className="text-xs text-blue-700 space-y-1">
+                      <li>1. اذهب إلى <a href="https://supabase.com" target="_blank" className="underline">supabase.com</a></li>
+                      <li>2. ادخل إلى مشروعك أو أنشئ مشروع جديد</li>
+                      <li>3. من الشريط الجانبي اختر "Settings" ثم "API"</li>
+                      <li>4. انسخ "Project URL" و "anon public" key</li>
+                      <li>5. الصقهما في الحقول أعلاه واضغط "حفظ الإعدادات"</li>
+                    </ol>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </div>
+
           {/* رسائل النجاح والخطأ */}
           {error && (
             <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-md mb-6">
