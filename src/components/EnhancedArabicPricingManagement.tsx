@@ -324,7 +324,7 @@ export default function EnhancedArabicPricingManagement({ onClose }: Props) {
                             <tr className={`h-12 ${virtualRow.index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
                               {row.getVisibleCells().map(cell => (
                                 <td key={cell.id} className="px-2 text-center border-b border-gray-200" style={{ minWidth: (cell.column.getSize() || 140) + 'px' }}>
-                                  {cell.renderCell()}
+                                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                 </td>
                               ))}
                             </tr>
