@@ -590,7 +590,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
                         </button>
                       </th>
 
-                      <th className="sticky-right-120 min-w-[100px]">
+                      <th className="sticky right-[140px] z-30 min-w-[120px]">
                         <button
                           onClick={() => handleSort('المستوى')}
                           className="sort-button"
@@ -685,7 +685,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
 
                         <td className="sticky-right-120">
                           <span className={`${row.المستوى === 'A' ? 'level-badge-a' : 'level-badge-b'}`}>
-                            {row.ال��ستوى}
+                            {row.المستوى}
                           </span>
                         </td>
 
@@ -788,7 +788,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
               <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-50">
                 <div className="text-center p-8 bg-white rounded-xl shadow-lg border border-gray-200">
                   <div className="loading-spinner w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-                  <p className="text-gray-700 font-medium">جاري تحميل البيانات...</p>
+                  <p className="text-gray-700 font-medium">جاري تحميل ��لبيانات...</p>
                   <p className="text-sm text-gray-500 mt-2">يرجى الانتظار</p>
                 </div>
               </div>
