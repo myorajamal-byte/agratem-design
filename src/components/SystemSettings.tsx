@@ -817,6 +817,22 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
                     </select>
                   </div>
 
+                  {/* اختيار نوع الزبون لعرض الأسعار (تعديل) */}
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">
+                      نوع الزبون الذي ستظهر أسعاره للمستخدم
+                    </label>
+                    <select
+                      value={editingUser.pricingCategory || 'individuals'}
+                      onChange={(e) => setEditingUser(prev => prev ? ({ ...prev, pricingCategory: e.target.value as 'companies' | 'individuals' | 'marketers' }) : null)}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    >
+                      <option value="individuals">عادي</option>
+                      <option value="marketers">مسوق</option>
+                      <option value="companies">شركات</option>
+                    </select>
+                  </div>
+
                   <div>
                     <label className="flex items-center gap-2">
                       <input
