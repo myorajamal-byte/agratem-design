@@ -56,7 +56,8 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
   // إعدادات الجدول
   const [sortConfig, setSortConfig] = useState<{ key: keyof ArabicPricingRow; direction: 'asc' | 'desc' } | null>(null)
   const [expandedPriceColumns, setExpandedPriceColumns] = useState(true)
-  
+  const [showFiltersPanel, setShowFiltersPanel] = useState(false)
+
   // تحرير الخلايا
   const [editingCell, setEditingCell] = useState<string | null>(null)
   const [editingValue, setEditingValue] = useState<string>('')
