@@ -338,7 +338,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
                 <Database className="w-7 h-7" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold">إدارة الأسعار العربية</h1>
+                <h1 className="text-2xl font-bold">إدارة الأسعار ��لعربية</h1>
                 <p className="text-sm opacity-90">جدول pricing_ar من Supabase</p>
               </div>
             </div>
@@ -614,7 +614,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
 
                       <th className="sticky-right-220 min-w-[120px]">
                         <button
-                          onClick={() => handleSort('الز��ون')}
+                          onClick={() => handleSort('الزبون')}
                           className="sort-button"
                         >
                           نوع الزبون
