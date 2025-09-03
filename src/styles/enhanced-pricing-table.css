@@ -1,0 +1,353 @@
+/* Enhanced Arabic Pricing Table Styles */
+
+/* Sticky columns */
+.pricing-table-container {
+  overflow-x: auto;
+  max-width: 100%;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+}
+
+.pricing-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: white;
+}
+
+/* Fixed header */
+.pricing-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 16px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+/* Sticky columns - basic info */
+.pricing-table th.sticky-right-0,
+.pricing-table td.sticky-right-0 {
+  position: sticky;
+  right: 0;
+  z-index: 10;
+  background: #4f46e5;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.pricing-table th.sticky-right-120,
+.pricing-table td.sticky-right-120 {
+  position: sticky;
+  right: 120px;
+  z-index: 10;
+  background: #4f46e5;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.pricing-table th.sticky-right-220,
+.pricing-table td.sticky-right-220 {
+  position: sticky;
+  right: 220px;
+  z-index: 10;
+  background: #4f46e5;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Data cells */
+.pricing-table tbody td {
+  border: 1px solid #e5e7eb;
+  padding: 12px;
+  text-align: center;
+  vertical-align: middle;
+  background: white;
+  transition: background-color 0.2s ease;
+}
+
+.pricing-table tbody tr:nth-child(even) td {
+  background: #f9fafb;
+}
+
+.pricing-table tbody tr:hover td {
+  background: #eef2ff;
+}
+
+/* Sticky cell backgrounds for data rows */
+.pricing-table tbody td.sticky-right-0 {
+  background: #eef2ff;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.pricing-table tbody td.sticky-right-120 {
+  background: #f3f4f6;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.pricing-table tbody td.sticky-right-220 {
+  background: #f3f4f6;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.pricing-table tbody tr:nth-child(even) td.sticky-right-0 {
+  background: #e0e7ff;
+}
+
+.pricing-table tbody tr:nth-child(even) td.sticky-right-120,
+.pricing-table tbody tr:nth-child(even) td.sticky-right-220 {
+  background: #e5e7eb;
+}
+
+.pricing-table tbody tr:hover td.sticky-right-0,
+.pricing-table tbody tr:hover td.sticky-right-120,
+.pricing-table tbody tr:hover td.sticky-right-220 {
+  background: #c7d2fe;
+}
+
+/* Editable cells */
+.editable-cell {
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 8px;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.editable-cell:hover {
+  background: #e0e7ff;
+  transform: scale(1.02);
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.2);
+}
+
+.editable-cell .edit-icon {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.editable-cell:hover .edit-icon {
+  opacity: 1;
+}
+
+/* Sort buttons */
+.sort-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+  color: white;
+  font-weight: 700;
+}
+
+.sort-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Price columns group */
+.price-columns-header {
+  background: linear-gradient(135deg, #7c3aed, #3b82f6);
+}
+
+.price-columns-subheader {
+  background: #6366f1;
+}
+
+/* Statistics cards */
+.stats-card {
+  transition: all 0.3s ease;
+  border-left: 4px solid;
+}
+
+.stats-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.stats-icon {
+  transition: transform 0.3s ease;
+}
+
+.stats-card:hover .stats-icon {
+  transform: scale(1.1);
+}
+
+/* Filter dropdowns */
+.filter-dropdown {
+  transition: all 0.2s ease;
+  border: 2px solid #e5e7eb;
+}
+
+.filter-dropdown:focus {
+  border-color: #4f46e5;
+  ring: 2px;
+  ring-color: rgba(79, 70, 229, 0.2);
+  outline: none;
+}
+
+/* Action buttons */
+.action-button {
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.action-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.action-button:active {
+  transform: translateY(0);
+}
+
+/* Loading states */
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .pricing-table-container {
+    font-size: 12px;
+  }
+  
+  .pricing-table th,
+  .pricing-table td {
+    padding: 8px;
+    min-width: 80px;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .filter-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .pricing-table th,
+  .pricing-table td {
+    padding: 6px;
+    font-size: 11px;
+  }
+}
+
+/* Notification animations */
+.notification-enter {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+.notification-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 0.3s ease;
+}
+
+.notification-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.notification-exit-active {
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: all 0.3s ease;
+}
+
+/* Custom scrollbar */
+.pricing-table-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.pricing-table-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.pricing-table-container::-webkit-scrollbar-thumb {
+  background: #4f46e5;
+  border-radius: 10px;
+}
+
+.pricing-table-container::-webkit-scrollbar-thumb:hover {
+  background: #3730a3;
+}
+
+/* Collapse/Expand animation */
+.price-columns-collapsed {
+  max-width: 200px;
+  overflow: hidden;
+  transition: max-width 0.3s ease;
+}
+
+.price-columns-expanded {
+  max-width: none;
+  transition: max-width 0.3s ease;
+}
+
+/* Badge styles */
+.level-badge-a {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+}
+
+.level-badge-b {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+}
+
+.customer-badge-companies {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  color: white;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 15px;
+  font-size: 11px;
+}
+
+.customer-badge-marketers {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 15px;
+  font-size: 11px;
+}
+
+.customer-badge-individuals {
+  background: linear-gradient(135deg, #6b7280, #4b5563);
+  color: white;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 15px;
+  font-size: 11px;
+}

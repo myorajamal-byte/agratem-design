@@ -27,6 +27,7 @@ import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { arabicPricingService, ArabicPricingRow, ArabicPricingStats } from '@/services/arabicPricingService'
 import { PriceListType, CustomerType } from '@/types'
+import '@/styles/enhanced-pricing-table.css'
 
 interface EnhancedArabicPricingManagementProps {
   onClose: () => void
@@ -257,7 +258,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
       }
 
     } catch (error: any) {
-      showNotification('error', `خطأ في الإضافة: ${error.message}`)
+      showNotification('error', `خطأ ف�� الإضافة: ${error.message}`)
     }
   }
 
@@ -504,7 +505,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
                     size="sm"
                     className="text-red-600 border-red-300 hover:bg-red-50"
                   >
-                    مسح الفلاتر
+                    مسح الفلات��
                   </Button>
                 )}
               </div>
@@ -569,15 +570,15 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
 
             {/* Enhanced Data Table */}
             <Card className="overflow-hidden border-2 border-gray-200">
-              <div className="overflow-x-auto">
-                <table className="w-full border-collapse">
+              <div className="pricing-table-container">
+                <table className="pricing-table">
                   <thead>
                     <tr className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
                       {/* Fixed Basic Columns */}
-                      <th className="border border-white/20 p-4 text-center font-bold sticky right-0 bg-indigo-600 z-10 min-w-[120px]">
+                      <th className="sticky-right-0 min-w-[120px]">
                         <button
                           onClick={() => handleSort('المقاس')}
-                          className="flex items-center justify-center gap-1 w-full hover:bg-white/10 px-2 py-1 rounded"
+                          className="sort-button"
                         >
                           المقاس
                           {sortConfig?.key === 'المقاس' && (
@@ -585,11 +586,11 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
                           )}
                         </button>
                       </th>
-                      
-                      <th className="border border-white/20 p-4 text-center font-bold sticky right-[120px] bg-indigo-600 z-10 min-w-[100px]">
+
+                      <th className="sticky-right-120 min-w-[100px]">
                         <button
                           onClick={() => handleSort('المستوى')}
-                          className="flex items-center justify-center gap-1 w-full hover:bg-white/10 px-2 py-1 rounded"
+                          className="sort-button"
                         >
                           المستوى
                           {sortConfig?.key === 'المستوى' && (
@@ -597,14 +598,14 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
                           )}
                         </button>
                       </th>
-                      
-                      <th className="border border-white/20 p-4 text-center font-bold sticky right-[220px] bg-indigo-600 z-10 min-w-[120px]">
+
+                      <th className="sticky-right-220 min-w-[120px]">
                         <button
                           onClick={() => handleSort('الزبون')}
-                          className="flex items-center justify-center gap-1 w-full hover:bg-white/10 px-2 py-1 rounded"
+                          className="sort-button"
                         >
                           نوع الزبون
-                          {sortConfig?.key === 'الزبو��' && (
+                          {sortConfig?.key === 'الزبون' && (
                             sortConfig.direction === 'asc' ? '↑' : '↓'
                           )}
                         </button>
@@ -675,24 +676,24 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
                     {filteredAndSortedData.map((row, index) => (
                       <tr key={row.id || index} className={`hover:bg-indigo-50 transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
                         {/* Fixed Basic Columns */}
-                        <td className="border border-gray-200 p-3 text-center font-bold text-indigo-900 bg-indigo-50 sticky right-0 z-10">
+                        <td className="sticky-right-0 font-bold text-indigo-900">
                           {row.المقاس}
                         </td>
-                        
-                        <td className="border border-gray-200 p-3 text-center sticky right-[120px] bg-gray-50 z-10">
-                          <Badge className={`${row.المستوى === 'A' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}`}>
+
+                        <td className="sticky-right-120">
+                          <span className={`${row.المستوى === 'A' ? 'level-badge-a' : 'level-badge-b'}`}>
                             {row.المستوى}
-                          </Badge>
+                          </span>
                         </td>
-                        
-                        <td className="border border-gray-200 p-3 text-center sticky right-[220px] bg-gray-50 z-10">
-                          <Badge className={`${
-                            row.الزبون === 'شركات' ? 'bg-purple-100 text-purple-800' :
-                            row.الزبون === 'مسوق' ? 'bg-orange-100 text-orange-800' :
-                            'bg-gray-100 text-gray-800'
+
+                        <td className="sticky-right-220">
+                          <span className={`${
+                            row.الزبون === 'شركات' ? 'customer-badge-companies' :
+                            row.الزبون === 'مسوق' ? 'customer-badge-marketers' :
+                            'customer-badge-individuals'
                           }`}>
                             {row.الزبون}
-                          </Badge>
+                          </span>
                         </td>
 
                         {/* Price Columns */}
@@ -725,7 +726,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
                                 </div>
                               ) : (
                                 <div
-                                  className="cursor-pointer hover:bg-indigo-100 p-2 rounded transition-colors group"
+                                  className="editable-cell"
                                   onClick={() => startEdit(row.id!, column as keyof ArabicPricingRow)}
                                   title={`تحرير ${column}`}
                                 >
@@ -733,7 +734,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
                                     <span className="font-semibold text-gray-800">
                                       {typeof value === 'number' ? value.toLocaleString() : (value || '0')}
                                     </span>
-                                    <Edit3 className="w-3 h-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    <Edit3 className="w-3 h-3 text-gray-400 edit-icon" />
                                   </div>
                                   <div className="text-xs text-gray-500">د.ل</div>
                                 </div>
