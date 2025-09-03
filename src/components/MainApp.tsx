@@ -656,6 +656,11 @@ ${selectedBillboardsData
               <Settings className="w-5 h-5 text-blue-600" />
               إد��رة الأسعار
             </h3>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+              <p className="text-sm text-blue-800">
+                💡 <strong>للوصول لإدارة الأسعار العربية (جدول pricing_ar):</strong> انقر على "النظام الشامل للأسعار" ثم اختر تبويب "الأسعار العربية"
+              </p>
+            </div>
             <div className="flex flex-wrap gap-3">
               <Button
                 onClick={() => setShowSimplifiedCalculator(true)}
