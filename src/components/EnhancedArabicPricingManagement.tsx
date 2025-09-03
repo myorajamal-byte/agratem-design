@@ -237,7 +237,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
       )
 
       if (result.success) {
-        showNotification('success', 'تم إضاف�� الصف بنجاح')
+        showNotification('success', 'تم إضافة الصف بنجاح')
         setShowAddRow(false)
         setNewRow({
           size: '',
@@ -612,10 +612,10 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
                       </th>
 
                       {/* Price Columns Group */}
-                      <th className="border border-white/20 p-4 text-center font-bold" colSpan={expandedPriceColumns ? priceColumns.length : 0}>
+                      <th className="price-columns-header" colSpan={expandedPriceColumns ? priceColumns.length : 0}>
                         <button
                           onClick={() => setExpandedPriceColumns(!expandedPriceColumns)}
-                          className="flex items-center justify-center gap-2 w-full hover:bg-white/10 px-2 py-1 rounded"
+                          className="sort-button"
                         >
                           <Calendar className="w-4 h-4" />
                           الأسعار حسب المدة
@@ -650,10 +650,10 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
                     
                     {/* Price Sub-headers when expanded */}
                     {expandedPriceColumns && (
-                      <tr className="bg-indigo-500 text-white">
-                        <th className="border border-white/20 sticky right-0 bg-indigo-500 z-10"></th>
-                        <th className="border border-white/20 sticky right-[120px] bg-indigo-500 z-10"></th>
-                        <th className="border border-white/20 sticky right-[220px] bg-indigo-500 z-10"></th>
+                      <tr className="price-columns-subheader text-white">
+                        <th className="sticky-right-0"></th>
+                        <th className="sticky-right-120"></th>
+                        <th className="sticky-right-220"></th>
                         {priceColumns.map(column => (
                           <th key={column} className="border border-white/20 p-2 text-center font-medium text-sm min-w-[120px]">
                             <button
