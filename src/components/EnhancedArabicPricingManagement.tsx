@@ -304,7 +304,7 @@ export default function EnhancedArabicPricingManagement({ onClose }: Props) {
                     <tr key={hg.id} className="bg-indigo-600 text-white">
                       {hg.headers.map(header => (
                         <th key={header.id} className="px-3 py-2 text-center font-bold border-b border-indigo-700 sticky" style={{ position: 'sticky', right: header.column.getIsPinned() === 'left' ? undefined : undefined, left: header.column.getIsPinned() === 'right' ? 0 : undefined }}>
-                          {header.isPlaceholder ? null : (typeof header.column.columnDef.header === 'function' ? header.column.columnDef.header({ column: header.column, header } as any) : header.column.columnDef.header as any)}
+                          {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                         </th>
                       ))}
                     </tr>
