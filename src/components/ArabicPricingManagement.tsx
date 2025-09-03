@@ -284,7 +284,7 @@ const ArabicPricingManagement: React.FC<ArabicPricingManagementProps> = ({ onClo
   }
 
   const handleSyncWithLocal = async () => {
-    if (!window.confirm('هل تريد مزامنة البيانات مع النظام المحلي؟ سيتم تحديث الأسعار ��لمحلية.')) return
+    if (!window.confirm('هل تريد مزامنة البيانات مع النظام المحلي؟ سيتم تحديث الأسعار المحلية.')) return
 
     try {
       setLoading(true)
@@ -370,6 +370,21 @@ const ArabicPricingManagement: React.FC<ArabicPricingManagementProps> = ({ onClo
           {/* إصلاح صلاحيات Supabase */}
           <SupabaseRLSFix />
 
+          {/* تنبيه عدم تكوين Supabase */}
+          {(!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) && (
+            <Card className="p-4 mb-4 border-2 border-orange-200 bg-orange-50">
+              <div className="flex items-center gap-3">
+                <AlertTriangle className="w-6 h-6 text-orange-600" />
+                <div>
+                  <h4 className="font-bold text-orange-800">قاعدة البيانات غير مكونة</h4>
+                  <p className="text-sm text-orange-700">
+                    يرجى تكوين إعدادات Supabase من الصفحة الرئيسية → الزر الأزرق العائم "قاعدة البيانات"
+                  </p>
+                </div>
+              </div>
+            </Card>
+          )}
+
           {/* Notifications */}
           {error && (
             <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-400 rounded-lg">
@@ -444,7 +459,7 @@ const ArabicPricingManagement: React.FC<ArabicPricingManagementProps> = ({ onClo
                 className="bg-blue-600 hover:bg-blue-700 text-white"
               >
                 <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-                تحديث البي��نات
+                تحديث البيانا��
               </Button>
               <Button
                 onClick={() => setShowAddRow(true)}
@@ -485,7 +500,7 @@ const ArabicPricingManagement: React.FC<ArabicPricingManagementProps> = ({ onClo
                 disabled={loading}
               >
                 <RefreshCw className="w-4 h-4 mr-2" />
-                ��زامنة مع النظام المحلي
+                مزامنة مع النظام المحلي
               </Button>
               <Button
                 onClick={() => setShowSupabaseSetup(true)}
@@ -669,7 +684,7 @@ const ArabicPricingManagement: React.FC<ArabicPricingManagementProps> = ({ onClo
               <FileSpreadsheet className="w-16 h-16 text-gray-300 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-gray-600 mb-2">لا توجد بيانات</h3>
               <p className="text-gray-500 mb-4">
-                {pricingData.length === 0 ? 'لم يتم تحميل أي بيانات من جدول pricing_ar' : 'لا توجد نتائج ��طابق الفلاتر المحددة'}
+                {pricingData.length === 0 ? 'لم يتم تحميل أي بيانات من جدول pricing_ar' : 'لا توجد نتائج تطابق الفلاتر المحددة'}
               </p>
               {pricingData.length === 0 && (
                 <Button
@@ -696,7 +711,7 @@ const ArabicPricingManagement: React.FC<ArabicPricingManagementProps> = ({ onClo
         {showAddRow && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-60">
             <Card className="w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto">
-              <h3 className="text-xl font-bold mb-4">إضافة صف جديد</h3>
+              <h3 className="text-xl font-bold mb-4">إ��افة صف جديد</h3>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div>
