@@ -56,7 +56,8 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
   // إعدادات الجدول
   const [sortConfig, setSortConfig] = useState<{ key: keyof ArabicPricingRow; direction: 'asc' | 'desc' } | null>(null)
   const [expandedPriceColumns, setExpandedPriceColumns] = useState(true)
-  
+  const [showFiltersPanel, setShowFiltersPanel] = useState(false)
+
   // تحرير الخلايا
   const [editingCell, setEditingCell] = useState<string | null>(null)
   const [editingValue, setEditingValue] = useState<string>('')
@@ -457,54 +458,6 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
 
           {/* Controls & Filters */}
           <div className="p-6 space-y-6">
-            {/* Action Buttons */}
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <Button
-                  onClick={() => setShowAddRow(true)}
-                  className="action-button bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3"
-                >
-                  <Plus className="w-5 h-5 mr-2" />
-                  إضافة صف جديد
-                </Button>
-
-                <Button
-                  onClick={loadData}
-                  disabled={loading}
-                  variant="outline"
-                  className="action-button text-blue-600 border-blue-300 hover:bg-blue-50 px-6 py-3"
-                >
-                  <RefreshCw className={`w-5 h-5 mr-2 ${loading ? 'loading-spinner' : ''}`} />
-                  تحديث البيانات
-                </Button>
-
-                <Button
-                  onClick={handleExport}
-                  variant="outline"
-                  className="action-button text-emerald-600 border-emerald-300 hover:bg-emerald-50 px-6 py-3"
-                >
-                  <Download className="w-5 h-5 mr-2" />
-                  تصدير إلى Excel
-                </Button>
-
-                <Button
-                  onClick={() => setShowGuide(true)}
-                  variant="outline"
-                  className="action-button text-purple-600 border-purple-300 hover:bg-purple-50 px-6 py-3"
-                >
-                  <HelpCircle className="w-5 h-5 mr-2" />
-                  دليل الاستخدام
-                </Button>
-              </div>
-
-              <div className="text-sm text-gray-600 bg-gray-100 px-4 py-2 rounded-lg">
-                <span className="font-semibold">عرض:</span>
-                <Badge className="ml-2 bg-indigo-100 text-indigo-800">
-                  {filteredAndSortedData.length} من {pricingData.length} ��ف
-                </Badge>
-              </div>
-            </div>
-
             {/* Advanced Filters */}
             <Card className="p-6 bg-gray-50 border-2 border-gray-200">
               <div className="flex items-center gap-2 mb-4">
@@ -580,6 +533,44 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
               </div>
             </Card>
 
+            {/* Toolbar */}
+            <div className="flex flex-wrap items-center justify-between gap-4 p-2">
+              <div className="text-sm text-gray-600 bg-gray-100 px-4 py-2 rounded-lg">
+                <span className="font-semibold">عرض:</span>
+                <Badge className="ml-2 bg-indigo-100 text-indigo-800">
+                  {filteredAndSortedData.length} من {pricingData.length} صف
+                </Badge>
+              </div>
+              <div className="flex items-center gap-3">
+                <Button
+                  onClick={() => setShowAddRow(true)}
+                  className="action-button bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3"
+                >
+                  <Plus className="w-5 h-5 mr-2" />
+                  إضافة صف جديد
+                </Button>
+
+                <Button
+                  onClick={loadData}
+                  disabled={loading}
+                  variant="outline"
+                  className="action-button text-blue-600 border-blue-300 hover:bg-blue-50 px-6 py-3"
+                >
+                  <RefreshCw className={`w-5 h-5 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                  تحديث البيانات
+                </Button>
+
+                <Button
+                  onClick={handleExport}
+                  variant="outline"
+                  className="action-button text-emerald-600 border-emerald-300 hover:bg-emerald-50 px-6 py-3"
+                >
+                  <Download className="w-5 h-5 mr-2" />
+                  تصدير Excel
+                </Button>
+              </div>
+            </div>
+
             {/* Enhanced Data Table */}
             <Card className="overflow-hidden border-2 border-gray-200">
               <div className="pricing-table-container">
@@ -587,7 +578,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
                   <thead>
                     <tr className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
                       {/* Fixed Basic Columns */}
-                      <th className="sticky-right-0 min-w-[120px]">
+                      <th className="sticky right-0 z-30 min-w-[140px]">
                         <button
                           onClick={() => handleSort('المقاس')}
                           className="sort-button"
@@ -599,7 +590,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
                         </button>
                       </th>
 
-                      <th className="sticky-right-120 min-w-[100px]">
+                      <th className="sticky right-[140px] z-30 min-w-[120px]">
                         <button
                           onClick={() => handleSort('المستوى')}
                           className="sort-button"
@@ -611,9 +602,9 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
                         </button>
                       </th>
 
-                      <th className="sticky-right-220 min-w-[120px]">
+                      <th className="sticky right-[260px] z-30 min-w-[140px]">
                         <button
-                          onClick={() => handleSort('الز��ون')}
+                          onClick={() => handleSort('الزبون')}
                           className="sort-button"
                         >
                           نوع الزبون
@@ -657,15 +648,15 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
                         </>
                       )}
                       
-                      <th className="border border-white/20 p-4 text-center font-bold min-w-[100px]">الإجراءات</th>
+                      <th className="sticky left-0 z-30 border border-white/20 p-4 text-center font-bold min-w-[120px]">الإجراءات</th>
                     </tr>
                     
                     {/* Price Sub-headers when expanded */}
                     {expandedPriceColumns && (
                       <tr className="price-columns-subheader text-white">
-                        <th className="sticky-right-0"></th>
-                        <th className="sticky-right-120"></th>
-                        <th className="sticky-right-220"></th>
+                        <th className="sticky right-0"></th>
+                        <th className="sticky right-[140px]"></th>
+                        <th className="sticky right-[260px]"></th>
                         {priceColumns.map(column => (
                           <th key={column} className="border border-white/20 p-2 text-center font-medium text-sm min-w-[120px]">
                             <button
@@ -688,17 +679,17 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
                     {filteredAndSortedData.map((row, index) => (
                       <tr key={row.id || index} className={`hover:bg-indigo-50 transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
                         {/* Fixed Basic Columns */}
-                        <td className="sticky-right-0 font-bold text-indigo-900">
+                        <td className="sticky right-0 z-20 bg-white font-bold text-indigo-900">
                           {row.المقاس}
                         </td>
 
-                        <td className="sticky-right-120">
+                        <td className="sticky right-[140px] z-20 bg-white">
                           <span className={`${row.المستوى === 'A' ? 'level-badge-a' : 'level-badge-b'}`}>
                             {row.المستوى}
                           </span>
                         </td>
 
-                        <td className="sticky-right-220">
+                        <td className="sticky right-[260px] z-20 bg-white">
                           <span className={`${
                             row.الزبون === 'شركات' ? 'customer-badge-companies' :
                             row.الزبون === 'مسوق' ? 'customer-badge-marketers' :
@@ -755,7 +746,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
                           )
                         })}
                         
-                        <td className="border border-gray-200 p-3 text-center">
+                        <td className="sticky left-0 z-20 bg-white border border-gray-200 p-3 text-center">
                           <Button
                             onClick={() => handleDeleteRow(row.id!)}
                             variant="outline"
@@ -792,6 +783,71 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
               </div>
             )}
 
+            {/* Mobile Filters Panel */}
+            {showFiltersPanel && (
+              <div className="fixed inset-0 bg-black/50 z-50 flex justify-end" dir="rtl">
+                <div className="w-80 bg-white h-full p-4 overflow-auto">
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="font-bold text-gray-900">الفلاتر</h4>
+                    <Button variant="outline" size="sm" onClick={() => setShowFiltersPanel(false)}>إغلاق</Button>
+                  </div>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">البحث النصي</label>
+                      <Input
+                        placeholder="ابحث في جميع الأعمدة..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="bg-white border-gray-300 focus:border-indigo-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">المقاس</label>
+                      <select
+                        value={selectedSize}
+                        onChange={(e) => setSelectedSize(e.target.value)}
+                        className="filter-dropdown w-full p-3 rounded-lg bg-white"
+                      >
+                        <option value="">جميع المقاسات</option>
+                        {availableSizes.map(size => (
+                          <option key={size} value={size}>{size}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">المستوى</label>
+                      <select
+                        value={selectedLevel}
+                        onChange={(e) => setSelectedLevel(e.target.value)}
+                        className="filter-dropdown w-full p-3 rounded-lg bg-white"
+                      >
+                        <option value="">جميع المستويات</option>
+                        {availableLevels.map(level => (
+                          <option key={level} value={level}>مستوى {level}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">نوع الزبون</label>
+                      <select
+                        value={selectedCustomer}
+                        onChange={(e) => setSelectedCustomer(e.target.value)}
+                        className="filter-dropdown w-full p-3 rounded-lg bg-white"
+                      >
+                        <option value="">جميع أنواع الزبائن</option>
+                        {availableCustomers.map(customer => (
+                          <option key={customer} value={customer}>{customer}</option>
+                        ))}
+                      </select>
+                    </div>
+                    {(searchTerm || selectedSize || selectedLevel || selectedCustomer) && (
+                      <Button onClick={clearFilters} variant="outline" className="w-full text-red-600 border-red-300 hover:bg-red-50">مسح الفلاتر</Button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Loading Overlay */}
             {loading && (
               <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-50">
@@ -811,7 +867,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
             <Card className="w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto">
               <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
                 <Plus className="w-6 h-6 text-green-600" />
-                إضافة صف جديد
+                إ��افة صف جديد
               </h3>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -843,9 +899,8 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
                     className="w-full p-3 border border-gray-300 rounded-lg bg-white"
                   >
                     <option value="عادي">عادي</option>
-                    <option value="��سوق">مسوق</option>
+                    <option value="مسوق">مسوق</option>
                     <option value="شركات">شركات</option>
-                    <option value="المدينة">المدينة</option>
                   </select>
                 </div>
               </div>
