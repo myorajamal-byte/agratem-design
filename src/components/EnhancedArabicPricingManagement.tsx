@@ -250,7 +250,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
           prices: {
             'شهر واحد': 0,
             '2 أشهر': 0,
-            '3 أشه��': 0,
+            '3 أشهر': 0,
             '6 أشهر': 0,
             'سنة كاملة': 0,
             'يوم واحد': 0
@@ -607,7 +607,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
                           onClick={() => handleSort('الزبون')}
                           className="sort-button"
                         >
-                          نوع الزبو��
+                          نوع الزبون
                           {sortConfig?.key === 'الزبون' && (
                             sortConfig.direction === 'asc' ? '↑' : '↓'
                           )}
@@ -679,7 +679,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
                     {filteredAndSortedData.map((row, index) => (
                       <tr key={row.id || index} className={`hover:bg-indigo-50 transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
                         {/* Fixed Basic Columns */}
-                        <td className="sticky-right-0 font-bold text-indigo-900">
+                        <td className="sticky right-0 z-20 bg-white font-bold text-indigo-900">
                           {row.المقاس}
                         </td>
 
@@ -836,7 +836,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
                     <option value="عادي">عادي</option>
                     <option value="��سوق">مسوق</option>
                     <option value="شركات">شركات</option>
-                    <option value="المدينة">المد��نة</option>
+                    <option value="المدينة">المدينة</option>
                   </select>
                 </div>
               </div>
