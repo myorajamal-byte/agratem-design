@@ -14,7 +14,8 @@ import {
   AlertTriangle,
   CheckCircle,
   Search,
-  Filter
+  Filter,
+  Settings
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -22,6 +23,7 @@ import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { arabicPricingService, ArabicPricingRow, ArabicPricingStats } from '@/services/arabicPricingService'
 import { PriceListType, CustomerType } from '@/types'
+import SupabaseSetup from './SupabaseSetup'
 
 interface ArabicPricingManagementProps {
   onClose: () => void
@@ -52,6 +54,7 @@ const ArabicPricingManagement: React.FC<ArabicPricingManagementProps> = ({ onClo
   
   // إضافة صف جديد
   const [showAddRow, setShowAddRow] = useState(false)
+  const [showSupabaseSetup, setShowSupabaseSetup] = useState(false)
   const [newRow, setNewRow] = useState({
     size: '',
     level: 'A' as PriceListType,
@@ -62,7 +65,7 @@ const ArabicPricingManagement: React.FC<ArabicPricingManagementProps> = ({ onClo
       '3 أشهر': 0,
       '6 أشهر': 0,
       'سنة كاملة': 0,
-      'يوم واحد': 0
+      'يوم وا��د': 0
     }
   })
 
@@ -192,7 +195,7 @@ const ArabicPricingManagement: React.FC<ArabicPricingManagementProps> = ({ onClo
       }
 
       const customerType = newRow.customer === 'عادي' ? 'individuals' : 
-                          newRow.customer === 'مسوق' ? 'marketers' : 'companies'
+                          newRow.customer === 'مسو��' ? 'marketers' : 'companies'
 
       const result = await arabicPricingService.addNewRow(
         newRow.size,
@@ -476,6 +479,14 @@ const ArabicPricingManagement: React.FC<ArabicPricingManagementProps> = ({ onClo
                 <RefreshCw className="w-4 h-4 mr-2" />
                 مزامنة مع النظام المحلي
               </Button>
+              <Button
+                onClick={() => setShowSupabaseSetup(true)}
+                variant="outline"
+                className="text-indigo-600 border-indigo-300"
+              >
+                <Settings className="w-4 h-4 mr-2" />
+                إعداد قاعدة البيانات
+              </Button>
               <div className="text-sm text-gray-600 bg-gray-100 px-3 py-2 rounded-lg">
                 <span className="font-semibold">الاتصال:</span>
                 <Badge className="ml-2 bg-green-100 text-green-800">
@@ -754,6 +765,11 @@ const ArabicPricingManagement: React.FC<ArabicPricingManagementProps> = ({ onClo
               </div>
             </Card>
           </div>
+        )}
+
+        {/* نافذة إعداد Supabase */}
+        {showSupabaseSetup && (
+          <SupabaseSetup onClose={() => setShowSupabaseSetup(false)} />
         )}
       </div>
     </div>
