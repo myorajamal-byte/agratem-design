@@ -42,7 +42,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
   const [success, setSuccess] = useState('')
   const [statistics, setStatistics] = useState<ArabicPricingStats | null>(null)
   
-  // فلاتر البحث والتصفية
+  // فلا��ر البحث والتصفية
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedSize, setSelectedSize] = useState<string>('')
   const [selectedLevel, setSelectedLevel] = useState<string>('')
@@ -258,7 +258,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
         })
         await loadData()
       } else {
-        showNotification('error', result.error || 'فشل في إضا��ة الصف')
+        showNotification('error', result.error || 'فشل في إضافة الصف')
       }
 
     } catch (error: any) {
@@ -338,7 +338,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
                 <Database className="w-7 h-7" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold">إ��ارة الأسعار العربية</h1>
+                <h1 className="text-2xl font-bold">إدارة الأسعار العربية</h1>
                 <p className="text-sm opacity-90">جدول pricing_ar من Supabase</p>
               </div>
             </div>
@@ -833,10 +833,9 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
                     onChange={(e) => setNewRow(prev => ({ ...prev, customer: e.target.value }))}
                     className="w-full p-3 border border-gray-300 rounded-lg bg-white"
                   >
-                    <option value="عادي">عادي</option>
-                    <option value="��سوق">مسوق</option>
+                    <option value="��ادي">عادي</option>
+                    <option value="مسوق">مسوق</option>
                     <option value="شركات">شركات</option>
-                    <option value="المدينة">المدينة</option>
                   </select>
                 </div>
               </div>
