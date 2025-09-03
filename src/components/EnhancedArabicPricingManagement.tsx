@@ -253,7 +253,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
             '3 أشهر': 0,
             '6 أشهر': 0,
             'سنة كاملة': 0,
-            'يوم واحد': 0
+            'يوم واح��': 0
           }
         })
         await loadData()
@@ -338,7 +338,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
                 <Database className="w-7 h-7" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold">إدارة الأسعار ��لعربية</h1>
+                <h1 className="text-2xl font-bold">إدارة الأسعار العربية</h1>
                 <p className="text-sm opacity-90">جدول pricing_ar من Supabase</p>
               </div>
             </div>
@@ -458,54 +458,6 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
 
           {/* Controls & Filters */}
           <div className="p-6 space-y-6">
-            {/* Action Buttons */}
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <Button
-                  onClick={() => setShowAddRow(true)}
-                  className="action-button bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3"
-                >
-                  <Plus className="w-5 h-5 mr-2" />
-                  إضافة صف جديد
-                </Button>
-
-                <Button
-                  onClick={loadData}
-                  disabled={loading}
-                  variant="outline"
-                  className="action-button text-blue-600 border-blue-300 hover:bg-blue-50 px-6 py-3"
-                >
-                  <RefreshCw className={`w-5 h-5 mr-2 ${loading ? 'loading-spinner' : ''}`} />
-                  تحديث البيانات
-                </Button>
-
-                <Button
-                  onClick={handleExport}
-                  variant="outline"
-                  className="action-button text-emerald-600 border-emerald-300 hover:bg-emerald-50 px-6 py-3"
-                >
-                  <Download className="w-5 h-5 mr-2" />
-                  تصدير إلى Excel
-                </Button>
-
-                <Button
-                  onClick={() => setShowGuide(true)}
-                  variant="outline"
-                  className="action-button text-purple-600 border-purple-300 hover:bg-purple-50 px-6 py-3"
-                >
-                  <HelpCircle className="w-5 h-5 mr-2" />
-                  دليل الاستخدام
-                </Button>
-              </div>
-
-              <div className="text-sm text-gray-600 bg-gray-100 px-4 py-2 rounded-lg">
-                <span className="font-semibold">عرض:</span>
-                <Badge className="ml-2 bg-indigo-100 text-indigo-800">
-                  {filteredAndSortedData.length} من {pricingData.length} ��ف
-                </Badge>
-              </div>
-            </div>
-
             {/* Advanced Filters */}
             <Card className="p-6 bg-gray-50 border-2 border-gray-200">
               <div className="flex items-center gap-2 mb-4">
