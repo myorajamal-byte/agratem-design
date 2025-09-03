@@ -215,7 +215,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
         showNotification('success', 'تم تحديث السعر بنجاح')
         await loadData()
       } else {
-        showNotification('error', result.error || 'فشل في تحديث الس��ر')
+        showNotification('error', result.error || 'فشل في تحديث السعر')
       }
 
     } catch (error: any) {
@@ -258,7 +258,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
         })
         await loadData()
       } else {
-        showNotification('error', result.error || 'فشل في إضافة الصف')
+        showNotification('error', result.error || 'فشل في إضا��ة الصف')
       }
 
     } catch (error: any) {
@@ -338,7 +338,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
                 <Database className="w-7 h-7" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold">إدارة الأسعار العربية</h1>
+                <h1 className="text-2xl font-bold">إ��ارة الأسعار العربية</h1>
                 <p className="text-sm opacity-90">جدول pricing_ar من Supabase</p>
               </div>
             </div>
@@ -746,7 +746,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
                           )
                         })}
                         
-                        <td className="border border-gray-200 p-3 text-center">
+                        <td className="sticky left-0 z-20 bg-white border border-gray-200 p-3 text-center">
                           <Button
                             onClick={() => handleDeleteRow(row.id!)}
                             variant="outline"
@@ -788,7 +788,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
               <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-50">
                 <div className="text-center p-8 bg-white rounded-xl shadow-lg border border-gray-200">
                   <div className="loading-spinner w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-                  <p className="text-gray-700 font-medium">جاري تحميل البيا��ات...</p>
+                  <p className="text-gray-700 font-medium">جاري تحميل البيانات...</p>
                   <p className="text-sm text-gray-500 mt-2">يرجى الانتظار</p>
                 </div>
               </div>
