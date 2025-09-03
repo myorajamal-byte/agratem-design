@@ -42,7 +42,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
   const [success, setSuccess] = useState('')
   const [statistics, setStatistics] = useState<ArabicPricingStats | null>(null)
   
-  // فلاتر البحث والتصفية
+  // فلاتر ��لبحث والتصفية
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedSize, setSelectedSize] = useState<string>('')
   const [selectedLevel, setSelectedLevel] = useState<string>('')
@@ -246,14 +246,14 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
         setNewRow({
           size: '',
           level: 'A',
-          customer: 'عادي',
+          customer: '��ادي',
           prices: {
             'شهر واحد': 0,
             '2 أشهر': 0,
             '3 أشهر': 0,
             '6 أشهر': 0,
             'سنة كاملة': 0,
-            'يوم واح��': 0
+            'يوم واحد': 0
           }
         })
         await loadData()
@@ -533,6 +533,44 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
               </div>
             </Card>
 
+            {/* Toolbar */}
+            <div className="flex flex-wrap items-center justify-between gap-4 p-2">
+              <div className="text-sm text-gray-600 bg-gray-100 px-4 py-2 rounded-lg">
+                <span className="font-semibold">عرض:</span>
+                <Badge className="ml-2 bg-indigo-100 text-indigo-800">
+                  {filteredAndSortedData.length} من {pricingData.length} صف
+                </Badge>
+              </div>
+              <div className="flex items-center gap-3">
+                <Button
+                  onClick={() => setShowAddRow(true)}
+                  className="action-button bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3"
+                >
+                  <Plus className="w-5 h-5 mr-2" />
+                  إضافة صف جديد
+                </Button>
+
+                <Button
+                  onClick={loadData}
+                  disabled={loading}
+                  variant="outline"
+                  className="action-button text-blue-600 border-blue-300 hover:bg-blue-50 px-6 py-3"
+                >
+                  <RefreshCw className={`w-5 h-5 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                  تحديث البيانات
+                </Button>
+
+                <Button
+                  onClick={handleExport}
+                  variant="outline"
+                  className="action-button text-emerald-600 border-emerald-300 hover:bg-emerald-50 px-6 py-3"
+                >
+                  <Download className="w-5 h-5 mr-2" />
+                  تصدير Excel
+                </Button>
+              </div>
+            </div>
+
             {/* Enhanced Data Table */}
             <Card className="overflow-hidden border-2 border-gray-200">
               <div className="pricing-table-container">
@@ -693,7 +731,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
                                 <div
                                   className="editable-cell"
                                   onClick={() => startEdit(row.id!, column as keyof ArabicPricingRow)}
-                                  title={`تحرير ${column}`}
+                                  title={`تحر��ر ${column}`}
                                 >
                                   <div className="flex items-center justify-center gap-1">
                                     <span className="font-semibold text-gray-800">
