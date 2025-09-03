@@ -683,7 +683,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
                           {row.المقاس}
                         </td>
 
-                        <td className="sticky-right-120">
+                        <td className="sticky right-[140px] z-20 bg-white">
                           <span className={`${row.المستوى === 'A' ? 'level-badge-a' : 'level-badge-b'}`}>
                             {row.المستوى}
                           </span>
