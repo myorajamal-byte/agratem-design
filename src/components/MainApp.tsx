@@ -191,7 +191,7 @@ export default function MainApp() {
     try {
       const subject = `طلب حجز لوحات إعلانية - ${customerName}`
       const body = `
-السلام عليكم و��حمة الله وبركاته
+السلام عليكم ورحمة الله وبركاته
 
 تفاصيل العميل:
 الاسم: ${customerName}
@@ -618,7 +618,7 @@ ${selectedBillboardsData
                   🎯 عرض مخصص: تظهر لك فقط العقود الخاصة بالزبون "{user.assignedClient}"
                 </p>
                 <p className="text-xs text-blue-600 mt-1">
-                  إجمالي اللوحات المعروضة: {filteredBillboards.length} لوحة
+                  إجمالي ال��وحات المعروضة: {filteredBillboards.length} لوحة
                 </p>
               </div>
             </div>
@@ -670,9 +670,14 @@ ${selectedBillboardsData
               إد��رة الأسعار
             </h3>
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-              <p className="text-sm text-blue-800">
-                💡 <strong>للوصول لإدارة الأسعار العربية (جدول pricing_ar):</strong> انقر على "النظام الشامل للأسعار" ثم اختر تبويب "الأسعار العربية"
-              </p>
+              <div className="space-y-2">
+                <p className="text-sm text-blue-800">
+                  💡 <strong>للوصول لإدارة الأسعار العربية (جدول pricing_ar):</strong> انقر على "النظام الشامل للأسعار" ثم اختر تبويب "الأسعار العربية"
+                </p>
+                <p className="text-xs text-blue-700">
+                  🔧 <strong>إعداد قاعدة البيانات:</strong> استخدم الزر العائم الأزرق في أسفل يسار الصفحة لتكوين Supabase
+                </p>
+              </div>
             </div>
             <div className="flex flex-wrap gap-3">
               <Button
@@ -938,7 +943,7 @@ ${selectedBillboardsData
         <EnhancedPricingManagement onClose={() => setShowPricingManagement(false)} />
       )}
 
-      {/* نافذة إد��رة ��سعار التركيب */}
+      {/* نافذة إدارة ��سعار التركيب */}
       {showInstallationPricing && ((user && (user.role === 'admin' || user.permissions?.some(p => p.name === 'admin_access'))) ? true : false) && (
         <InstallationPricingManagement onClose={() => setShowInstallationPricing(false)} />
       )}
