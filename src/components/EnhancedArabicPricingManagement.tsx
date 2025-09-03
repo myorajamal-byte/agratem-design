@@ -42,7 +42,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
   const [success, setSuccess] = useState('')
   const [statistics, setStatistics] = useState<ArabicPricingStats | null>(null)
   
-  // فلا��ر البحث والتصفية
+  // فلاتر البحث والتصفية
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedSize, setSelectedSize] = useState<string>('')
   const [selectedLevel, setSelectedLevel] = useState<string>('')
@@ -783,6 +783,71 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
               </div>
             )}
 
+            {/* Mobile Filters Panel */}
+            {showFiltersPanel && (
+              <div className="fixed inset-0 bg-black/50 z-50 flex justify-end" dir="rtl">
+                <div className="w-80 bg-white h-full p-4 overflow-auto">
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="font-bold text-gray-900">الفلاتر</h4>
+                    <Button variant="outline" size="sm" onClick={() => setShowFiltersPanel(false)}>إغلاق</Button>
+                  </div>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">البحث النصي</label>
+                      <Input
+                        placeholder="ابحث في جميع الأعمدة..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="bg-white border-gray-300 focus:border-indigo-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">المقاس</label>
+                      <select
+                        value={selectedSize}
+                        onChange={(e) => setSelectedSize(e.target.value)}
+                        className="filter-dropdown w-full p-3 rounded-lg bg-white"
+                      >
+                        <option value="">جميع المقاسات</option>
+                        {availableSizes.map(size => (
+                          <option key={size} value={size}>{size}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">المستوى</label>
+                      <select
+                        value={selectedLevel}
+                        onChange={(e) => setSelectedLevel(e.target.value)}
+                        className="filter-dropdown w-full p-3 rounded-lg bg-white"
+                      >
+                        <option value="">جميع المستويات</option>
+                        {availableLevels.map(level => (
+                          <option key={level} value={level}>مستوى {level}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">نوع الزبون</label>
+                      <select
+                        value={selectedCustomer}
+                        onChange={(e) => setSelectedCustomer(e.target.value)}
+                        className="filter-dropdown w-full p-3 rounded-lg bg-white"
+                      >
+                        <option value="">جميع أنواع الزبائن</option>
+                        {availableCustomers.map(customer => (
+                          <option key={customer} value={customer}>{customer}</option>
+                        ))}
+                      </select>
+                    </div>
+                    {(searchTerm || selectedSize || selectedLevel || selectedCustomer) && (
+                      <Button onClick={clearFilters} variant="outline" className="w-full text-red-600 border-red-300 hover:bg-red-50">مسح الفلاتر</Button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Loading Overlay */}
             {loading && (
               <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-50">
@@ -802,7 +867,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
             <Card className="w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto">
               <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
                 <Plus className="w-6 h-6 text-green-600" />
-                إضافة صف جديد
+                إ��افة صف جديد
               </h3>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -833,7 +898,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
                     onChange={(e) => setNewRow(prev => ({ ...prev, customer: e.target.value }))}
                     className="w-full p-3 border border-gray-300 rounded-lg bg-white"
                   >
-                    <option value="��ادي">عادي</option>
+                    <option value="عادي">عادي</option>
                     <option value="مسوق">مسوق</option>
                     <option value="شركات">شركات</option>
                   </select>
