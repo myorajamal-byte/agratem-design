@@ -19,7 +19,7 @@ const labels = {
     range: 'نطاق الأسعار'
   },
   filters: {
-    search: 'ابحث ف�� جميع الأعمدة…',
+    search: 'ابحث في جميع الأعمدة…',
     size: 'المقاس',
     level: 'المستوى',
     customer: 'نوع الزبون',
@@ -312,29 +312,47 @@ export default function EnhancedArabicPricingManagement({ onClose }: Props) {
                 </thead>
               </table>
 
-              {/* body with virtualization */}
-              <div ref={parentRef} className="max-h-[56vh] overflow-auto relative" style={{ contain: 'strict' }}>
-                <div style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: 'relative' }}>
-                  {rowVirtualizer.getVirtualItems().map(virtualRow => {
-                    const row = table.getRowModel().rows[virtualRow.index]
-                    return (
-                      <div key={row.id} data-index={virtualRow.index} ref={virtualRow.measureElement} className={`absolute top-0 left-0 w-full`} style={{ transform: `translateY(${virtualRow.start}px)` }}>
-                        <table className="w-full border-separate border-spacing-0">
-                          <tbody>
-                            <tr className={`h-12 ${virtualRow.index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
-                              {row.getVisibleCells().map(cell => (
-                                <td key={cell.id} className="px-2 text-center border-b border-gray-200" style={{ minWidth: (cell.column.getSize() || 140) + 'px' }}>
-                                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                </td>
-                              ))}
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    )
-                  })}
+              {/* body: non-virtual for <=100 rows, virtual otherwise */}
+              {table.getRowModel().rows.length <= 100 ? (
+                <div className="max-h-[56vh] overflow-auto">
+                  <table className="w-full border-separate border-spacing-0">
+                    <tbody>
+                      {table.getRowModel().rows.map((row, i) => (
+                        <tr key={row.id} className={`h-12 ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
+                          {row.getVisibleCells().map(cell => (
+                            <td key={cell.id} className="px-2 text-center border-b border-gray-200" style={{ minWidth: (cell.column.getSize() || 140) + 'px' }}>
+                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
-              </div>
+              ) : (
+                <div ref={parentRef} className="max-h-[56vh] overflow-auto relative" style={{ contain: 'strict' }}>
+                  <div style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: 'relative' }}>
+                    {rowVirtualizer.getVirtualItems().map(virtualRow => {
+                      const row = table.getRowModel().rows[virtualRow.index]
+                      return (
+                        <div key={row.id} data-index={virtualRow.index} ref={virtualRow.measureElement} className={`absolute top-0 left-0 w-full`} style={{ transform: `translateY(${virtualRow.start}px)` }}>
+                          <table className="w-full border-separate border-spacing-0">
+                            <tbody>
+                              <tr className={`h-12 ${virtualRow.index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
+                                {row.getVisibleCells().map(cell => (
+                                  <td key={cell.id} className="px-2 text-center border-b border-gray-200" style={{ minWidth: (cell.column.getSize() || 140) + 'px' }}>
+                                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                  </td>
+                                ))}
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
