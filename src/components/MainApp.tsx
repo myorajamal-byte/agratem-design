@@ -790,12 +790,12 @@ ${selectedBillboardsData
                     <Button
                       onClick={() => setShowQuoteDialog(true)}
                       className="bg-blue-600 hover:bg-blue-700 text-white px-6"
-                    >
+                نظام إدارة الأسعار
                       <FileText className="w-4 h-4 ml-2" />
                       إنشاء فاتورة عرض
                     </Button>
                     <Button
-                      onClick={() => setShowBookingMode(true)}
+                    💡 <strong>نظام إدارة الأسعار العربية المحسن:</strong> واجهة متطورة لإدارة جدول pricing_ar من Supabase
                       className="bg-purple-600 hover:bg-purple-700 text-white px-6"
                     >
                       <Settings className="w-4 h-4 ml-2" />
@@ -805,10 +805,10 @@ ${selectedBillboardsData
                 )}
                 <Button
                   onClick={() => setShowSimplifiedCalculator(true)}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white px-6"
+                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold px-6 py-3 rounded-xl shadow-lg transform hover:scale-105 transition-all duration-200"
                 >
                   <Calculator className="w-4 h-4 ml-2" />
-                  حساب الأسعار
+                  إدارة الأسعار العربية
                 </Button>
                 <Button
                   onClick={() => setShowEmailDialog(true)}
