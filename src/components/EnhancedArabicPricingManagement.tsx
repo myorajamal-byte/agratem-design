@@ -360,7 +360,7 @@ export default function EnhancedArabicPricingManagement({ onClose }: Props) {
                 <option value="">{labels.filters.allLevels}</option>
                 {filters.levels.map(l=> <option key={l} value={l}>مستوى {l}</option>)}
               </select>
-              <select className="h-10 px-3 border rounded-md" value {(table.getColumn('customer')?.getFilterValue() as string) ?? ''} onChange={e=>table.getColumn('customer')?.setFilterValue(e.target.value || undefined)}>
+              <select className="h-10 px-3 border rounded-md" value={(table.getColumn('customer')?.getFilterValue() as string) ?? ''} onChange={e=>table.getColumn('customer')?.setFilterValue(e.target.value || undefined)}>
                 <option value="">{labels.filters.allCustomers}</option>
                 {filters.customers.map(c=> <option key={c} value={c}>{c}</option>)}
               </select>
