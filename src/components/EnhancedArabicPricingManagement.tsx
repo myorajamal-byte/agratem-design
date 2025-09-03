@@ -19,7 +19,8 @@ import {
   AlertTriangle,
   CheckCircle,
   Edit3,
-  Save
+  Save,
+  HelpCircle
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -28,6 +29,7 @@ import { Badge } from '@/components/ui/badge'
 import { arabicPricingService, ArabicPricingRow, ArabicPricingStats } from '@/services/arabicPricingService'
 import { PriceListType, CustomerType } from '@/types'
 import '@/styles/enhanced-pricing-table.css'
+import PricingInterfaceGuide from './PricingInterfaceGuide'
 
 interface EnhancedArabicPricingManagementProps {
   onClose: () => void
@@ -61,6 +63,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
   
   // إضافة صف جديد
   const [showAddRow, setShowAddRow] = useState(false)
+  const [showGuide, setShowGuide] = useState(false)
   const [newRow, setNewRow] = useState({
     size: '',
     level: 'A' as PriceListType,
@@ -483,12 +486,21 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
                   <Download className="w-5 h-5 mr-2" />
                   تصدير إلى Excel
                 </Button>
+
+                <Button
+                  onClick={() => setShowGuide(true)}
+                  variant="outline"
+                  className="action-button text-purple-600 border-purple-300 hover:bg-purple-50 px-6 py-3"
+                >
+                  <HelpCircle className="w-5 h-5 mr-2" />
+                  دليل الاستخدام
+                </Button>
               </div>
 
               <div className="text-sm text-gray-600 bg-gray-100 px-4 py-2 rounded-lg">
                 <span className="font-semibold">عرض:</span>
                 <Badge className="ml-2 bg-indigo-100 text-indigo-800">
-                  {filteredAndSortedData.length} من {pricingData.length} صف
+                  {filteredAndSortedData.length} من {pricingData.length} ��ف
                 </Badge>
               </div>
             </div>
@@ -516,7 +528,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
                   <div className="relative">
                     <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                     <Input
-                      placeholder="ابحث في جميع الأعمدة..."
+                      placeholder="اب��ث في جميع الأعمدة..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       className="pr-10 bg-white border-gray-300 focus:border-indigo-500"
@@ -545,7 +557,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
                     onChange={(e) => setSelectedLevel(e.target.value)}
                     className="filter-dropdown w-full p-3 rounded-lg bg-white"
                   >
-                    <option value="">جميع المست��يات</option>
+                    <option value="">جميع المستويات</option>
                     {availableLevels.map(level => (
                       <option key={level} value={level}>مستوى {level}</option>
                     ))}
@@ -601,7 +613,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
 
                       <th className="sticky-right-220 min-w-[120px]">
                         <button
-                          onClick={() => handleSort('الزبون')}
+                          onClick={() => handleSort('الز��ون')}
                           className="sort-button"
                         >
                           نوع الزبون
@@ -831,7 +843,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
                     className="w-full p-3 border border-gray-300 rounded-lg bg-white"
                   >
                     <option value="عادي">عادي</option>
-                    <option value="مسوق">مسوق</option>
+                    <option value="��سوق">مسوق</option>
                     <option value="شركات">شركات</option>
                     <option value="المدينة">المدينة</option>
                   </select>
@@ -879,6 +891,11 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
               </div>
             </Card>
           </div>
+        )}
+
+        {/* Interface Guide */}
+        {showGuide && (
+          <PricingInterfaceGuide onClose={() => setShowGuide(false)} />
         )}
       </div>
     </div>
