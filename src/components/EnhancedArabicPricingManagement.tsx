@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/card'
 import { Download, Filter, Plus, RefreshCw, Trash2, X, BarChart3, Grid3X3, Target, Users, TrendingUp, DollarSign, Calendar, ChevronDown, ChevronRight, Search } from 'lucide-react'
 import { useArabicPricingData, PriceRow, DurationKey } from '@/hooks/useArabicPricingData'
 import { exportToExcel } from '@/utils/exportExcel'
-import { ColumnDef, ColumnFiltersState, SortingState, VisibilityState, getCoreRowModel, getFilteredRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
+import { ColumnDef, ColumnFiltersState, SortingState, VisibilityState, getCoreRowModel, getFilteredRowModel, getSortedRowModel, useReactTable, flexRender } from '@tanstack/react-table'
 import { useVirtualizer } from '@tanstack/react-virtual'
 
 const labels = {
