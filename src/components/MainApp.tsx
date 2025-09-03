@@ -44,7 +44,18 @@ export default function MainApp() {
       setError('')
       try {
         const data = await loadBillboardsFromExcel()
-        setBillboards(data)
+        // ضمان فريدة المعرفات لتجنب تحذير مفاتيح React المكررة
+        const counts = new Map<string, number>()
+        const unique = data.map((b) => {
+          const baseId = (b.id || '').toString()
+          const c = counts.get(baseId) || 0
+          counts.set(baseId, c + 1)
+          if (c === 0) return b
+          const newId = `${baseId}-${c + 1}`
+          console.warn(`Duplicate billboard id detected: ${baseId}. Renaming to ${newId}`)
+          return { ...b, id: newId }
+        })
+        setBillboards(unique)
       } catch (e: any) {
         setError(e?.message || 'فشل تحميل بيانات اللوحات')
       } finally {
