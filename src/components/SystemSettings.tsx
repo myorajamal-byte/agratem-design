@@ -226,13 +226,10 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
     }
   }
 
-  // حفظ إعدادات قاعدة البيانات
+  // حفظ إعدا��ات قاعدة البيانات
   const handleSaveDbSettings = async () => {
     setLoading(true)
     try {
-      // حفظ متغيرات البيئة باستخدام DevServerControl
-      // هذا سيتطلب إعادة تشغيل السيرفر
-
       if (!dbSettings.supabaseUrl || !dbSettings.supabaseKey) {
         setError('يرجى ملء جميع حقول قاعدة البيانات')
         setLoading(false)
@@ -247,11 +244,40 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
         return
       }
 
-      setSuccess('تم حفظ إعدادات قاعدة البيانات بنجاح! يرجى إعادة تحميل الصفحة لتفعيل التغييرات.')
+      // إعداد متغيرات البيئة باستخدام window.parent.postMessage
+      // للتواصل مع DevServerControl
+      const envUpdates = [
+        { key: 'VITE_SUPABASE_URL', value: dbSettings.supabaseUrl },
+        { key: 'VITE_SUPABASE_ANON_KEY', value: dbSettings.supabaseKey }
+      ]
+
+      for (const envVar of envUpdates) {
+        try {
+          // محاولة استخدام window.parent للوصول لـ DevServerControl
+          if (window.parent && window.parent !== window) {
+            window.parent.postMessage({
+              type: 'SET_ENV_VARIABLE',
+              key: envVar.key,
+              value: envVar.value
+            }, '*')
+          }
+        } catch (e) {
+          console.warn('فشل في تحديث متغير البيئة عبر postMessage:', e)
+        }
+      }
 
       // حفظ في localStorage كنسخة احتياطية
       localStorage.setItem('supabase_url', dbSettings.supabaseUrl)
       localStorage.setItem('supabase_key', dbSettings.supabaseKey)
+
+      setSuccess('تم حفظ إعدادات قاعدة البيانات بنجاح! قد تحتاج إلى إعادة تحميل الصفحة لتفعيل التغييرات.')
+
+      // محاولة إعادة تحميل الصفحة بعد ثانيتين
+      setTimeout(() => {
+        if (window.confirm('هل تريد إعادة تحميل الصفحة الآن لتفعيل التغييرات؟')) {
+          window.location.reload()
+        }
+      }, 2000)
 
     } catch (error: any) {
       setError(`خطأ في حفظ الإعدادات: ${error.message}`)
@@ -348,7 +374,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
                       className="bg-white border-blue-300 focus:border-blue-500"
                     />
                     <p className="text-xs text-gray-600 mt-1">
-                      يمك��ك العثور على هذا الرابط في لوحة تحكم Supabase
+                      يمكنك العثور على هذا الرابط في لوحة تحكم Supabase
                     </p>
                   </div>
 
