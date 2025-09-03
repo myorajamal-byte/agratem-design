@@ -349,7 +349,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
           </div>
         </div>
 
-        <div className="overflow-y-auto max-h-[calc(95vh-120px)]">
+        <div className="relative overflow-y-auto max-h-[calc(95vh-120px)]">
           {/* Notifications */}
           {error && (
             <div className="notification-enter-active mx-6 mt-6 p-4 bg-red-50 border-l-4 border-red-400 rounded-lg">
@@ -545,7 +545,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
                     onChange={(e) => setSelectedLevel(e.target.value)}
                     className="filter-dropdown w-full p-3 rounded-lg bg-white"
                   >
-                    <option value="">جميع المستويات</option>
+                    <option value="">جميع المست��يات</option>
                     {availableLevels.map(level => (
                       <option key={level} value={level}>مستوى {level}</option>
                     ))}
@@ -780,11 +780,14 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
               </div>
             )}
 
-            {/* Loading State */}
+            {/* Loading Overlay */}
             {loading && (
-              <div className="text-center py-12">
-                <div className="animate-spin w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-                <p className="text-gray-600">جاري تحميل البيانات...</p>
+              <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-50">
+                <div className="text-center p-8 bg-white rounded-xl shadow-lg border border-gray-200">
+                  <div className="loading-spinner w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+                  <p className="text-gray-700 font-medium">جاري تحميل البيانات...</p>
+                  <p className="text-sm text-gray-500 mt-2">يرجى الانتظار</p>
+                </div>
               </div>
             )}
           </div>
