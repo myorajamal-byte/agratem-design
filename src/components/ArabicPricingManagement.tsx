@@ -24,6 +24,7 @@ import { Badge } from '@/components/ui/badge'
 import { arabicPricingService, ArabicPricingRow, ArabicPricingStats } from '@/services/arabicPricingService'
 import { PriceListType, CustomerType } from '@/types'
 import SupabaseSetup from './SupabaseSetup'
+import QuickSupabaseTest from './QuickSupabaseTest'
 
 interface ArabicPricingManagementProps {
   onClose: () => void
@@ -65,7 +66,7 @@ const ArabicPricingManagement: React.FC<ArabicPricingManagementProps> = ({ onClo
       '3 أشهر': 0,
       '6 أشهر': 0,
       'سنة كاملة': 0,
-      'يوم وا��د': 0
+      'يوم واحد': 0
     }
   })
 
@@ -195,7 +196,7 @@ const ArabicPricingManagement: React.FC<ArabicPricingManagementProps> = ({ onClo
       }
 
       const customerType = newRow.customer === 'عادي' ? 'individuals' : 
-                          newRow.customer === 'مسو��' ? 'marketers' : 'companies'
+                          newRow.customer === 'مسوق' ? 'marketers' : 'companies'
 
       const result = await arabicPricingService.addNewRow(
         newRow.size,
@@ -289,7 +290,7 @@ const ArabicPricingManagement: React.FC<ArabicPricingManagementProps> = ({ onClo
       const result = await arabicPricingService.syncWithLocalPricing()
       
       if (result.success) {
-        showNotification('success', `تم مزامنة ${result.synced} سعر مع النظام المحلي`)
+        showNotification('success', `تم مزامنة ${result.synced} سعر مع ال��ظام المحلي`)
       } else {
         showNotification('error', `فشل في المزامنة: ${result.errors.join(', ')}`)
       }
@@ -362,6 +363,9 @@ const ArabicPricingManagement: React.FC<ArabicPricingManagementProps> = ({ onClo
         </div>
 
         <div className="p-6 overflow-y-auto max-h-[calc(95vh-120px)]">
+          {/* اختبار سريع لـ Supabase */}
+          <QuickSupabaseTest />
+
           {/* Notifications */}
           {error && (
             <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-400 rounded-lg">
