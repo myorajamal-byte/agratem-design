@@ -8,6 +8,7 @@ import SimplifiedPricingCalculator from '@/components/SimplifiedPricingCalculato
 import SystemSettings from '@/components/SystemSettings'
 import EnhancedArabicPricingManagement from '@/components/EnhancedArabicPricingManagement'
 import InstallationPricingManagement from '@/components/InstallationPricingManagement'
+import QuoteDialog from '@/components/QuoteDialog'
 import { loadBillboardsFromExcel } from '@/services/billboardService'
 import { Billboard, PackageDuration } from '@/types'
 
@@ -30,6 +31,7 @@ export default function MainApp() {
   const [showArabicPricing, setShowArabicPricing] = useState(false)
   const [showInstallationPricing, setShowInstallationPricing] = useState(false)
   const [showCalculator, setShowCalculator] = useState(false)
+  const [showQuoteDialog, setShowQuoteDialog] = useState(false)
 
   // Selection and image preview
   const [selectedBillboardIds, setSelectedBillboardIds] = useState<string[]>([])
@@ -184,6 +186,9 @@ export default function MainApp() {
             <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
               <div className="text-sm text-gray-700 font-bold">
                 النتائج: {filteredBillboards.length} / {billboards.length}
+                {selectedBillboardIds.length > 0 && (
+                  <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded bg-indigo-100 text-indigo-700 text-xs font-bold">مختار: {selectedBillboardIds.length}</span>
+                )}
               </div>
               <div className="flex items-center gap-2">
                 <button
@@ -191,7 +196,14 @@ export default function MainApp() {
                   onClick={() => setShowCalculator(true)}
                   disabled={filteredBillboards.length === 0}
                 >
-                  حاسبة مبسطة
+                  حساب الأسعار
+                </button>
+                <button
+                  className="px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white font-bold border-2 border-green-500"
+                  onClick={() => setShowQuoteDialog(true)}
+                  disabled={selectedBillboardIds.length === 0}
+                >
+                  إرسال عرض
                 </button>
               </div>
             </div>
@@ -257,6 +269,14 @@ export default function MainApp() {
           onClose={() => setShowCalculator(false)}
           selectedBillboards={selectedBillboardIds}
           allBillboards={billboards}
+        />
+      )}
+
+      {showQuoteDialog && (
+        <QuoteDialog
+          onClose={() => setShowQuoteDialog(false)}
+          selectedBillboards={new Set(selectedBillboardIds)}
+          billboards={billboards}
         />
       )}
     </div>

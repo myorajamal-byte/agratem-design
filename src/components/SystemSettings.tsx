@@ -681,24 +681,22 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
                     </select>
                   </div>
 
-                  {/* اختيار فئة الأسعار */}
+                  {/* اختيار نوع الزبون لعرض الأسعار */}
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">
-                      فئة الأسعار التي ستظهر للمستخدم
+                      نوع الزبون الذي ستظهر أسعاره للمستخدم
                     </label>
                     <select
                       value={newUser.pricingCategory}
-                      onChange={(e) => setNewUser(prev => ({ ...prev, pricingCategory: e.target.value as 'A' | 'B' | 'companies' | 'individuals' | 'marketers' }))}
+                      onChange={(e) => setNewUser(prev => ({ ...prev, pricingCategory: e.target.value as 'companies' | 'individuals' | 'marketers' }))}
                       className="w-full border border-gray-300 rounded-md px-3 py-2 bg-white"
                     >
-                      <option value="individuals">العاديين (أسعار متوسطة)</option>
-                      <option value="marketers">المسوقين (أسعار مخفضة)</option>
-                      <option value="companies">الشركات (أسعار عالية)</option>
-                      <option value="A">قائمة أسعار A</option>
-                      <option value="B">قائمة أسعار B</option>
+                      <option value="individuals">عادي</option>
+                      <option value="marketers">مسوق</option>
+                      <option value="companies">شركات</option>
                     </select>
                     <p className="text-xs text-gray-500 mt-1">
-                      تحدد ��ذه الفئة الأسعار التي ستظهر للمستخدم عند عرض اللوحات الإعلانية
+                      سيعرض النظام الأسعار الخاصة بنوع الزبون المحدد لهذا المستخدم.
                     </p>
                   </div>
 
@@ -816,6 +814,22 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({ onClose }) => {
                     >
                       <option value="user">مستخدم</option>
                       <option value="admin">مدير</option>
+                    </select>
+                  </div>
+
+                  {/* اختيار نوع الزبون لعرض الأسعار (تعديل) */}
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">
+                      نوع الزبون الذي ستظهر أسعاره للمستخدم
+                    </label>
+                    <select
+                      value={editingUser.pricingCategory || 'individuals'}
+                      onChange={(e) => setEditingUser(prev => prev ? ({ ...prev, pricingCategory: e.target.value as 'companies' | 'individuals' | 'marketers' }) : null)}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    >
+                      <option value="individuals">عادي</option>
+                      <option value="marketers">مسوق</option>
+                      <option value="companies">شركات</option>
                     </select>
                   </div>
 
