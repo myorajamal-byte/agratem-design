@@ -19,7 +19,7 @@ const labels = {
     range: 'نطاق الأسعار'
   },
   filters: {
-    search: 'ابحث في جميع الأعمدة…',
+    search: 'ابحث ف�� جميع الأعمدة…',
     size: 'المقاس',
     level: 'المستوى',
     customer: 'نوع الزبون',
@@ -119,9 +119,9 @@ export default function EnhancedArabicPricingManagement({ onClose }: Props) {
     }))
 
     const base: ColumnDef<PriceRow>[] = [
-      { id: 'size', accessorKey: 'size', header: labels.table.size, size: 140 },
-      { id: 'level', accessorKey: 'level', header: labels.table.level, size: 110 },
-      { id: 'customer', accessorKey: 'customer', header: labels.table.customer, size: 140 },
+      { id: 'size', accessorKey: 'size', header: labels.table.size, size: 140, cell: info => info.getValue() as any },
+      { id: 'level', accessorKey: 'level', header: labels.table.level, size: 110, cell: info => info.getValue() as any },
+      { id: 'customer', accessorKey: 'customer', header: labels.table.customer, size: 140, cell: info => info.getValue() as any },
       {
         id: 'pricesGroupToggle',
         header: () => (
