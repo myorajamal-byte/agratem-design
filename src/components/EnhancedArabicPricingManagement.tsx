@@ -258,7 +258,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
       }
 
     } catch (error: any) {
-      showNotification('error', `خطأ ف�� الإضافة: ${error.message}`)
+      showNotification('error', `خطأ في الإضافة: ${error.message}`)
     }
   }
 
@@ -321,7 +321,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
     setSelectedCustomer('')
   }
 
-  const priceColumns = ['يوم واحد', 'شهر واحد', '2 أشهر', '3 أشهر', '6 أشهر', 'سنة كاملة']
+  const priceColumns = ['يوم واحد', 'شهر واحد', '2 أشهر', '3 أشهر', '6 أشهر', 'سنة ك��ملة']
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -372,11 +372,11 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
           {/* Statistics Bar */}
           {statistics && (
             <div className="p-6 bg-gradient-to-r from-blue-50 to-indigo-50">
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                <Card className="p-4 bg-white shadow-md border-l-4 border-blue-500">
+              <div className="stats-grid grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                <Card className="stats-card p-4 bg-white shadow-md border-l-4 border-blue-500">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                      <BarChart3 className="w-5 h-5 text-blue-600" />
+                      <BarChart3 className="stats-icon w-5 h-5 text-blue-600" />
                     </div>
                     <div>
                       <div className="text-2xl font-bold text-blue-600">{statistics.totalRows}</div>
@@ -459,26 +459,26 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
               <div className="flex items-center gap-3">
                 <Button
                   onClick={() => setShowAddRow(true)}
-                  className="bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3"
+                  className="action-button bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3"
                 >
                   <Plus className="w-5 h-5 mr-2" />
                   إضافة صف جديد
                 </Button>
-                
+
                 <Button
                   onClick={loadData}
                   disabled={loading}
                   variant="outline"
-                  className="text-blue-600 border-blue-300 hover:bg-blue-50 px-6 py-3"
+                  className="action-button text-blue-600 border-blue-300 hover:bg-blue-50 px-6 py-3"
                 >
-                  <RefreshCw className={`w-5 h-5 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                  <RefreshCw className={`w-5 h-5 mr-2 ${loading ? 'loading-spinner' : ''}`} />
                   تحديث البيانات
                 </Button>
 
                 <Button
                   onClick={handleExport}
                   variant="outline"
-                  className="text-emerald-600 border-emerald-300 hover:bg-emerald-50 px-6 py-3"
+                  className="action-button text-emerald-600 border-emerald-300 hover:bg-emerald-50 px-6 py-3"
                 >
                   <Download className="w-5 h-5 mr-2" />
                   تصدير إلى Excel
@@ -505,12 +505,12 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
                     size="sm"
                     className="text-red-600 border-red-300 hover:bg-red-50"
                   >
-                    مسح الفلات��
+                    مسح الفلاتر
                   </Button>
                 )}
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="filter-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">البحث النصي</label>
                   <div className="relative">
@@ -529,7 +529,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
                   <select
                     value={selectedSize}
                     onChange={(e) => setSelectedSize(e.target.value)}
-                    className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                    className="filter-dropdown w-full p-3 rounded-lg bg-white"
                   >
                     <option value="">جميع المقاسات</option>
                     {availableSizes.map(size => (
