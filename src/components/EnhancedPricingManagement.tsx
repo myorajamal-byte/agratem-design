@@ -25,7 +25,7 @@ import { newPricingService } from '@/services/newPricingService'
 import { PriceList, BillboardSize, PriceListType, CustomerType } from '@/types'
 import ABPricingManagement from './ABPricingManagement'
 import ModernPricingManagement from './ModernPricingManagement'
-import ArabicPricingManagement from './ArabicPricingManagement'
+import EnhancedArabicPricingManagement from './EnhancedArabicPricingManagement'
 import DynamicPricingManagement from './DynamicPricingManagement'
 
 interface EnhancedPricingManagementProps {
@@ -104,7 +104,7 @@ const EnhancedPricingManagement: React.FC<EnhancedPricingManagementProps> = ({ o
   }
 
   const tabs = [
-    { id: 'overview', label: 'نظرة عامة', icon: Calculator, color: 'indigo' },
+    { id: 'overview', label: 'نظرة ع��مة', icon: Calculator, color: 'indigo' },
     { id: 'arabic', label: 'الأسعار العربية (Supabase)', icon: Database, color: 'purple' },
     { id: 'ab', label: 'قوائم A & B', icon: Layers, color: 'blue' },
     { id: 'modern', label: 'النظام الحديث', icon: TrendingUp, color: 'green' },
@@ -114,7 +114,7 @@ const EnhancedPricingManagement: React.FC<EnhancedPricingManagementProps> = ({ o
   const renderTabContent = () => {
     switch (activeTab) {
       case 'arabic':
-        return <ArabicPricingManagement onClose={() => setActiveTab('overview')} />
+        return <EnhancedArabicPricingManagement onClose={() => setActiveTab('overview')} />
       case 'ab':
         return <ABPricingManagement onClose={() => setActiveTab('overview')} />
       case 'modern':

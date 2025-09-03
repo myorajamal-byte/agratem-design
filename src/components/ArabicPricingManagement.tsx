@@ -14,7 +14,8 @@ import {
   AlertTriangle,
   CheckCircle,
   Search,
-  Filter
+  Filter,
+  Settings
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -22,6 +23,9 @@ import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { arabicPricingService, ArabicPricingRow, ArabicPricingStats } from '@/services/arabicPricingService'
 import { PriceListType, CustomerType } from '@/types'
+import SupabaseSetup from './SupabaseSetup'
+import QuickSupabaseTest from './QuickSupabaseTest'
+import SupabaseRLSFix from './SupabaseRLSFix'
 
 interface ArabicPricingManagementProps {
   onClose: () => void
@@ -52,6 +56,7 @@ const ArabicPricingManagement: React.FC<ArabicPricingManagementProps> = ({ onClo
   
   // إضافة صف جديد
   const [showAddRow, setShowAddRow] = useState(false)
+  const [showSupabaseSetup, setShowSupabaseSetup] = useState(false)
   const [newRow, setNewRow] = useState({
     size: '',
     level: 'A' as PriceListType,
@@ -359,6 +364,27 @@ const ArabicPricingManagement: React.FC<ArabicPricingManagementProps> = ({ onClo
         </div>
 
         <div className="p-6 overflow-y-auto max-h-[calc(95vh-120px)]">
+          {/* اختبار سريع لـ Supabase */}
+          <QuickSupabaseTest />
+
+          {/* إصلاح صلاحيات Supabase */}
+          <SupabaseRLSFix />
+
+          {/* تنبيه عدم تكوين Supabase */}
+          {(!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) && (
+            <Card className="p-4 mb-4 border-2 border-orange-200 bg-orange-50">
+              <div className="flex items-center gap-3">
+                <AlertTriangle className="w-6 h-6 text-orange-600" />
+                <div>
+                  <h4 className="font-bold text-orange-800">قاعدة البيانات غير مكونة</h4>
+                  <p className="text-sm text-orange-700">
+                    يرجى تكوين إعدادات Supabase من الصفحة الرئيسية → الزر الأزرق العائم "قاعدة البيانات"
+                  </p>
+                </div>
+              </div>
+            </Card>
+          )}
+
           {/* Notifications */}
           {error && (
             <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-400 rounded-lg">
@@ -433,7 +459,7 @@ const ArabicPricingManagement: React.FC<ArabicPricingManagementProps> = ({ onClo
                 className="bg-blue-600 hover:bg-blue-700 text-white"
               >
                 <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-                تحديث البيانات
+                تحديث البيانا��
               </Button>
               <Button
                 onClick={() => setShowAddRow(true)}
@@ -475,6 +501,14 @@ const ArabicPricingManagement: React.FC<ArabicPricingManagementProps> = ({ onClo
               >
                 <RefreshCw className="w-4 h-4 mr-2" />
                 مزامنة مع النظام المحلي
+              </Button>
+              <Button
+                onClick={() => setShowSupabaseSetup(true)}
+                variant="outline"
+                className="text-indigo-600 border-indigo-300"
+              >
+                <Settings className="w-4 h-4 mr-2" />
+                إعداد قاعدة البيانات
               </Button>
               <div className="text-sm text-gray-600 bg-gray-100 px-3 py-2 rounded-lg">
                 <span className="font-semibold">الاتصال:</span>
@@ -677,7 +711,7 @@ const ArabicPricingManagement: React.FC<ArabicPricingManagementProps> = ({ onClo
         {showAddRow && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-60">
             <Card className="w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto">
-              <h3 className="text-xl font-bold mb-4">إضافة صف جديد</h3>
+              <h3 className="text-xl font-bold mb-4">إ��افة صف جديد</h3>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div>
@@ -754,6 +788,11 @@ const ArabicPricingManagement: React.FC<ArabicPricingManagementProps> = ({ onClo
               </div>
             </Card>
           </div>
+        )}
+
+        {/* نافذة إعداد Supabase */}
+        {showSupabaseSetup && (
+          <SupabaseSetup onClose={() => setShowSupabaseSetup(false)} />
         )}
       </div>
     </div>

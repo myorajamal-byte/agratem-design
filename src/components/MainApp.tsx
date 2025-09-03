@@ -24,6 +24,7 @@ import { sizesDatabase } from "@/services/sizesDatabase"
 import { Billboard, PackageDuration } from "@/types"
 import { useAuth } from "@/contexts/AuthContext"
 import { hybridSystemTest } from "@/utils/hybridSystemTest"
+import SimpleSupabaseSettings from "@/components/SimpleSupabaseSettings"
 
 export default function MainApp() {
   const { user } = useAuth()
@@ -57,6 +58,7 @@ export default function MainApp() {
   const [showBookingMode, setShowBookingMode] = useState(false)
   const [selectedPricingDuration, setSelectedPricingDuration] = useState<PackageDuration | null>(null)
   const [billboardDates, setBillboardDates] = useState<Record<string, string>>({})
+  const [showSupabaseSettings, setShowSupabaseSettings] = useState(false)
 
   const itemsPerPage = 12
 
@@ -546,16 +548,27 @@ ${selectedBillboardsData
         onOpenInstallationPricing={() => setShowInstallationPricing(true)}
       />
 
-      {/* زر عائم لفتح صفحة المستخدمين لمن يملك صلاحية الإدارة */}
+      {/* أزرار عائمة للمدراء */}
       {(user?.role === 'admin' || user?.permissions.some(p => p.name === 'manage_users' || p.name === 'admin_access')) && (
-        <button
-          onClick={() => setShowSettings(true)}
-          className="fixed bottom-6 left-6 z-50 bg-yellow-500 hover:bg-yellow-600 text-black font-bold rounded-full shadow-2xl px-5 py-3 flex items-center gap-2 border-2 border-yellow-300"
-          title="إدارة المستخدمين"
-        >
-          <Users className="w-5 h-5" />
-          <span className="hidden sm:inline">المستخدمون</span>
-        </button>
+        <div className="fixed bottom-6 left-6 z-50 flex flex-col gap-3">
+          <button
+            onClick={() => setShowSettings(true)}
+            className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold rounded-full shadow-2xl px-5 py-3 flex items-center gap-2 border-2 border-yellow-300"
+            title="إدارة المستخدمين"
+          >
+            <Users className="w-5 h-5" />
+            <span className="hidden sm:inline">المستخدمون</span>
+          </button>
+
+          <button
+            onClick={() => setShowSupabaseSettings(true)}
+            className="bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-full shadow-2xl px-5 py-3 flex items-center gap-2 border-2 border-blue-300"
+            title="إعدادات قاعدة البيانات"
+          >
+            <Settings className="w-5 h-5" />
+            <span className="hidden sm:inline">قاعدة البيانات</span>
+          </button>
+        </div>
       )}
 
 
@@ -605,7 +618,7 @@ ${selectedBillboardsData
                   🎯 عرض مخصص: تظهر لك فقط العقود الخاصة بالزبون "{user.assignedClient}"
                 </p>
                 <p className="text-xs text-blue-600 mt-1">
-                  إجمالي اللوحات المعروضة: {filteredBillboards.length} لوحة
+                  إجمالي ال��وحات المعروضة: {filteredBillboards.length} لوحة
                 </p>
               </div>
             </div>
@@ -656,6 +669,16 @@ ${selectedBillboardsData
               <Settings className="w-5 h-5 text-blue-600" />
               إد��رة الأسعار
             </h3>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+              <div className="space-y-2">
+                <p className="text-sm text-blue-800">
+                  💡 <strong>للوصول لإدارة الأسعار العربية (جدول pricing_ar):</strong> انقر على "النظام الشامل للأسعار" ثم اختر تبويب "الأسعار العربية"
+                </p>
+                <p className="text-xs text-blue-700">
+                  🔧 <strong>إعداد قاعدة البيانات:</strong> استخدم الزر العائم الأزرق في أسفل يسار الصفحة لتكوين Supabase
+                </p>
+              </div>
+            </div>
             <div className="flex flex-wrap gap-3">
               <Button
                 onClick={() => setShowSimplifiedCalculator(true)}
@@ -986,6 +1009,13 @@ ${selectedBillboardsData
       {showSystemGuide && (
         <PricingSystemGuide
           onClose={() => setShowSystemGuide(false)}
+        />
+      )}
+
+      {/* إعدادات Supabase */}
+      {showSupabaseSettings && (
+        <SimpleSupabaseSettings
+          onClose={() => setShowSupabaseSettings(false)}
         />
       )}
     </div>
