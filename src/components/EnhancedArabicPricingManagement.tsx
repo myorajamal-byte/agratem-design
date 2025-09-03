@@ -42,7 +42,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
   const [success, setSuccess] = useState('')
   const [statistics, setStatistics] = useState<ArabicPricingStats | null>(null)
   
-  // فلاتر ��لبحث والتصفية
+  // فلاتر البحث والتصفية
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedSize, setSelectedSize] = useState<string>('')
   const [selectedLevel, setSelectedLevel] = useState<string>('')
@@ -246,7 +246,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
         setNewRow({
           size: '',
           level: 'A',
-          customer: '��ادي',
+          customer: 'عادي',
           prices: {
             'شهر واحد': 0,
             '2 أشهر': 0,
@@ -578,7 +578,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
                   <thead>
                     <tr className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
                       {/* Fixed Basic Columns */}
-                      <th className="sticky-right-0 min-w-[120px]">
+                      <th className="sticky right-0 z-30 min-w-[140px]">
                         <button
                           onClick={() => handleSort('المقاس')}
                           className="sort-button"
@@ -685,7 +685,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
 
                         <td className="sticky-right-120">
                           <span className={`${row.المستوى === 'A' ? 'level-badge-a' : 'level-badge-b'}`}>
-                            {row.المستوى}
+                            {row.ال��ستوى}
                           </span>
                         </td>
 
@@ -731,7 +731,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
                                 <div
                                   className="editable-cell"
                                   onClick={() => startEdit(row.id!, column as keyof ArabicPricingRow)}
-                                  title={`تحر��ر ${column}`}
+                                  title={`تحرير ${column}`}
                                 >
                                   <div className="flex items-center justify-center gap-1">
                                     <span className="font-semibold text-gray-800">
