@@ -215,7 +215,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
         showNotification('success', 'تم تحديث السعر بنجاح')
         await loadData()
       } else {
-        showNotification('error', result.error || 'ف��ل في تحديث السعر')
+        showNotification('error', result.error || 'فشل في تحديث السعر')
       }
 
     } catch (error: any) {
@@ -648,7 +648,7 @@ const EnhancedArabicPricingManagement: React.FC<EnhancedArabicPricingManagementP
                         </>
                       )}
                       
-                      <th className="border border-white/20 p-4 text-center font-bold min-w-[100px]">الإجراءات</th>
+                      <th className="sticky left-0 z-30 border border-white/20 p-4 text-center font-bold min-w-[120px]">الإجراءات</th>
                     </tr>
                     
                     {/* Price Sub-headers when expanded */}
