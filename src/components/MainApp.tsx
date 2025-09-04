@@ -195,9 +195,9 @@ export default function MainApp() {
                   className="px-4 py-2 rounded-lg bg-yellow-500 hover:bg-yellow-600 text-black font-bold border-2 border-yellow-400"
                   onClick={() => setShowCalculator(true)}
                   disabled={filteredBillboards.length === 0}
-                >
+                disabled={selectedBillboardIds.length === 0}
                   حساب الأسعار
-                </button>
+                حاسبة اللوحات المختارة
                 <button
                   className="px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white font-bold border-2 border-green-500"
                   onClick={() => setShowQuoteDialog(true)}
@@ -268,7 +268,7 @@ export default function MainApp() {
         <SimplifiedPricingCalculator
           onClose={() => setShowCalculator(false)}
           selectedBillboards={selectedBillboardIds}
-          allBillboards={billboards}
+          allBillboards={filteredBillboards}
         />
       )}
 

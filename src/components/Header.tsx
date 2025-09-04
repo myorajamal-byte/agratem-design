@@ -50,17 +50,10 @@ export default function Header({ onOpenSettings, onOpenPricing, onOpenInstallati
               <>
                 <Button
                   onClick={onOpenPricing}
-                  className="bg-gradient-to-r from-purple-500/20 to-indigo-500/20 hover:from-purple-500/30 hover:to-indigo-500/30 text-black border-2 border-purple-300/50 font-bold px-6 py-3 rounded-xl shadow-lg backdrop-blur-sm"
+                  className="bg-gradient-to-r from-emerald-500/20 to-green-500/20 hover:from-emerald-500/30 hover:to-green-500/30 text-black border-2 border-emerald-300/50 font-bold px-6 py-3 rounded-xl shadow-lg backdrop-blur-sm"
                 >
                   <DollarSign className="w-4 h-4 mr-2" />
                   إدارة الأسعار العربية
-                </Button>
-                <Button
-                  onClick={onOpenInstallationPricing}
-                  className="bg-white/20 hover:bg-white/30 text-black border border-white/30 font-bold"
-                >
-                  <Wrench className="w-4 h-4 mr-2" />
-                  أسعار التركيب
                 </Button>
               </>
             )}

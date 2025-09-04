@@ -164,6 +164,82 @@ class ArabicPricingService {
   }
 
   /**
+   * الحصول على سعر مع تفصيل كامل
+   */
+  async getPriceWithDetails(
+    size: string,
+    level: PriceListType,
+    customerType: CustomerType,
+    duration: number
+  ): Promise<{
+    price: number
+    found: boolean
+    source: string
+    details: string
+  }> {
+    try {
+      const rows = await this.getAllPricingData()
+      const arabicCustomer = this.mapCustomerTypeToArabic(customerType)
+      const column = this.mapDurationToColumn(duration)
+
+      const row = rows.find(r => 
+        r.المقاس === size && 
+        r.المستوى === level && 
+        r.الزبون === arabicCustomer
+      )
+
+      if (!row) {
+        return {
+          price: 0,
+          found: false,
+          source: 'غير موجود',
+          details: `لم يتم العثور على سعر للمقاس ${size} مستوى ${level} زبون ${arabicCustomer}`
+        }
+      }
+
+      const price = row[column]
+      if (typeof price !== 'number' || price === 0) {
+        return {
+          price: 0,
+          found: false,
+          source: 'سعر فارغ',
+          details: `السعر غير محدد للمدة المطلوبة`
+        }
+      }
+
+      return {
+        price,
+        found: true,
+        source: 'جدول الأسعار العربية',
+        details: `${size} • مستوى ${level} • ${arabicCustomer} • ${this.getDurationLabel(duration)}`
+      }
+
+    } catch (error: any) {
+      return {
+        price: 0,
+        found: false,
+        source: 'خطأ',
+        details: error.message
+      }
+    }
+  }
+
+  /**
+   * الحصول على تسمية المدة
+   */
+  private getDurationLabel(duration: number): string {
+    const mapping: Record<number, string> = {
+      1: 'يوم واحد',
+      30: 'شهر واحد',
+      60: '2 أشهر',
+      90: '3 أشهر',
+      180: '6 أشهر',
+      365: 'سنة كاملة'
+    }
+    return mapping[duration] || `${duration} يوم`
+  }
+
+  /**
    * تحديث سعر محدد
    */
   async updatePrice(

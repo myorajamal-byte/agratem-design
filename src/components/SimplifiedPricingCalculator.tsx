@@ -1,45 +1,67 @@
 import React, { useState, useEffect } from 'react'
-import { Calculator, DollarSign, MapPin, Clock, Users, Building2, Wrench, FileText, Download, X, List } from 'lucide-react'
+import { 
+  Calculator, 
+  Calendar, 
+  MapPin, 
+  Users, 
+  Building2, 
+  Wrench, 
+  FileText, 
+  X, 
+  Clock,
+  DollarSign,
+  Target,
+  Grid3X3,
+  CheckCircle,
+  AlertTriangle,
+  Printer,
+  Save
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { newPricingService } from '@/services/newPricingService'
-import { BillboardSize, PriceListType, CustomerType, Billboard } from '@/types'
+import { Billboard, BillboardSize, PriceListType } from '@/types'
+import { arabicPricingService } from '@/services/arabicPricingService'
+import { formatGregorianDate } from '@/lib/dateUtils'
 
-interface PricingCalculation {
+interface BillboardCalculation {
+  billboard: Billboard
   basePrice: number
-  municipalityMultiplier: number
-  durationDiscount: number
+  totalDays: number
   installationCost: number
-  finalPrice: number
+  totalPrice: number
   dailyRate: number
   breakdown: string[]
 }
 
 interface SimplifiedPricingCalculatorProps {
   onClose: () => void
-  selectedBillboards?: string[] // معرفات اللوحات المختارة
-  allBillboards?: Billboard[] // جميع اللوحات للمراجعة
+  selectedBillboards?: string[]
+  allBillboards?: Billboard[]
 }
 
 const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = ({
   onClose,
-  selectedBillboards,
-  allBillboards
+  selectedBillboards = [],
+  allBillboards = []
 }) => {
-  // State for pricing inputs
-  const [selectedSize, setSelectedSize] = useState<BillboardSize>('5x13')
-  const [selectedLevel, setSelectedLevel] = useState<PriceListType>('A')
-  const [selectedMunicipality, setSelectedMunicipality] = useState<string>('مصراتة')
-  const [selectedCustomerType, setSelectedCustomerType] = useState<CustomerType>('individuals')
+  // حالة النظام الأساسية
   const [pricingMode, setPricingMode] = useState<'daily' | 'package'>('daily')
-  const [daysCount, setDaysCount] = useState<number>(1)
-  const [packageDuration, setPackageDuration] = useState<number>(30)
-  const [installationCost, setInstallationCost] = useState<number>(0)
-  const [needInstallation, setNeedInstallation] = useState<boolean>(false)
+  const [customerType, setCustomerType] = useState<'عادي' | 'مسوق' | 'شركات' | 'المدينة'>('عادي')
   
-  // Customer information for quote
+  // التواريخ للحساب اليومي
+  const [startDate, setStartDate] = useState<string>(new Date().toISOString().split('T')[0])
+  const [endDate, setEndDate] = useState<string>(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
+  
+  // الباقات
+  const [selectedPackage, setSelectedPackage] = useState<'شهر واحد' | '2 أشهر' | '3 أشهر' | '6 أشهر' | 'سنة كاملة'>('شهر واحد')
+  
+  // التركيب
+  const [includeInstallation, setIncludeInstallation] = useState<boolean>(false)
+  const [installationPricePerBoard, setInstallationPricePerBoard] = useState<number>(500)
+  
+  // معلومات العميل
   const [customerInfo, setCustomerInfo] = useState({
     name: '',
     company: '',
@@ -47,449 +69,589 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
     email: ''
   })
 
-  // Available options
-  const [availableSizes, setAvailableSizes] = useState<BillboardSize[]>([])
-  const [availableMunicipalities, setAvailableMunicipalities] = useState<string[]>([])
-  const [calculation, setCalculation] = useState<PricingCalculation | null>(null)
-
-  // Selected billboards data
+  // البيانات المحسوبة
   const [selectedBillboardsData, setSelectedBillboardsData] = useState<Billboard[]>([])
-  const [calculationMode, setCalculationMode] = useState<'single' | 'multiple'>('single')
-  const [multipleCalculations, setMultipleCalculations] = useState<Array<{
-    billboard: Billboard
-    calculation: PricingCalculation
-  }>>([])
-  const [totalCalculation, setTotalCalculation] = useState<{
-    totalPrice: number
-    totalDailyRate: number
-    count: number
-  }>({ totalPrice: 0, totalDailyRate: 0, count: 0 })
+  const [calculations, setCalculations] = useState<BillboardCalculation[]>([])
+  const [totalCalculation, setTotalCalculation] = useState({
+    totalPrice: 0,
+    totalDailyRate: 0,
+    totalInstallation: 0,
+    grandTotal: 0,
+    averageDailyRate: 0
+  })
 
-  // Load available options and selected billboards
+  // حالة التحميل والأخطاء
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+
+  // تحميل اللوحات المختارة
   useEffect(() => {
-    const pricing = newPricingService.getPricing()
-    setAvailableSizes(['5x13', '4x12', '4x10', '3x8', '3x6', '3x4'])
-    setAvailableMunicipalities(Object.keys(pricing.zones))
-
-    // Check if we have selected billboards
-    if (selectedBillboards && selectedBillboards.length > 0 && allBillboards) {
-      const selectedData = allBillboards.filter(billboard => selectedBillboards.includes(billboard.id))
-      setSelectedBillboardsData(selectedData)
-      setCalculationMode('multiple')
-
-      // Set default municipality from first selected billboard
-      if (selectedData.length > 0) {
-        setSelectedMunicipality(selectedData[0].municipality || 'مصراتة')
-      }
-    } else {
-      setCalculationMode('single')
+    if (selectedBillboards.length > 0 && allBillboards.length > 0) {
+      const selected = allBillboards.filter(billboard => selectedBillboards.includes(billboard.id))
+      setSelectedBillboardsData(selected)
     }
   }, [selectedBillboards, allBillboards])
 
-  // Calculate pricing when inputs change
+  // حساب الأسعار عند تغيير المدخلات
   useEffect(() => {
-    if (calculationMode === 'single') {
+    if (selectedBillboardsData.length > 0) {
       calculatePricing()
-    } else {
-      calculateMultipleBillboards()
     }
-  }, [selectedSize, selectedLevel, selectedMunicipality, selectedCustomerType, pricingMode, daysCount, packageDuration, installationCost, needInstallation, calculationMode, selectedBillboardsData])
+  }, [
+    selectedBillboardsData, 
+    pricingMode, 
+    customerType, 
+    startDate, 
+    endDate, 
+    selectedPackage, 
+    includeInstallation, 
+    installationPricePerBoard
+  ])
 
-  const calculatePricing = () => {
-    try {
-      const pricing = newPricingService.getPricing()
-      const zone = pricing.zones[selectedMunicipality]
-      
-      if (!zone) {
-        console.warn(`المنطقة "${selectedMunicipality}" غير موجودة`)
-        return
+  // حساب عدد الأيام
+  const calculateDays = (): number => {
+    if (pricingMode === 'daily') {
+      const start = new Date(startDate)
+      const end = new Date(endDate)
+      const diffTime = end.getTime() - start.getTime()
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1
+      return Math.max(diffDays, 1)
+    } else {
+      // حساب أيام الباقة
+      const packageDays: Record<string, number> = {
+        'شهر واحد': 30,
+        '2 أشهر': 60,
+        '3 أشهر': 90,
+        '6 أشهر': 180,
+        'سنة كاملة': 365
       }
-
-      let basePrice = 0
-      let breakdown: string[] = []
-
-      // Get base price based on customer type and level
-      if (pricingMode === 'daily') {
-        // For daily pricing, use the customer type pricing
-        const customerPricing = zone.prices[selectedCustomerType]
-        basePrice = customerPricing?.[selectedSize] || 0
-        breakdown.push(`السعر الأساسي اليومي (${selectedCustomerType}): ${basePrice.toLocaleString()} د.ل`)
-      } else {
-        // For package pricing, use AB pricing system
-        const abPricing = zone.abPrices?.[selectedLevel]
-        basePrice = abPricing?.[selectedSize] || 0
-        breakdown.push(`سعر الباقة الأساسي (مستوى ${selectedLevel}): ${basePrice.toLocaleString()} د.ل`)
-      }
-
-      // Apply municipality multiplier if available
-      const municipalityMultiplier = 1.0 // Default multiplier
-      // Note: Municipality multipliers are handled within the pricing zones now
-      
-      let finalPrice = basePrice
-      let dailyRate = basePrice
-
-      if (pricingMode === 'daily') {
-        // For daily pricing, multiply by number of days
-        finalPrice = basePrice * daysCount
-        breakdown.push(`إجمالي ${daysCount} أيام: ${finalPrice.toLocaleString()} د.ل`)
-        dailyRate = basePrice
-      } else {
-        // For package pricing, calculate daily rate
-        const daysInPackage = packageDuration === 30 ? 30 : packageDuration === 90 ? 90 : packageDuration === 180 ? 180 : 365
-        dailyRate = finalPrice / daysInPackage
-        breakdown.push(`السعر اليومي للباقة: ${dailyRate.toFixed(2)} د.ل`)
-      }
-
-      // Add installation cost if needed
-      let totalInstallationCost = 0
-      if (needInstallation && installationCost > 0) {
-        totalInstallationCost = installationCost
-        finalPrice += totalInstallationCost
-        breakdown.push(`تكلفة التركيب: ${totalInstallationCost.toLocaleString()} د.ل`)
-      }
-
-      // Apply company discount if applicable
-      if (selectedCustomerType === 'companies') {
-        const discount = Math.round(finalPrice * 0.05) // 5% discount for companies
-        finalPrice -= discount
-        breakdown.push(`خصم الشركات (5%): -${discount.toLocaleString()} د.ل`)
-      } else if (selectedCustomerType === 'marketers') {
-        const discount = Math.round(finalPrice * 0.15) // 15% discount for marketers
-        finalPrice -= discount
-        breakdown.push(`خصم المسوقين (15%): -${discount.toLocaleString()} د.ل`)
-      }
-
-      breakdown.push(`السعر النهائي: ${finalPrice.toLocaleString()} د.ل`)
-
-      setCalculation({
-        basePrice,
-        municipalityMultiplier,
-        durationDiscount: 0,
-        installationCost: totalInstallationCost,
-        finalPrice,
-        dailyRate,
-        breakdown
-      })
-
-    } catch (error) {
-      console.error('خطأ في حساب التسعير:', error)
+      return packageDays[selectedPackage] || 30
     }
   }
 
-  const calculateMultipleBillboards = () => {
+  // تحويل نوع الزبون للإنجليزية
+  const mapCustomerType = (arabicType: string): 'individuals' | 'marketers' | 'companies' => {
+    const mapping: Record<string, 'individuals' | 'marketers' | 'companies'> = {
+      'عادي': 'individuals',
+      'مسوق': 'marketers',
+      'شركات': 'companies',
+      'المدينة': 'companies'
+    }
+    return mapping[arabicType] || 'individuals'
+  }
+
+  // حساب التسعير لجميع اللوحات
+  const calculatePricing = async () => {
+    if (selectedBillboardsData.length === 0) return
+
+    setLoading(true)
+    setError('')
+
     try {
-      const calculations: Array<{billboard: Billboard, calculation: PricingCalculation}> = []
+      const totalDays = calculateDays()
+      const englishCustomerType = mapCustomerType(customerType)
+      const newCalculations: BillboardCalculation[] = []
       let totalPrice = 0
       let totalDailyRate = 0
+      let totalInstallation = 0
 
-      if (selectedBillboardsData.length === 0) {
-        setMultipleCalculations([])
-        setTotalCalculation({ totalPrice: 0, totalDailyRate: 0, count: 0 })
-        return
-      }
+      for (const billboard of selectedBillboardsData) {
+        const size = billboard.size
+        const level = (billboard.level || 'A') as PriceListType
+        const municipality = billboard.municipality
 
-      selectedBillboardsData.forEach(billboard => {
-        const size = billboard.size as BillboardSize
-        const municipality = billboard.municipality || selectedMunicipality
-        const level = billboard.level === 'A' ? 'A' : 'B' as PriceListType
-
-        const pricing = newPricingService.getPricing()
-        const zone = pricing.zones[municipality]
-
-        if (!zone) {
-          console.warn(`المنطقة "${municipality}" غير موجودة`)
-          return
-        }
-
+        // الحصول على السعر من جدول الأسعار العربية
         let basePrice = 0
-        let breakdown: string[] = []
-
-        // Get base price based on customer type and level
+        
         if (pricingMode === 'daily') {
-          const customerPricing = zone.prices[selectedCustomerType]
-          basePrice = customerPricing?.[size] || 0
-          breakdown.push(`السعر الأساسي اليومي (${selectedCustomerType}): ${basePrice.toLocaleString()} د.ل`)
+          // للحساب اليومي، استخدم سعر "يوم واحد"
+          basePrice = await arabicPricingService.getPrice(size, level, englishCustomerType, 1)
         } else {
-          const abPricing = zone.abPrices?.[level]
-          basePrice = abPricing?.[size] || 0
-          breakdown.push(`سعر الباقة الأساسي (مستوى ${level}): ${basePrice.toLocaleString()} د.ل`)
+          // للباقات، استخدم السعر المناسب للمدة
+          const durationMap: Record<string, number> = {
+            'شهر واحد': 30,
+            '2 أشهر': 60,
+            '3 أشهر': 90,
+            '6 أشهر': 180,
+            'سنة كاملة': 365
+          }
+          const duration = durationMap[selectedPackage]
+          basePrice = await arabicPricingService.getPrice(size, level, englishCustomerType, duration)
         }
 
-        let finalPrice = basePrice
-        let dailyRate = basePrice
+        // إذا لم يجد السعر، استخدم سعر افتراضي
+        if (basePrice === 0) {
+          const defaultPrices: Record<string, number> = {
+            '5x13': 3500,
+            '4x12': 2800,
+            '4x10': 2200,
+            '3x8': 1500,
+            '3x6': 1000,
+            '3x4': 800
+          }
+          basePrice = defaultPrices[size] || 1000
+        }
+
+        // حساب السعر الإجمالي
+        let totalBillboardPrice = 0
+        let dailyRate = 0
+        const breakdown: string[] = []
 
         if (pricingMode === 'daily') {
-          finalPrice = basePrice * daysCount
-          breakdown.push(`إجمالي ${daysCount} أيام: ${finalPrice.toLocaleString()} د.ل`)
+          // الحساب اليومي: السعر اليومي × عدد الأيام
+          totalBillboardPrice = basePrice * totalDays
           dailyRate = basePrice
+          breakdown.push(`السعر اليومي: ${basePrice.toLocaleString()} د.ل`)
+          breakdown.push(`عدد الأيام: ${totalDays} يوم`)
+          breakdown.push(`الإجمالي: ${totalBillboardPrice.toLocaleString()} د.ل`)
         } else {
-          const daysInPackage = packageDuration === 30 ? 30 : packageDuration === 90 ? 90 : packageDuration === 180 ? 180 : 365
-          dailyRate = finalPrice / daysInPackage
-          breakdown.push(`السعر اليومي للباقة: ${dailyRate.toFixed(2)} د.ل`)
+          // نظام الباقات: السعر الثابت للباقة
+          totalBillboardPrice = basePrice
+          dailyRate = basePrice / totalDays
+          breakdown.push(`سعر الباقة (${selectedPackage}): ${basePrice.toLocaleString()} د.ل`)
+          breakdown.push(`السعر اليومي: ${dailyRate.toFixed(2)} د.ل`)
         }
 
-        // Add installation cost if needed
-        let totalInstallationCost = 0
-        if (needInstallation && installationCost > 0) {
-          totalInstallationCost = installationCost
-          finalPrice += totalInstallationCost
-          breakdown.push(`تكلفة التركيب: ${totalInstallationCost.toLocaleString()} د.ل`)
+        // إضافة تكلفة التركيب
+        const installationCost = includeInstallation ? installationPricePerBoard : 0
+        if (installationCost > 0) {
+          totalBillboardPrice += installationCost
+          breakdown.push(`تكلفة التركيب: ${installationCost.toLocaleString()} د.ل`)
         }
 
-        // Apply customer discount
-        if (selectedCustomerType === 'companies') {
-          const discount = Math.round(finalPrice * 0.05)
-          finalPrice -= discount
-          breakdown.push(`خصم الشركات (5%): -${discount.toLocaleString()} د.ل`)
-        } else if (selectedCustomerType === 'marketers') {
-          const discount = Math.round(finalPrice * 0.15)
-          finalPrice -= discount
-          breakdown.push(`خصم المسوقين (15%): -${discount.toLocaleString()} د.ل`)
-        }
+        breakdown.push(`المجموع النهائي: ${totalBillboardPrice.toLocaleString()} د.ل`)
 
-        breakdown.push(`السعر النهائي: ${finalPrice.toLocaleString()} د.ل`)
-
-        const billboardCalculation: PricingCalculation = {
+        const calculation: BillboardCalculation = {
+          billboard,
           basePrice,
-          municipalityMultiplier: 1.0,
-          durationDiscount: 0,
-          installationCost: totalInstallationCost,
-          finalPrice,
+          totalDays,
+          installationCost,
+          totalPrice: totalBillboardPrice,
           dailyRate,
           breakdown
         }
 
-        calculations.push({
-          billboard,
-          calculation: billboardCalculation
-        })
-
-        totalPrice += finalPrice
+        newCalculations.push(calculation)
+        totalPrice += totalBillboardPrice
         totalDailyRate += dailyRate
-      })
+        totalInstallation += installationCost
+      }
 
-      setMultipleCalculations(calculations)
+      setCalculations(newCalculations)
       setTotalCalculation({
         totalPrice,
         totalDailyRate,
-        count: selectedBillboardsData.length
+        totalInstallation,
+        grandTotal: totalPrice,
+        averageDailyRate: totalDailyRate / selectedBillboardsData.length
       })
 
-    } catch (error) {
-      console.error('خطأ في حساب التسعير المتعدد:', error)
+    } catch (error: any) {
+      setError(`خطأ في حساب الأسعار: ${error.message}`)
+    } finally {
+      setLoading(false)
     }
   }
 
-  const formatPrice = (price: number): string => {
-    return new Intl.NumberFormat('ar-SA', {
-      style: 'decimal',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(price) + ' د.ل'
-  }
-
+  // إنشاء عرض السعر
   const generateQuote = () => {
-    if (!customerInfo.name) {
-      alert('يرجى ملء معلومات العميل لإنشاء عرض السعر')
+    if (!customerInfo.name.trim()) {
+      setError('يرجى إدخال اسم العميل')
       return
     }
 
-    if (calculationMode === 'multiple' && multipleCalculations.length === 0) {
-      alert('لا توجد حسابات للوحات المختارة')
+    if (calculations.length === 0) {
+      setError('لا توجد حسابات متاحة')
       return
     }
 
-    if (calculationMode === 'single' && !calculation) {
-      alert('يرجى إدخال بيانات اللوحة لإنشاء عرض السعر')
-      return
-    }
-
-    const quoteData = {
-      date: new Date().toLocaleDateString('ar-SA'),
-      customer: customerInfo,
-      mode: calculationMode,
-      billing: calculationMode === 'multiple' ? {
-        billboards: selectedBillboardsData,
-        calculations: multipleCalculations,
-        total: totalCalculation
-      } : {
-        billboard: {
-          size: selectedSize,
-          level: selectedLevel,
-          municipality: selectedMunicipality,
-          customerType: selectedCustomerType
-        },
-        calculation
-      },
-      pricing: {
-        mode: pricingMode,
-        days: pricingMode === 'daily' ? daysCount : undefined,
-        package: pricingMode === 'package' ? packageDuration : undefined,
-        customerType: selectedCustomerType,
-        needInstallation,
-        installationCost
-      }
-    }
-
-    // Generate quote document
-    const quoteHtml = generateQuoteHTML(quoteData)
-
-    // Open in new window for printing
+    const quoteHtml = generateQuoteHTML()
     const printWindow = window.open('', '_blank')
     if (printWindow) {
       printWindow.document.write(quoteHtml)
       printWindow.document.close()
     }
+
+    setSuccess('تم إنشاء عرض السعر بنجاح')
   }
 
-  const generateQuoteHTML = (data: any) => {
-    const isMultiple = data.mode === 'multiple'
+  // إنشاء HTML لعرض السعر
+  const generateQuoteHTML = (): string => {
+    const totalDays = calculateDays()
+    const endDateFormatted = pricingMode === 'daily' ? endDate : 
+      new Date(new Date(startDate).getTime() + totalDays * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
 
     return `
     <!DOCTYPE html>
     <html dir="rtl" lang="ar">
     <head>
       <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>عرض سعر - الفارس الذهبي</title>
+      <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
       <style>
-        @page { size: A4; margin: 20mm; }
-        body { font-family: 'Arial', sans-serif; direction: rtl; line-height: 1.6; }
-        .header { text-align: center; border-bottom: 3px solid #D4AF37; padding-bottom: 20px; margin-bottom: 30px; }
-        .company-name { font-size: 28px; font-weight: bold; color: #D4AF37; margin-bottom: 10px; }
-        .quote-title { font-size: 24px; color: #333; margin: 20px 0; }
-        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 8px; }
-        .section-title { font-size: 18px; font-weight: bold; color: #D4AF37; margin-bottom: 10px; }
-        .info-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px dotted #ccc; }
-        .breakdown { background: #f9f9f9; padding: 15px; border-radius: 5px; }
-        .total { font-size: 20px; font-weight: bold; color: #D4AF37; text-align: center; padding: 20px; background: #f5f5f5; border-radius: 8px; }
-        .footer { text-align: center; margin-top: 40px; color: #666; }
-        .billboard-item { background: #f8f9fa; margin: 10px 0; padding: 10px; border-radius: 5px; border: 1px solid #ddd; }
-        .billboard-price { color: #D4AF37; font-weight: bold; }
-        table { width: 100%; border-collapse: collapse; margin: 10px 0; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
-        th { background: #D4AF37; color: white; }
+        @page { size: A4; margin: 15mm; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+          font-family: 'Tajawal', Arial, sans-serif; 
+          direction: rtl; 
+          background: white; 
+          color: #000; 
+          line-height: 1.6; 
+          font-size: 14px; 
+        }
+        .header { 
+          display: flex; 
+          justify-content: space-between; 
+          align-items: center; 
+          margin-bottom: 30px; 
+          padding: 20px 0; 
+          border-bottom: 4px solid #D4AF37; 
+        }
+        .logo-section { 
+          display: flex; 
+          align-items: center; 
+          gap: 20px; 
+        }
+        .company-info { 
+          text-align: right; 
+        }
+        .company-name { 
+          font-size: 28px; 
+          font-weight: 800; 
+          color: #D4AF37; 
+          margin-bottom: 8px; 
+        }
+        .company-subtitle { 
+          font-size: 16px; 
+          color: #666; 
+          font-weight: 600;
+        }
+        .quote-info { 
+          text-align: left; 
+        }
+        .quote-title { 
+          font-size: 24px; 
+          font-weight: 800; 
+          color: #333; 
+          margin-bottom: 10px; 
+        }
+        .quote-details { 
+          font-size: 14px; 
+          color: #666; 
+          line-height: 1.8;
+        }
+        .section { 
+          margin: 25px 0; 
+          padding: 20px; 
+          background: #f8f9fa; 
+          border-radius: 12px; 
+          border: 1px solid #e9ecef;
+        }
+        .section-title { 
+          font-size: 20px; 
+          font-weight: 700; 
+          color: #D4AF37; 
+          margin-bottom: 15px; 
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+        .info-grid { 
+          display: grid; 
+          grid-template-columns: 1fr 1fr; 
+          gap: 15px; 
+        }
+        .info-row { 
+          display: flex; 
+          justify-content: space-between; 
+          padding: 8px 0; 
+          border-bottom: 1px dotted #ccc; 
+        }
+        .info-label { 
+          font-weight: 600; 
+          color: #555; 
+        }
+        .info-value { 
+          font-weight: 700; 
+          color: #333; 
+        }
+        table { 
+          width: 100%; 
+          border-collapse: collapse; 
+          margin: 20px 0; 
+          background: white;
+          border-radius: 8px;
+          overflow: hidden;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        th, td { 
+          border: 1px solid #D4AF37; 
+          padding: 12px 8px; 
+          text-align: center; 
+        }
+        th { 
+          background: linear-gradient(135deg, #D4AF37, #F4E04D); 
+          color: #000; 
+          font-weight: 800; 
+          font-size: 14px;
+        }
+        tr:nth-child(even) { 
+          background: #f8f9fa; 
+        }
+        .price-cell { 
+          font-weight: 700; 
+          color: #D4AF37; 
+          font-size: 15px;
+        }
+        .total-section { 
+          background: linear-gradient(135deg, #D4AF37, #F4E04D); 
+          color: #000; 
+          padding: 25px; 
+          border-radius: 12px; 
+          margin: 30px 0; 
+          text-align: center;
+        }
+        .total-title { 
+          font-size: 24px; 
+          font-weight: 800; 
+          margin-bottom: 15px; 
+        }
+        .total-amount { 
+          font-size: 36px; 
+          font-weight: 900; 
+          margin: 15px 0; 
+        }
+        .total-details { 
+          font-size: 16px; 
+          font-weight: 600; 
+          opacity: 0.9;
+        }
+        .footer { 
+          margin-top: 40px; 
+          padding-top: 25px; 
+          border-top: 2px solid #D4AF37; 
+          text-align: center; 
+          font-size: 14px; 
+          color: #666; 
+        }
+        .breakdown-item {
+          background: white;
+          margin: 8px 0;
+          padding: 12px;
+          border-radius: 8px;
+          border: 1px solid #e9ecef;
+        }
+        .billboard-header {
+          font-weight: 700;
+          color: #D4AF37;
+          font-size: 16px;
+          margin-bottom: 8px;
+        }
+        @media print { 
+          body { print-color-adjust: exact; -webkit-print-color-adjust: exact; } 
+        }
       </style>
     </head>
     <body>
       <div class="header">
-        <div class="company-name">الفا��س الذهبي للدعاية والإعلان</div>
-        <div>AL FARES AL DAHABI</div>
-      </div>
-
-      <div class="quote-title">${isMultiple ? 'عرض سعر حملة إعلانية' : 'عرض سعر لوحة إعلانية'}</div>
-      <div>التاريخ: ${data.date}</div>
-
-      <div class="section">
-        <div class="section-title">معلومات العميل</div>
-        <div class="info-row"><span>الاسم:</span><span>${data.customer.name}</span></div>
-        ${data.customer.company ? `<div class="info-row"><span>الشركة:</span><span>${data.customer.company}</span></div>` : ''}
-        <div class="info-row"><span>الهاتف:</span><span>${data.customer.phone}</span></div>
-        <div class="info-row"><span>البريد الإلكتروني:</span><span>${data.customer.email}</span></div>
-      </div>
-
-      ${isMultiple ? `
-        <div class="section">
-          <div class="section-title">تفاصيل الحملة الإعلانية</div>
-          <div class="info-row"><span>عدد اللوحات:</span><span>${data.billing.billboards.length} لوحة</span></div>
-          <div class="info-row"><span>نوع العميل:</span><span>${
-            data.pricing.customerType === 'individuals' ? 'فرد' :
-            data.pricing.customerType === 'companies' ? 'شركة' : 'مسوق'
-          }</span></div>
-          <div class="info-row"><span>نوع التسعير:</span><span>${data.pricing.mode === 'daily' ? 'يومي' : 'باقة'}</span></div>
-          ${data.pricing.days ? `<div class="info-row"><span>عدد الأيام:</span><span>${data.pricing.days} يوم</span></div>` : ''}
-          ${data.pricing.package ? `<div class="info-row"><span>مدة الباقة:</span><span>${data.pricing.package} يوم</span></div>` : ''}
-          ${data.pricing.needInstallation ? `<div class="info-row"><span>تكلفة التركيب:</span><span>${formatPrice(data.pricing.installationCost)} لكل لوحة</span></div>` : ''}
-        </div>
-
-        <div class="section">
-          <div class="section-title">تفصيل اللوحات والأسعار</div>
-          <table>
-            <thead>
-              <tr>
-                <th>م</th>
-                <th>اسم اللوحة</th>
-                <th>الموقع</th>
-                <th>المقاس</th>
-                <th>البلدية</th>
-                <th>السعر</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${data.billing.calculations.map((item: any, index: number) => `
-                <tr>
-                  <td>${index + 1}</td>
-                  <td>${item.billboard.name}</td>
-                  <td>${item.billboard.location}</td>
-                  <td>${item.billboard.size}</td>
-                  <td>${item.billboard.municipality}</td>
-                  <td class="billboard-price">${formatPrice(item.calculation.finalPrice)}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </div>
-
-        <div class="total">
-          إجمالي الحملة الإعلانية: ${formatPrice(data.billing.total.totalPrice)}
-          <br>
-          <small style="font-size: 14px; font-weight: normal;">
-            (${data.billing.total.count} لوحة • متوسط يومي: ${formatPrice(data.billing.total.totalDailyRate)})
-          </small>
-        </div>
-      ` : `
-        <div class="section">
-          <div class="section-title">تفاصيل اللوحة</div>
-          <div class="info-row"><span>المقاس:</span><span>${data.billing.billboard.size}</span></div>
-          <div class="info-row"><span>المستوى:</span><span>${data.billing.billboard.level}</span></div>
-          <div class="info-row"><span>البلدية:</span><span>${data.billing.billboard.municipality}</span></div>
-          <div class="info-row"><span>نوع العميل:</span><span>${
-            data.billing.billboard.customerType === 'individuals' ? 'فرد' :
-            data.billing.billboard.customerType === 'companies' ? 'شركة' : 'مسوق'
-          }</span></div>
-          <div class="info-row"><span>نوع التسعير:</span><span>${data.pricing.mode === 'daily' ? 'يومي' : 'باقة'}</span></div>
-          ${data.pricing.days ? `<div class="info-row"><span>عدد الأيام:</span><span>${data.pricing.days} يوم</span></div>` : ''}
-          ${data.pricing.package ? `<div class="info-row"><span>مدة الباقة:</span><span>${data.pricing.package} يوم</span></div>` : ''}
-        </div>
-
-        <div class="section">
-          <div class="section-title">تفصيل الأسعار</div>
-          <div class="breakdown">
-            ${data.billing.calculation.breakdown.map((item: string) => `<div>${item}</div>`).join('')}
+        <div class="logo-section">
+          <div class="company-info">
+            <div class="company-name">الفــــارس الذهبــــي</div>
+            <div class="company-subtitle">للدعــــــاية والإعـــلان</div>
           </div>
         </div>
-
-        <div class="total">
-          المبلغ الإجمالي: ${formatPrice(data.billing.calculation.finalPrice)}
+        <div class="quote-info">
+          <div class="quote-title">عرض سعر حملة إعلانية</div>
+          <div class="quote-details">
+            <div>رقم العرض: Q-${Date.now()}</div>
+            <div>التاريخ: ${formatGregorianDate(new Date())}</div>
+            <div>صالح حتى: ${formatGregorianDate(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000))}</div>
+          </div>
         </div>
-      `}
+      </div>
+
+      <div class="section">
+        <div class="section-title">
+          👤 معلومات العميل
+        </div>
+        <div class="info-grid">
+          <div class="info-row">
+            <span class="info-label">الاسم:</span>
+            <span class="info-value">${customerInfo.name}</span>
+          </div>
+          ${customerInfo.company ? `
+          <div class="info-row">
+            <span class="info-label">الشركة:</span>
+            <span class="info-value">${customerInfo.company}</span>
+          </div>
+          ` : ''}
+          <div class="info-row">
+            <span class="info-label">الهاتف:</span>
+            <span class="info-value">${customerInfo.phone || 'غير محدد'}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">البريد الإلكتروني:</span>
+            <span class="info-value">${customerInfo.email || 'غير محدد'}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">
+          📋 تفاصيل الحملة الإعلانية
+        </div>
+        <div class="info-grid">
+          <div class="info-row">
+            <span class="info-label">عدد اللوحات:</span>
+            <span class="info-value">${selectedBillboardsData.length} لوحة</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">نوع العميل:</span>
+            <span class="info-value">${customerType}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">نوع التسعير:</span>
+            <span class="info-value">${pricingMode === 'daily' ? 'حساب يومي' : 'نظام باقات'}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">تاريخ البداية:</span>
+            <span class="info-value">${formatGregorianDate(startDate)}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">تاريخ النهاية:</span>
+            <span class="info-value">${formatGregorianDate(endDateFormatted)}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">إجمالي الأيام:</span>
+            <span class="info-value">${totalDays} يوم</span>
+          </div>
+          ${pricingMode === 'package' ? `
+          <div class="info-row">
+            <span class="info-label">نوع الباقة:</span>
+            <span class="info-value">${selectedPackage}</span>
+          </div>
+          ` : ''}
+          ${includeInstallation ? `
+          <div class="info-row">
+            <span class="info-label">تكلفة التركيب:</span>
+            <span class="info-value">${installationPricePerBoard.toLocaleString()} د.ل لكل لوحة</span>
+          </div>
+          ` : ''}
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">
+          📊 تفصيل اللوحات والأسعار
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>م</th>
+              <th>اسم اللوحة</th>
+              <th>الموقع</th>
+              <th>المقاس</th>
+              <th>المستوى</th>
+              <th>البلدية</th>
+              <th>${pricingMode === 'daily' ? 'السعر اليومي' : 'سعر الباقة'}</th>
+              ${includeInstallation ? '<th>التركيب</th>' : ''}
+              <th>الإجمالي</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${calculations.map((calc, index) => `
+              <tr>
+                <td>${index + 1}</td>
+                <td style="text-align: right; padding-right: 12px;">${calc.billboard.name}</td>
+                <td style="text-align: right; padding-right: 12px;">${calc.billboard.location}</td>
+                <td><strong>${calc.billboard.size}</strong></td>
+                <td><strong>${calc.billboard.level || 'A'}</strong></td>
+                <td>${calc.billboard.municipality}</td>
+                <td class="price-cell">${calc.basePrice.toLocaleString()} د.ل</td>
+                ${includeInstallation ? `<td class="price-cell">${calc.installationCost.toLocaleString()} د.ل</td>` : ''}
+                <td class="price-cell"><strong>${calc.totalPrice.toLocaleString()} د.ل</strong></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="section">
+        <div class="section-title">
+          💰 ملخص مالي تفصيلي
+        </div>
+        <div class="info-grid">
+          <div class="info-row">
+            <span class="info-label">إجمالي أسعار الإعلان:</span>
+            <span class="info-value">${(totalCalculation.totalPrice - totalCalculation.totalInstallation).toLocaleString()} د.ل</span>
+          </div>
+          ${includeInstallation ? `
+          <div class="info-row">
+            <span class="info-label">إجمالي تكلفة التركيب:</span>
+            <span class="info-value">${totalCalculation.totalInstallation.toLocaleString()} د.ل</span>
+          </div>
+          ` : ''}
+          <div class="info-row">
+            <span class="info-label">متوسط السعر اليومي:</span>
+            <span class="info-value">${totalCalculation.averageDailyRate.toFixed(2)} د.ل</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">إجمالي السعر اليومي:</span>
+            <span class="info-value">${totalCalculation.totalDailyRate.toFixed(2)} د.ل</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="total-section">
+        <div class="total-title">المبلغ الإجمالي النهائي</div>
+        <div class="total-amount">${totalCalculation.grandTotal.toLocaleString()} د.ل</div>
+        <div class="total-details">
+          ${selectedBillboardsData.length} لوحة إعلانية • ${totalDays} يوم • ${pricingMode === 'daily' ? 'حساب يومي' : selectedPackage}
+        </div>
+      </div>
 
       <div class="footer">
-        <p>شكراً لثقتكم في الفارس الذهبي للدعاية والإعلان</p>
-        <p>العرض صالح لمدة 30 يوماً من تاريخ الإصدار</p>
+        <p><strong>شركة الفارس الذهبي للدعاية والإعلان</strong></p>
+        <p>زليتن - ليبيا • هاتف: +218.91.322.8908</p>
+        <p>هذا عرض أسعار صالح لمدة 30 يوماً من تاريخ الإصدار</p>
       </div>
+
+      <script>
+        window.onload = function() {
+          setTimeout(function() {
+            window.print();
+            setTimeout(function() { window.close(); }, 1000);
+          }, 500);
+        };
+      </script>
     </body>
     </html>
     `
   }
 
+  // تنسيق السعر
+  const formatPrice = (price: number): string => {
+    return new Intl.NumberFormat('ar-SA').format(price) + ' د.ل'
+  }
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-6xl max-h-[95vh] overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-7xl max-h-[95vh] overflow-hidden">
         {/* Header */}
-        <div className="bg-gradient-to-r from-emerald-600 to-green-700 p-6 text-white">
+        <div className="bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 p-6 text-white">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-                <Calculator className="w-7 h-7" />
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
+                <Calculator className="w-8 h-8" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold">
-                  {calculationMode === 'multiple' ? 'حاسبة تسعير اللوحات المختارة' : 'حاسبة التسعير المبسطة'}
-                </h1>
-                <p className="text-sm opacity-90">
-                  {calculationMode === 'multiple'
-                    ? `احسب أسعار ${selectedBillboardsData.length} لوحة مختارة`
-                    : 'احسب أسعار اللوحات الإعلانية بسهولة'
+                <h1 className="text-3xl font-black mb-2">حاسبة تسعير اللوحات المختارة</h1>
+                <p className="text-lg opacity-90">
+                  {selectedBillboardsData.length > 0 
+                    ? `حساب أسعار ${selectedBillboardsData.length} لوحة مختارة`
+                    : 'لم يتم اختيار أي لوحات'
                   }
                 </p>
               </div>
@@ -498,595 +660,490 @@ const SimplifiedPricingCalculator: React.FC<SimplifiedPricingCalculatorProps> = 
               onClick={onClose}
               variant="outline"
               size="sm"
-              className="bg-white/20 border-white/30 text-white hover:bg-white/30"
+              className="bg-white/20 border-white/30 text-white hover:bg-white/30 rounded-xl"
             >
-              إغلاق
+              <X className="w-6 h-6" />
             </Button>
           </div>
         </div>
 
-        <div className="p-6 overflow-y-auto max-h-[calc(95vh-120px)]">
-          {/* رسالة إرشادية عندما لا توجد لوحات مختارة */}
-          {calculationMode === 'multiple' && selectedBillboardsData.length === 0 && (
-            <Card className="mb-6 p-6 bg-gradient-to-r from-yellow-50 to-amber-50 border-2 border-yellow-300">
+        <div className="p-6 overflow-y-auto max-h-[calc(95vh-140px)]">
+          {/* رسائل التنبيه */}
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-400 rounded-lg">
+              <div className="flex items-center gap-2 text-red-700">
+                <AlertTriangle className="w-5 h-5" />
+                <span className="font-semibold">{error}</span>
+              </div>
+            </div>
+          )}
+
+          {success && (
+            <div className="mb-6 p-4 bg-green-50 border-l-4 border-green-400 rounded-lg">
+              <div className="flex items-center gap-2 text-green-700">
+                <CheckCircle className="w-5 h-5" />
+                <span className="font-semibold">{success}</span>
+              </div>
+            </div>
+          )}
+
+          {/* تحذير عدم وجود لوحات */}
+          {selectedBillboardsData.length === 0 && (
+            <Card className="mb-6 p-8 bg-gradient-to-r from-yellow-50 to-amber-50 border-2 border-yellow-300">
               <div className="text-center">
-                <div className="w-16 h-16 bg-yellow-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <List className="w-8 h-8 text-white" />
+                <div className="w-20 h-20 bg-yellow-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <AlertTriangle className="w-10 h-10 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-yellow-900 mb-2">لا توجد لوحات مختارة</h3>
-                <p className="text-yellow-800 mb-4">
-                  لاستخدام هذه الميزة، يرجى اختيار لوحات من الصفحة الرئيسية أولاً، ثم الضغط على "حساب الأسعار"
+                <h3 className="text-2xl font-bold text-yellow-900 mb-3">لا توجد لوحات مختارة</h3>
+                <p className="text-yellow-800 text-lg mb-4">
+                  لاستخدام هذه الحاسبة، يرجى اختيار لوحات من الصفحة الرئيسية أولاً
                 </p>
-                <Button
-                  onClick={() => setCalculationMode('single')}
-                  className="bg-yellow-600 hover:bg-yellow-700 text-white"
-                >
-                  التبديل إلى الحساب المنفرد
-                </Button>
+                <div className="bg-yellow-100 p-4 rounded-lg border border-yellow-300">
+                  <h4 className="font-bold text-yellow-900 mb-2">كيفية الاستخدام:</h4>
+                  <ol className="text-yellow-800 text-sm space-y-1 text-right">
+                    <li>1. ارجع للصفحة الرئيسية</li>
+                    <li>2. اختر اللوحات المطلوبة بالضغط على مربعات الاختيار</li>
+                    <li>3. اضغط على زر "حساب الأسعار"</li>
+                    <li>4. ستفتح هذه الحاسبة تلقائياً مع اللوحات المختارة</li>
+                  </ol>
+                </div>
               </div>
             </Card>
           )}
 
-          {/* عرض اللوحات المختارة */}
-          {calculationMode === 'multiple' && selectedBillboardsData.length > 0 && (
-            <Card className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200">
-              <h3 className="text-lg font-bold text-blue-900 mb-4 flex items-center gap-2">
-                <List className="w-5 h-5" />
-                اللوحات المختارة ({selectedBillboardsData.length})
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 max-h-48 overflow-y-auto">
-                {selectedBillboardsData.map((billboard, index) => (
-                  <div
-                    key={billboard.id}
-                    className="bg-white p-3 rounded-lg border border-blue-200 shadow-sm"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
-                        {index + 1}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="font-semibold text-gray-900 text-sm truncate">
-                          {billboard.name}
-                        </div>
-                        <div className="text-xs text-gray-600 truncate">
-                          {billboard.location}
-                        </div>
-                        <div className="flex gap-2 mt-1">
-                          <Badge variant="outline" className="text-xs">
-                            {billboard.size}
-                          </Badge>
-                          <Badge variant="outline" className="text-xs">
-                            {billboard.municipality}
-                          </Badge>
-                        </div>
-                      </div>
+          {selectedBillboardsData.length > 0 && (
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+              {/* Panel الأيسر - الإعدادات */}
+              <div className="xl:col-span-1 space-y-6">
+                {/* نوع التسعير */}
+                <Card className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200">
+                  <h3 className="text-xl font-bold text-blue-900 mb-4 flex items-center gap-3">
+                    <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                      <Calculator className="w-5 h-5 text-white" />
                     </div>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-4 p-3 bg-blue-100 rounded-lg">
-                <div className="grid grid-cols-3 gap-4 text-center text-sm text-blue-800 mb-2">
-                  <div>
-                    <div className="font-bold">{[...new Set(selectedBillboardsData.map(b => b.size))].length}</div>
-                    <div>مقاسات مختلفة</div>
-                  </div>
-                  <div>
-                    <div className="font-bold">{[...new Set(selectedBillboardsData.map(b => b.municipality))].length}</div>
-                    <div>بلديات مختلفة</div>
-                  </div>
-                  <div>
-                    <div className="font-bold">{selectedBillboardsData.filter(b => b.status === 'متاح').length}</div>
-                    <div>لوحة متاحة</div>
-                  </div>
-                </div>
-                <div className="text-sm text-blue-800 text-center border-t border-blue-200 pt-2">
-                  💡 سيتم حساب سعر كل لوحة بناءً على مواصفاتها الخاصة
-                </div>
-              </div>
-            </Card>
-          )}
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Left Panel - Inputs */}
-            <div className="space-y-6">
-              {/* نمط الحساب */}
-              {selectedBillboardsData.length > 0 && (
-                <Card className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200">
-                  <h3 className="text-lg font-bold text-purple-900 mb-4 flex items-center gap-2">
-                    <Calculator className="w-5 h-5" />
-                    نمط الحساب
+                    نوع التسعير
                   </h3>
                   <div className="grid grid-cols-2 gap-3">
                     <Button
-                      onClick={() => setCalculationMode('multiple')}
+                      onClick={() => setPricingMode('daily')}
                       className={`p-4 h-auto ${
-                        calculationMode === 'multiple'
-                          ? 'bg-purple-600 text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        pricingMode === 'daily'
+                          ? 'bg-blue-600 text-white shadow-lg'
+                          : 'bg-white text-gray-700 hover:bg-blue-50 border-2 border-blue-200'
                       }`}
                     >
                       <div className="text-center">
-                        <List className="w-6 h-6 mx-auto mb-2" />
-                        <div className="font-bold">اللوحات المختارة</div>
-                        <div className="text-xs opacity-75">{selectedBillboardsData.length} لوحة</div>
+                        <Clock className="w-6 h-6 mx-auto mb-2" />
+                        <div className="font-bold">حساب يومي</div>
+                        <div className="text-xs opacity-75">حسب التواريخ</div>
                       </div>
                     </Button>
                     <Button
-                      onClick={() => setCalculationMode('single')}
+                      onClick={() => setPricingMode('package')}
                       className={`p-4 h-auto ${
-                        calculationMode === 'single'
-                          ? 'bg-purple-600 text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        pricingMode === 'package'
+                          ? 'bg-blue-600 text-white shadow-lg'
+                          : 'bg-white text-gray-700 hover:bg-blue-50 border-2 border-blue-200'
                       }`}
                     >
                       <div className="text-center">
-                        <Calculator className="w-6 h-6 mx-auto mb-2" />
-                        <div className="font-bold">حساب منفرد</div>
-                        <div className="text-xs opacity-75">لوحة واحدة</div>
+                        <Building2 className="w-6 h-6 mx-auto mb-2" />
+                        <div className="font-bold">نظام باقات</div>
+                        <div className="text-xs opacity-75">باقات ثابتة</div>
                       </div>
                     </Button>
                   </div>
                 </Card>
-              )}
-              {/* Pricing Mode Selection */}
-              <Card className="p-4">
-                <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <DollarSign className="w-5 h-5 text-emerald-600" />
-                  نوع التسعير
-                </h3>
-                <div className="grid grid-cols-2 gap-3">
-                  <Button
-                    onClick={() => setPricingMode('daily')}
-                    className={`p-4 h-auto ${
-                      pricingMode === 'daily'
-                        ? 'bg-emerald-600 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    <div className="text-center">
-                      <Clock className="w-6 h-6 mx-auto mb-2" />
-                      <div className="font-bold">تسعير يومي</div>
-                      <div className="text-xs opacity-75">حساب حسب عدد ��لأيام</div>
+
+                {/* التواريخ والمدة */}
+                <Card className="p-6 bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200">
+                  <h3 className="text-xl font-bold text-green-900 mb-4 flex items-center gap-3">
+                    <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
+                      <Calendar className="w-5 h-5 text-white" />
                     </div>
-                  </Button>
-                  <Button
-                    onClick={() => setPricingMode('package')}
-                    className={`p-4 h-auto ${
-                      pricingMode === 'package'
-                        ? 'bg-emerald-600 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    <div className="text-center">
-                      <Building2 className="w-6 h-6 mx-auto mb-2" />
-                      <div className="font-bold">باقة</div>
-                      <div className="text-xs opacity-75">أسعار الباقات الثابتة</div>
-                    </div>
-                  </Button>
-                </div>
-              </Card>
-
-              {/* Billboard Specifications */}
-              <Card className="p-4">
-                <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <Building2 className="w-5 h-5 text-blue-600" />
-                  مواصفات اللوحة
-                </h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">الم��اس</label>
-                    <select
-                      value={selectedSize}
-                      onChange={(e) => setSelectedSize(e.target.value as BillboardSize)}
-                      className="w-full p-2 border border-gray-300 rounded-lg"
-                    >
-                      {availableSizes.map(size => (
-                        <option key={size} value={size}>{size}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">المستوى</label>
-                    <select
-                      value={selectedLevel}
-                      onChange={(e) => setSelectedLevel(e.target.value as PriceListType)}
-                      className="w-full p-2 border border-gray-300 rounded-lg"
-                    >
-                      <option value="A">مستوى A (مميز)</option>
-                      <option value="B">مستوى B (عادي)</option>
-                    </select>
-                  </div>
-                </div>
-              </Card>
-
-              {/* Location and Customer */}
-              <Card className="p-4">
-                <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <MapPin className="w-5 h-5 text-orange-600" />
-                  الموقع والعميل
-                </h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">البلدية</label>
-                    <select
-                      value={selectedMunicipality}
-                      onChange={(e) => setSelectedMunicipality(e.target.value)}
-                      className="w-full p-2 border border-gray-300 rounded-lg"
-                    >
-                      {availableMunicipalities.map(municipality => (
-                        <option key={municipality} value={municipality}>{municipality}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">نوع العميل</label>
-                    <select
-                      value={selectedCustomerType}
-                      onChange={(e) => setSelectedCustomerType(e.target.value as CustomerType)}
-                      className="w-full p-2 border border-gray-300 rounded-lg"
-                    >
-                      <option value="individuals">فرد</option>
-                      <option value="companies">شركة</option>
-                      <option value="marketers">مسوق</option>
-                    </select>
-                  </div>
-                </div>
-              </Card>
-
-              {/* Duration */}
-              <Card className="p-4">
-                <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <Clock className="w-5 h-5 text-purple-600" />
-                  المدة الزمنية
-                </h3>
-                {pricingMode === 'daily' ? (
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">عدد الأيام</label>
-                    <Input
-                      type="number"
-                      value={daysCount}
-                      onChange={(e) => setDaysCount(parseInt(e.target.value) || 1)}
-                      min="1"
-                      className="w-full"
-                    />
-                  </div>
-                ) : (
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">نوع الباقة</label>
-                    <select
-                      value={packageDuration}
-                      onChange={(e) => setPackageDuration(parseInt(e.target.value))}
-                      className="w-full p-2 border border-gray-300 rounded-lg"
-                    >
-                      <option value={30}>شهر واحد</option>
-                      <option value={90}>3 أشهر</option>
-                      <option value={180}>6 أشهر</option>
-                      <option value={365}>سنة كاملة</option>
-                    </select>
-                  </div>
-                )}
-              </Card>
-
-              {/* Installation */}
-              <Card className="p-4">
-                <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <Wrench className="w-5 h-5 text-red-600" />
-                  التركيب
-                </h3>
-                <div className="space-y-3">
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={needInstallation}
-                      onChange={(e) => setNeedInstallation(e.target.checked)}
-                      className="rounded"
-                    />
-                    <span className="text-sm font-semibold">يحتاج تركيب</span>
-                  </label>
-                  {needInstallation && (
+                    {pricingMode === 'daily' ? 'التواريخ' : 'الباقة والتاريخ'}
+                  </h3>
+                  
+                  <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-1">تكلفة التركيب (د.ل)</label>
+                      <label className="block text-sm font-bold text-gray-700 mb-2">تاريخ البداية</label>
                       <Input
-                        type="number"
-                        value={installationCost}
-                        onChange={(e) => setInstallationCost(parseInt(e.target.value) || 0)}
-                        min="0"
-                        placeholder="أدخل تكلفة التركيب"
+                        type="date"
+                        value={startDate}
+                        onChange={(e) => setStartDate(e.target.value)}
+                        className="w-full text-center font-semibold"
                       />
                     </div>
-                  )}
-                </div>
-              </Card>
 
-              {/* Customer Information */}
-              <Card className="p-4">
-                <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <Users className="w-5 h-5 text-indigo-600" />
-                  معلومات العميل
-                </h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">الاسم *</label>
-                    <Input
-                      value={customerInfo.name}
-                      onChange={(e) => setCustomerInfo(prev => ({ ...prev, name: e.target.value }))}
-                      placeholder="اسم العميل"
-                    />
+                    {pricingMode === 'daily' ? (
+                      <div>
+                        <label className="block text-sm font-bold text-gray-700 mb-2">تاريخ النهاية</label>
+                        <Input
+                          type="date"
+                          value={endDate}
+                          onChange={(e) => setEndDate(e.target.value)}
+                          min={startDate}
+                          className="w-full text-center font-semibold"
+                        />
+                        <div className="mt-2 p-2 bg-green-100 rounded-lg text-center">
+                          <span className="text-sm font-bold text-green-800">
+                            المدة: {calculateDays()} يوم
+                          </span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div>
+                        <label className="block text-sm font-bold text-gray-700 mb-2">نوع الباقة</label>
+                        <select
+                          value={selectedPackage}
+                          onChange={(e) => setSelectedPackage(e.target.value as any)}
+                          className="w-full p-3 border-2 border-green-300 rounded-lg text-center font-semibold"
+                        >
+                          <option value="شهر واحد">شهر واحد (30 يوم)</option>
+                          <option value="2 أشهر">شهران (60 يوم)</option>
+                          <option value="3 أشهر">3 أشهر (90 يوم)</option>
+                          <option value="6 أشهر">6 أشهر (180 يوم)</option>
+                          <option value="سنة كاملة">سنة كاملة (365 يوم)</option>
+                        </select>
+                        <div className="mt-2 p-2 bg-green-100 rounded-lg text-center">
+                          <span className="text-sm font-bold text-green-800">
+                            المدة: {calculateDays()} يوم
+                          </span>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">الشركة</label>
-                    <Input
-                      value={customerInfo.company}
-                      onChange={(e) => setCustomerInfo(prev => ({ ...prev, company: e.target.value }))}
-                      placeholder="اسم الشركة (اختياري)"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">الهاتف</label>
-                    <Input
-                      value={customerInfo.phone}
-                      onChange={(e) => setCustomerInfo(prev => ({ ...prev, phone: e.target.value }))}
-                      placeholder="رقم الهاتف"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">البريد الإلكتروني</label>
-                    <Input
-                      value={customerInfo.email}
-                      onChange={(e) => setCustomerInfo(prev => ({ ...prev, email: e.target.value }))}
-                      placeholder="البريد الإلكتروني"
-                    />
-                  </div>
-                </div>
-              </Card>
-            </div>
+                </Card>
 
-            {/* Right Panel - Results */}
-            <div className="space-y-6">
-              {/* Multiple Billboards Results */}
-              {calculationMode === 'multiple' && multipleCalculations.length > 0 && (
-                <>
-                  {/* Individual Billboard Calculations */}
-                  <Card className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 max-h-96 overflow-y-auto">
-                    <h3 className="text-lg font-bold text-blue-900 mb-4 flex items-center gap-3">
-                      <List className="w-5 h-5" />
-                      تفصيل أسعار اللوحات
+                {/* نوع العميل */}
+                <Card className="p-6 bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200">
+                  <h3 className="text-xl font-bold text-purple-900 mb-4 flex items-center gap-3">
+                    <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
+                      <Users className="w-5 h-5 text-white" />
+                    </div>
+                    نوع العميل
+                  </h3>
+                  <select
+                    value={customerType}
+                    onChange={(e) => setCustomerType(e.target.value as any)}
+                    className="w-full p-3 border-2 border-purple-300 rounded-lg text-center font-semibold"
+                  >
+                    <option value="عادي">عادي (فرد)</option>
+                    <option value="مسوق">مسوق</option>
+                    <option value="شركات">شركات</option>
+                    <option value="المدينة">المدينة</option>
+                  </select>
+                </Card>
+
+                {/* التركيب */}
+                <Card className="p-6 bg-gradient-to-br from-orange-50 to-red-50 border-2 border-orange-200">
+                  <h3 className="text-xl font-bold text-orange-900 mb-4 flex items-center gap-3">
+                    <div className="w-8 h-8 bg-orange-600 rounded-lg flex items-center justify-center">
+                      <Wrench className="w-5 h-5 text-white" />
+                    </div>
+                    تكلفة التركيب
+                  </h3>
+                  <div className="space-y-4">
+                    <label className="flex items-center gap-3">
+                      <input
+                        type="checkbox"
+                        checked={includeInstallation}
+                        onChange={(e) => setIncludeInstallation(e.target.checked)}
+                        className="w-5 h-5 text-orange-600 rounded"
+                      />
+                      <span className="font-semibold text-gray-800">إضافة تكلفة التركيب</span>
+                    </label>
+                    
+                    {includeInstallation && (
+                      <div>
+                        <label className="block text-sm font-bold text-gray-700 mb-2">
+                          تكلفة التركيب لكل لوحة (د.ل)
+                        </label>
+                        <Input
+                          type="number"
+                          value={installationPricePerBoard}
+                          onChange={(e) => setInstallationPricePerBoard(parseInt(e.target.value) || 0)}
+                          min="0"
+                          className="w-full text-center font-semibold"
+                          placeholder="500"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </Card>
+
+                {/* معلومات العميل */}
+                <Card className="p-6 bg-gradient-to-br from-gray-50 to-slate-50 border-2 border-gray-200">
+                  <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+                    <div className="w-8 h-8 bg-gray-600 rounded-lg flex items-center justify-center">
+                      <Users className="w-5 h-5 text-white" />
+                    </div>
+                    معلومات العميل
+                  </h3>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-sm font-bold text-gray-700 mb-1">اسم العميل *</label>
+                      <Input
+                        value={customerInfo.name}
+                        onChange={(e) => setCustomerInfo(prev => ({ ...prev, name: e.target.value }))}
+                        placeholder="أدخل اسم العميل"
+                        className="w-full"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-gray-700 mb-1">الشركة</label>
+                      <Input
+                        value={customerInfo.company}
+                        onChange={(e) => setCustomerInfo(prev => ({ ...prev, company: e.target.value }))}
+                        placeholder="اسم الشركة (اختياري)"
+                        className="w-full"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-gray-700 mb-1">رقم الهاتف</label>
+                      <Input
+                        value={customerInfo.phone}
+                        onChange={(e) => setCustomerInfo(prev => ({ ...prev, phone: e.target.value }))}
+                        placeholder="رقم الهاتف"
+                        className="w-full"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-gray-700 mb-1">البريد الإلكتروني</label>
+                      <Input
+                        value={customerInfo.email}
+                        onChange={(e) => setCustomerInfo(prev => ({ ...prev, email: e.target.value }))}
+                        placeholder="البريد الإلكتروني"
+                        className="w-full"
+                      />
+                    </div>
+                  </div>
+                </Card>
+              </div>
+
+              {/* Panel الأيمن - النتائج */}
+              <div className="xl:col-span-2 space-y-6">
+                {/* اللوحات المختارة */}
+                {selectedBillboardsData.length > 0 && (
+                  <Card className="p-6 bg-gradient-to-br from-blue-50 to-cyan-50 border-2 border-blue-200">
+                    <h3 className="text-xl font-bold text-blue-900 mb-4 flex items-center gap-3">
+                      <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                        <Grid3X3 className="w-5 h-5 text-white" />
+                      </div>
+                      اللوحات المختارة ({selectedBillboardsData.length})
                     </h3>
-                    <div className="space-y-3">
-                      {multipleCalculations.map(({ billboard, calculation }, index) => (
-                        <div key={billboard.id} className="bg-white p-3 rounded-lg border border-blue-200">
-                          <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center gap-2">
-                              <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
-                                {index + 1}
-                              </div>
-                              <div>
-                                <div className="font-semibold text-gray-900 text-sm">{billboard.name}</div>
-                                <div className="text-xs text-gray-600">{billboard.size} • {billboard.municipality}</div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-64 overflow-y-auto">
+                      {selectedBillboardsData.map((billboard, index) => (
+                        <div
+                          key={billboard.id}
+                          className="bg-white p-4 rounded-xl border border-blue-200 shadow-sm hover:shadow-md transition-all"
+                        >
+                          <div className="flex items-start gap-3">
+                            <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                              {index + 1}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-bold text-gray-900 text-sm mb-1 truncate">
+                                {billboard.name}
+                              </h4>
+                              <p className="text-xs text-gray-600 mb-2 truncate">
+                                {billboard.location}
+                              </p>
+                              <div className="flex flex-wrap gap-1">
+                                <Badge variant="outline" className="text-xs bg-blue-100 text-blue-800">
+                                  {billboard.size}
+                                </Badge>
+                                <Badge variant="outline" className="text-xs bg-green-100 text-green-800">
+                                  {billboard.level || 'A'}
+                                </Badge>
+                                <Badge variant="outline" className="text-xs bg-purple-100 text-purple-800">
+                                  {billboard.municipality}
+                                </Badge>
                               </div>
                             </div>
-                            <div className="text-right">
-                              <div className="font-bold text-blue-700">{formatPrice(calculation.finalPrice)}</div>
-                              <div className="text-xs text-blue-600">يومي: {formatPrice(calculation.dailyRate)}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* إحصائيات سريعة */}
+                    <div className="mt-4 grid grid-cols-3 gap-4 p-4 bg-blue-100 rounded-lg">
+                      <div className="text-center">
+                        <div className="font-bold text-blue-900">{[...new Set(selectedBillboardsData.map(b => b.size))].length}</div>
+                        <div className="text-xs text-blue-700">مقاسات مختلفة</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="font-bold text-blue-900">{[...new Set(selectedBillboardsData.map(b => b.municipality))].length}</div>
+                        <div className="text-xs text-blue-700">بلديات مختلفة</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="font-bold text-blue-900">{selectedBillboardsData.filter(b => b.status === 'متاح').length}</div>
+                        <div className="text-xs text-blue-700">لوحة متاحة</div>
+                      </div>
+                    </div>
+                  </Card>
+                )}
+
+                {/* النتائج المالية */}
+                {calculations.length > 0 && (
+                  <Card className="p-6 bg-gradient-to-br from-emerald-50 to-green-50 border-2 border-emerald-200">
+                    <h3 className="text-xl font-bold text-emerald-900 mb-4 flex items-center gap-3">
+                      <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center">
+                        <DollarSign className="w-5 h-5 text-white" />
+                      </div>
+                      الملخص المالي
+                    </h3>
+
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center p-3 bg-white rounded-lg shadow-sm">
+                        <span className="text-gray-700 font-semibold">إجمالي أسعار الإعلان:</span>
+                        <span className="font-bold text-emerald-700">
+                          {formatPrice(totalCalculation.totalPrice - totalCalculation.totalInstallation)}
+                        </span>
+                      </div>
+
+                      {includeInstallation && totalCalculation.totalInstallation > 0 && (
+                        <div className="flex justify-between items-center p-3 bg-white rounded-lg shadow-sm">
+                          <span className="text-gray-700 font-semibold">إجمالي تكلفة التركيب:</span>
+                          <span className="font-bold text-orange-700">
+                            {formatPrice(totalCalculation.totalInstallation)}
+                          </span>
+                        </div>
+                      )}
+
+                      <div className="flex justify-between items-center p-3 bg-white rounded-lg shadow-sm">
+                        <span className="text-gray-700 font-semibold">متوسط السعر اليومي:</span>
+                        <span className="font-bold text-blue-700">
+                          {formatPrice(totalCalculation.averageDailyRate)}
+                        </span>
+                      </div>
+
+                      <div className="flex justify-between items-center p-3 bg-white rounded-lg shadow-sm">
+                        <span className="text-gray-700 font-semibold">إجمالي السعر اليومي:</span>
+                        <span className="font-bold text-purple-700">
+                          {formatPrice(totalCalculation.totalDailyRate)}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* الإجمالي النهائي */}
+                    <div className="mt-6 p-6 bg-gradient-to-r from-emerald-600 to-green-600 text-white rounded-xl text-center">
+                      <div className="text-sm opacity-90 mb-2">المبلغ الإجمالي النهائي</div>
+                      <div className="text-4xl font-black mb-2">
+                        {formatPrice(totalCalculation.grandTotal)}
+                      </div>
+                      <div className="text-sm opacity-90">
+                        {selectedBillboardsData.length} لوحة • {calculateDays()} يوم • {pricingMode === 'daily' ? 'حساب يومي' : selectedPackage}
+                      </div>
+                    </div>
+                  </Card>
+                )}
+
+                {/* أزرار العمل */}
+                <Card className="p-6">
+                  <div className="space-y-3">
+                    <Button
+                      onClick={generateQuote}
+                      disabled={!customerInfo.name.trim() || calculations.length === 0 || loading}
+                      className="w-full bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white py-4 text-lg font-bold"
+                    >
+                      <FileText className="w-6 h-6 ml-2" />
+                      إنشاء وطباعة عرض السعر
+                    </Button>
+                    
+                    <Button
+                      onClick={calculatePricing}
+                      disabled={loading || selectedBillboardsData.length === 0}
+                      variant="outline"
+                      className="w-full py-3 border-2 border-blue-300 text-blue-700 hover:bg-blue-50"
+                    >
+                      <Calculator className={`w-5 h-5 ml-2 ${loading ? 'animate-spin' : ''}`} />
+                      {loading ? 'جاري الحساب...' : 'إعادة حساب الأسعار'}
+                    </Button>
+                  </div>
+                </Card>
+              </div>
+
+              {/* تفصيل الحسابات */}
+              {calculations.length > 0 && (
+                <div className="xl:col-span-3">
+                  <Card className="p-6 bg-gradient-to-br from-gray-50 to-slate-50 border-2 border-gray-200">
+                    <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+                      <div className="w-8 h-8 bg-gray-600 rounded-lg flex items-center justify-center">
+                        <Target className="w-5 h-5 text-white" />
+                      </div>
+                      تفصيل حسابات كل لوحة
+                    </h3>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      {calculations.map((calc, index) => (
+                        <div
+                          key={calc.billboard.id}
+                          className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all"
+                        >
+                          {/* رأس اللوحة */}
+                          <div className="flex items-start gap-3 mb-4">
+                            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 text-white rounded-xl flex items-center justify-center font-bold">
+                              {index + 1}
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="font-bold text-gray-900 mb-1">{calc.billboard.name}</h4>
+                              <p className="text-sm text-gray-600 mb-2">{calc.billboard.location}</p>
+                              <div className="flex flex-wrap gap-1">
+                                <Badge className="bg-blue-100 text-blue-800 text-xs">
+                                  {calc.billboard.size}
+                                </Badge>
+                                <Badge className="bg-green-100 text-green-800 text-xs">
+                                  مستوى {calc.billboard.level || 'A'}
+                                </Badge>
+                                <Badge className="bg-purple-100 text-purple-800 text-xs">
+                                  {calc.billboard.municipality}
+                                </Badge>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* تفصيل الحساب */}
+                          <div className="space-y-2">
+                            {calc.breakdown.map((item, itemIndex) => (
+                              <div
+                                key={itemIndex}
+                                className="flex justify-between items-center p-2 bg-gray-50 rounded-lg text-sm"
+                              >
+                                <span className="text-gray-700">{item.split(':')[0]}:</span>
+                                <span className="font-bold text-gray-900">{item.split(':')[1]}</span>
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* السعر النهائي للوحة */}
+                          <div className="mt-4 p-3 bg-gradient-to-r from-emerald-100 to-green-100 rounded-lg text-center">
+                            <div className="text-sm text-emerald-800 mb-1">إجمالي هذه اللوحة</div>
+                            <div className="text-xl font-black text-emerald-900">
+                              {formatPrice(calc.totalPrice)}
+                            </div>
+                            <div className="text-xs text-emerald-700">
+                              يومي: {formatPrice(calc.dailyRate)}
                             </div>
                           </div>
                         </div>
                       ))}
                     </div>
                   </Card>
-
-                  {/* Total Calculation for Multiple Billboards */}
-                  <Card className="p-6 bg-gradient-to-br from-emerald-50 to-green-50 border-2 border-emerald-200">
-                    <h3 className="text-xl font-bold text-emerald-900 mb-4 flex items-center gap-3">
-                      <div className="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center">
-                        <Calculator className="w-6 h-6 text-white" />
-                      </div>
-                      الإجمالي النهائي
-                    </h3>
-
-                    <div className="space-y-3 mb-6">
-                      <div className="flex justify-between items-center p-3 bg-white rounded-lg shadow-sm">
-                        <span className="text-gray-700">عدد اللوحات</span>
-                        <span className="font-bold text-emerald-700">{totalCalculation.count} لوحة</span>
-                      </div>
-                      <div className="flex justify-between items-center p-3 bg-white rounded-lg shadow-sm">
-                        <span className="text-gray-700">إجمالي السعر</span>
-                        <span className="font-bold text-emerald-700">{formatPrice(totalCalculation.totalPrice)}</span>
-                      </div>
-                      <div className="flex justify-between items-center p-3 bg-white rounded-lg shadow-sm">
-                        <span className="text-gray-700">متوسط السعر اليومي</span>
-                        <span className="font-bold text-emerald-700">{formatPrice(totalCalculation.totalDailyRate / totalCalculation.count)}</span>
-                      </div>
-                    </div>
-
-                    <div className="bg-gradient-to-r from-emerald-600 to-green-600 text-white p-6 rounded-xl text-center">
-                      <div className="text-sm opacity-90 mb-2">إجمالي الحملة الإعلانية</div>
-                      <div className="text-3xl font-black">{formatPrice(totalCalculation.totalPrice)}</div>
-                      <div className="text-sm opacity-90 mt-2">
-                        لـ {totalCalculation.count} لوحة • متوسط يومي: {formatPrice(totalCalculation.totalDailyRate)}
-                      </div>
-                    </div>
-                  </Card>
-                </>
-              )}
-
-              {/* Single Billboard Calculation */}
-              {calculationMode === 'single' && calculation && (
-                <Card className="p-6 bg-gradient-to-br from-emerald-50 to-green-50 border-2 border-emerald-200">
-                  <h3 className="text-xl font-bold text-emerald-900 mb-4 flex items-center gap-3">
-                    <div className="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center">
-                      <Calculator className="w-6 h-6 text-white" />
-                    </div>
-                    حساب التسعير
-                  </h3>
-                  
-                  <div className="space-y-3 mb-6">
-                    {calculation.breakdown.map((item, index) => (
-                      <div
-                        key={index}
-                        className="flex justify-between items-center p-3 bg-white rounded-lg shadow-sm"
-                      >
-                        <span className="text-gray-700">{item.split(':')[0]}</span>
-                        <span className="font-bold text-emerald-700">{item.split(':')[1]}</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="bg-gradient-to-r from-emerald-600 to-green-600 text-white p-6 rounded-xl text-center">
-                    <div className="text-sm opacity-90 mb-2">السعر النهائي</div>
-                    <div className="text-3xl font-black">{formatPrice(calculation.finalPrice)}</div>
-                    <div className="text-sm opacity-90 mt-2">
-                      السعر اليومي: {formatPrice(calculation.dailyRate)}
-                    </div>
-                  </div>
-                </Card>
-              )}
-
-              {/* Summary */}
-              <Card className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200">
-                <h3 className="text-lg font-bold text-blue-900 mb-4 flex items-center gap-2">
-                  <FileText className="w-5 h-5" />
-                  ملخص العرض
-                </h3>
-                <div className="space-y-2 text-sm">
-                  {calculationMode === 'multiple' ? (
-                    <>
-                      <div className="flex justify-between">
-                        <span>عدد اللوحات:</span>
-                        <Badge variant="outline" className="bg-blue-100 text-blue-800">
-                          {selectedBillboardsData.length} ��وحة
-                        </Badge>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>المقاسات:</span>
-                        <div className="flex flex-wrap gap-1">
-                          {[...new Set(selectedBillboardsData.map(b => b.size))].map(size => (
-                            <Badge key={size} variant="outline" className="text-xs">
-                              {size}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>البلديات:</span>
-                        <div className="flex flex-wrap gap-1">
-                          {[...new Set(selectedBillboardsData.map(b => b.municipality))].map(municipality => (
-                            <Badge key={municipality} variant="outline" className="text-xs">
-                              {municipality}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="flex justify-between">
-                        <span>المقاس:</span>
-                        <Badge variant="outline">{selectedSize}</Badge>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>المستوى:</span>
-                        <Badge variant="outline">مستوى {selectedLevel}</Badge>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>البلدية:</span>
-                        <Badge variant="outline">{selectedMunicipality}</Badge>
-                      </div>
-                    </>
-                  )}
-                  <div className="flex justify-between">
-                    <span>نوع العميل:</span>
-                    <Badge variant="outline" className={
-                      selectedCustomerType === 'companies' ? 'bg-green-100 text-green-800' :
-                      selectedCustomerType === 'marketers' ? 'bg-blue-100 text-blue-800' :
-                      'bg-purple-100 text-purple-800'
-                    }>
-                      {selectedCustomerType === 'individuals' ? 'فرد' :
-                       selectedCustomerType === 'companies' ? 'شركة' : 'مسوق'}
-                    </Badge>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>نوع التسعير:</span>
-                    <Badge variant="outline">{pricingMode === 'daily' ? 'يومي' : 'باقة'}</Badge>
-                  </div>
-                  {pricingMode === 'daily' && (
-                    <div className="flex justify-between">
-                      <span>عدد الأيام:</span>
-                      <Badge variant="outline">{daysCount} يوم</Badge>
-                    </div>
-                  )}
-                  {pricingMode === 'package' && (
-                    <div className="flex justify-between">
-                      <span>مدة الباقة:</span>
-                      <Badge variant="outline">
-                        {packageDuration === 30 ? 'شهر' :
-                         packageDuration === 90 ? '3 أشهر' :
-                         packageDuration === 180 ? '6 أشهر' : 'سنة'}
-                      </Badge>
-                    </div>
-                  )}
-                  {needInstallation && (
-                    <div className="flex justify-between">
-                      <span>تكلفة التركيب:</span>
-                      <Badge variant="outline" className="bg-orange-100 text-orange-800">
-                        {formatPrice(installationCost)}
-                      </Badge>
-                    </div>
-                  )}
                 </div>
-              </Card>
-
-              {/* Action Buttons */}
-              <Card className="p-4">
-                <div className="space-y-3">
-                  <Button
-                    onClick={generateQuote}
-                    disabled={!customerInfo.name || (calculationMode === 'single' && !calculation) || (calculationMode === 'multiple' && multipleCalculations.length === 0)}
-                    className="w-full bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white py-3"
-                  >
-                    <FileText className="w-5 h-5 ml-2" />
-                    {calculationMode === 'multiple' ? 'إنشاء عرض حملة إعلانية' : 'إنشاء عرض سعر'}
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      const data = calculationMode === 'multiple' ? {
-                        mode: 'multiple',
-                        billboards: selectedBillboardsData.length,
-                        calculations: multipleCalculations.map(c => ({
-                          billboard: c.billboard.name,
-                          size: c.billboard.size,
-                          municipality: c.billboard.municipality,
-                          price: c.calculation.finalPrice
-                        })),
-                        total: totalCalculation,
-                        customerType: selectedCustomerType,
-                        pricingMode: pricingMode,
-                        days: pricingMode === 'daily' ? daysCount : undefined,
-                        package: pricingMode === 'package' ? packageDuration : undefined
-                      } : {
-                        mode: 'single',
-                        size: selectedSize,
-                        level: selectedLevel,
-                        municipality: selectedMunicipality,
-                        customerType: selectedCustomerType,
-                        pricingMode: pricingMode,
-                        days: pricingMode === 'daily' ? daysCount : undefined,
-                        package: pricingMode === 'package' ? packageDuration : undefined,
-                        calculation
-                      }
-                      navigator.clipboard.writeText(JSON.stringify(data, null, 2))
-                      alert('تم نسخ بيانات التسعير!')
-                    }}
-                    variant="outline"
-                    className="w-full"
-                  >
-                    <Download className="w-5 h-5 ml-2" />
-                    نسخ البيانات
-                  </Button>
-                </div>
-              </Card>
+              )}
             </div>
-          </div>
+          )}
+
+          {/* حالة التحميل */}
+          {loading && (
+            <div className="text-center py-12">
+              <div className="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full mx-auto mb-4 animate-spin"></div>
+              <p className="text-gray-700 font-bold text-lg">جاري حساب الأسعار...</p>
+              <p className="text-sm text-gray-500 mt-2">يرجى الانتظار</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
